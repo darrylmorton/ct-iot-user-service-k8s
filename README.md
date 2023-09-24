@@ -2,5 +2,10 @@
 
 ## Dev
 ```
-poetry run uvicorn main:app --reload --port 8001
+poetry run uvicorn app.main:app --reload --port 8001
+```
+
+## Test
+```
+poetry run pytest
 ```
