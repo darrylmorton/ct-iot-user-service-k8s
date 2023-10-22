@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers import users, health
+from src.routers import users, health
 
 app = FastAPI()
 
