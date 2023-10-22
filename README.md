@@ -14,10 +14,15 @@ ENVIRONMENT="DEVELOPMENT"
 
 ## Dev
 ```
-poetry run uvicorn src.main:app --reload --port 8001
+make run-dev
+```
+
+## Prod
+```
+make run
 ```
 
 ## Test
 ```
-poetry run pytest
+make test
 ```
