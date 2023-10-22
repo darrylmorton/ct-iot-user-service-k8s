@@ -7,7 +7,7 @@ poetry install
 
 ## Dev
 ```
-poetry run uvicorn app.main:app --reload --port 8001
+poetry run uvicorn src.main:app --reload --port 8001
 ```
 
 ## Test
