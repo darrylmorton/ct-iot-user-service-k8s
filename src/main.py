@@ -1,15 +1,17 @@
 import logging
-
 from fastapi import FastAPI
-from src.routers import health, users
-from .config import environment, log_level, service_name
 
+from src.routers import health
+from . import users, database, config
 
-logging.basicConfig(level=log_level)
-logging.info(f"Environment {environment}")
-logging.info(f"Service name {service_name}")
-logging.info(f"Log level {log_level}")
+logging.basicConfig(level=config.log_level)
+logging.info(f"Environment {config.environment}")
+logging.info(f"Service name {config.service_name}")
+logging.info(f"Log level {config.log_level}")
+
+database.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
+
 app.include_router(health.router)
 app.include_router(users.router)

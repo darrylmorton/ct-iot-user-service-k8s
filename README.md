@@ -1,5 +1,9 @@
 # ct-iot-user-service
 
+## Requirements
+Python 3.10.6
+Poetry 1.6.1
+
 ## Install
 ```
 poetry install
@@ -13,6 +17,7 @@ ENVIRONMENT="DEVELOPMENT"
 ```
 
 ## Dev
+Swagger docs: http://localhost:8001/docs
 ```
 make run-dev
 ```
