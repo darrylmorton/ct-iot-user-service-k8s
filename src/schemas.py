@@ -7,8 +7,8 @@ class UserBase(BaseModel):
 
 
 class User(UserBase):
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
 
 
 class UserDetailsBase(BaseModel):
@@ -20,5 +20,5 @@ class UserDetails(UserDetailsBase):
     first_name: str
     last_name: str
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True

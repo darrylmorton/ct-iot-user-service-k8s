@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  user-service-postgres-development:
-    container_name: user-service-postgres-development
+  user-service-postgres-testing:
+    container_name: user-service-postgres-testing
     image: postgres:16.0-alpine
     ports:
       - "5432:5432"
