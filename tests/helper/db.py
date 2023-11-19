@@ -1,9 +1,10 @@
+from sqlalchemy import delete
+
 from src.models import User
-from src.database import SessionLocal
+from src.database import AsyncSessionLocal
 
 
 async def cleanup():
-    db = await SessionLocal()
-    await db.query(User).delete()
+    db = AsyncSessionLocal()
+    await db.execute(delete(User))
     await db.commit()
-

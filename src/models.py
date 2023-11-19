@@ -1,13 +1,10 @@
-from datetime import datetime
+import asyncio
 
+from datetime import datetime
 from sqlalchemy import (
-    ForeignKey, create_engine, URL,
+    ForeignKey,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import (
-    MappedColumn,
-    Mapped, sessionmaker,
-)
+from sqlalchemy.orm import MappedColumn, Mapped, declarative_base
 
 from . import database
 
@@ -38,4 +35,10 @@ class UserDetails(Base):
     user_id: Mapped[int] = MappedColumn(ForeignKey("users.id"))
 
 
-Base.metadata.create_all(database.engine)
+# conn = database.engine.begin()
+# conn.run_sync(Base.meta.create_all)
+# database.engine.dispose()
+
+# database.engine.begin().run_sync(Base.meta.create_all)
+
+# asyncio.run(Base.metadata.create_all(database.engine))
