@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
@@ -9,6 +9,11 @@ class UserBase(BaseModel):
 class User(UserBase):
     class ConfigDict:
         from_attributes = True
+
+
+class UserRequest(UserBase):
+    id: int = Field(None, exclude=True)
+    password: str
 
 
 class UserDetailsBase(BaseModel):

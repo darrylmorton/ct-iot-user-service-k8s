@@ -4,7 +4,7 @@ from src.main import app
 from tests.helper.routes import mock_http_client
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_health():
     response = await mock_http_client(app, "http://test", "healthz")
 
