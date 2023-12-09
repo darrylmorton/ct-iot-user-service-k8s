@@ -1,15 +1,8 @@
-import logging
 from fastapi import FastAPI
 
-from src.routers import health, users
-from . import config
+from src.routers import healthz, users
 
-logging.basicConfig(level=config.log_level)
-logging.info(f"Environment {config.environment}")
-logging.info(f"Service name {config.service_name}")
-logging.info(f"Log level {config.log_level}")
+server = FastAPI(title="FastAPI server")
 
-app = FastAPI()
-
-app.include_router(health.router)
-app.include_router(users.router)
+server.include_router(healthz.router, include_in_schema=False)
+server.include_router(users.router, prefix="/api", tags=["users"])

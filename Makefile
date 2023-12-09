@@ -9,11 +9,11 @@ lint: fmt
 .PHONY:lint
 
 run-dev: fmt
-	poetry run uvicorn src.main:app --reload --port 8001
+	poetry run uvicorn src.main:server --reload --port 8001
 .PHONY:run-dev
 
 run: fmt
-	poetry run uvicorn src.main:app --port 8001
+	poetry run uvicorn src.main:server --port 8001
 .PHONY:run
 
 test: fmt
