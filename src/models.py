@@ -13,7 +13,6 @@ class User(Base):
     id: Mapped[int] = MappedColumn(primary_key=True, index=True)
     username: Mapped[str] = MappedColumn(unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = MappedColumn(nullable=False)
-    salt: Mapped[str] = MappedColumn(nullable=False)
     enabled: Mapped[bool] = MappedColumn(default=False)
     updated_at: Mapped[datetime] = MappedColumn(nullable=False, default=datetime.now())
     created_at: Mapped[datetime] = MappedColumn(nullable=False, default=datetime.now())

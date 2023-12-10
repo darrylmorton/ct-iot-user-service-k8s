@@ -17,6 +17,8 @@ async-sqlalchemy = "^1.0.0"
 asyncpg = "^0.29.0"
 psycopg2-binary = "^2.9.9"
 psycopg = "^3.1.13"
+bcrypt = "^4.1.1"
+email-validator = "^2.1.0.post1"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
@@ -92,7 +94,7 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-log_cli = true
+log_cli = false
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

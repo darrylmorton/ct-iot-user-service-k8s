@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class UserBase(BaseModel):
     id: int
-    username: str
+    username: EmailStr
+    # password: str = Field(min_length=8, max_length=16)
 
 
 class User(UserBase):
@@ -13,7 +14,7 @@ class User(UserBase):
 
 class UserRequest(UserBase):
     id: int = Field(None, exclude=True)
-    password: str
+    password: str = Field(min_length=8, max_length=16)
 
 
 class UserDetailsBase(BaseModel):

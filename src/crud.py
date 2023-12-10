@@ -1,4 +1,7 @@
 import logging
+from typing import Any
+
+import bcrypt
 from sqlalchemy import select
 
 from . import models, database, config, schemas
@@ -27,16 +30,16 @@ async def get_user_by_username(username: str) -> list[schemas.User]:
             return result.scalars().all()
 
 
-async def post_user(user_request: schemas.User) -> schemas.User:
-    # TODO create pashword_hash and salt
-    salt = "salt"
+async def post_user(user_request: Any) -> schemas.User:
+    logging.info(f"post_user user_request {user_request}")
+
+    password = user_request.password.encode("utf-8")
+
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
     async with database.async_session() as session:
-        user = models.User(
-            username=user_request.username,
-            password_hash=user_request.password,
-            salt=salt,
-        )
+        user = models.User(username=user_request.username, password_hash=password_hash)
 
         async with session.begin():
             session.add(user)
