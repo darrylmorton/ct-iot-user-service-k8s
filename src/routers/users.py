@@ -31,7 +31,7 @@ async def user(username: str) -> User | JSONResponse:
 
 
 @router.post("/users", response_model=User, status_code=201)
-async def user(req: Request) -> JSONResponse:
+async def user(req: Request) -> User | JSONResponse:
     request_payload = await req.json()
 
     username = UserRequest.model_validate_json(request_payload).username

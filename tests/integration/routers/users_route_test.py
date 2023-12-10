@@ -1,4 +1,5 @@
 import json
+import logging
 
 from tests.helper.routes import http_client, TEST_URL, http_post_client
 
@@ -11,6 +12,9 @@ async def test_post_user(db_cleanup):
     response = await http_post_client(TEST_URL, "/api/users", payload)
     actual_result = response.json()
 
+    logging.info("*** *** *** result", actual_result)
+
+    assert type(actual_result["id"]) is int
     assert actual_result["username"] == username
     assert response.status_code == 201
 

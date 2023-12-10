@@ -1,8 +1,10 @@
 import logging
 from typing import Any
-from sqlalchemy import select
+from sqlalchemy import select, insert, column
 
-from . import models, database
+from . import models, database, config
+
+LOGGER = logging.getLogger(config.SERVICE_NAME)
 
 
 # TODO limit and skip
@@ -26,25 +28,26 @@ async def get_user_by_username(username: str):
             return result.scalars().all()
 
 
+# TODO remove Any
 async def post_user(user_request: Any):
+    # TODO create pashword_hash and salt
     salt = "salt"
 
     async with database.async_session() as session:
-        async with session.begin():
-            user = models.User(
-                username=user_request.username,
-                password_hash=user_request.password,
-                salt=salt,
-            )
+        user = models.User(
+            username=user_request.username,
+            password_hash=user_request.password,
+            salt=salt,
+        )
 
+        async with session.begin():
             session.add(user)
             await session.commit()
 
-            await session.close()
+        await session.refresh(user)
+        await session.close()
 
-            logging.info(f"*** CRUD post_user {user}")
-
-            return user
+        return {"id": user.id, "username": user.username}
 
 
 # async def get_user_details(db: AsyncSession):
