@@ -5,9 +5,9 @@ from sqlalchemy.exc import DatabaseError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.config import SERVICE_NAME
-from src.schemas import User, UserRequest
-from src.crud import find_users, add_user, find_user_by_username
+from ..config import SERVICE_NAME
+from ..schemas import User, UserRequest
+from ..crud import find_users, add_user, find_user_by_username
 
 router = APIRouter()
 

@@ -1,5 +1,5 @@
 from src.main import server
-from tests.helper.routes import mock_http_client
+from ...helper.routes import mock_http_client
 
 
 async def test_health():

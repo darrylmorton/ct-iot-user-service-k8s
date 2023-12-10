@@ -4,40 +4,46 @@ from typing import Any
 import bcrypt
 from sqlalchemy import select
 
-from . import models, database, config, schemas
+from .config import SERVICE_NAME
+from .schemas import User
+from .database import async_session
+from .models import UserModel
 
-LOGGER = logging.getLogger(config.SERVICE_NAME)
+LOGGER = logging.getLogger(SERVICE_NAME)
 
 
 # TODO limit and skip
-async def find_users() -> list[schemas.User]:
-    async with database.async_session() as session:
+async def find_users() -> list[User]:
+    async with async_session() as session:
         async with session.begin():
-            stmt = select(models.User).limit(25)
+            stmt = select(UserModel).limit(25)
             result = await session.execute(stmt)
             await session.close()
 
             return result.scalars().all()
 
 
-async def find_user_by_username(username: str) -> schemas.User:
-    async with database.async_session() as session:
+async def find_user_by_username(username: str) -> User:
+    async with async_session() as session:
         async with session.begin():
-            stmt = select(models.User).where(models.User.username == username)
+            stmt = select(UserModel).where(UserModel.username == username)
             result = await session.execute(stmt)
             await session.close()
 
             return result.scalars().one()
 
 
-async def add_user(user_request: Any) -> schemas.User:
+async def add_user(user_request: Any) -> User:
     password = user_request.password.encode("utf-8")
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
-    async with database.async_session() as session:
-        user = models.User(username=user_request.username, password_hash=password_hash)
+    async with async_session() as session:
+        user = UserModel(
+            username=user_request.username,
+            password_hash=password_hash
+        )
 
         async with session.begin():
             session.add(user)
@@ -46,7 +52,10 @@ async def add_user(user_request: Any) -> schemas.User:
         await session.refresh(user)
         await session.close()
 
-        return schemas.User(id=user.id, username=user.username)
+        return User(
+            id=user.id,
+            username=user.username
+        )
 
 
 # async def get_user_details(db: AsyncSession):

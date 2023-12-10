@@ -4,10 +4,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import MappedColumn, Mapped
 
-from src.database import Base
+from .database import Base
 
 
-class User(Base):
+class UserModel(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = MappedColumn(primary_key=True, index=True)
@@ -18,7 +18,7 @@ class User(Base):
     created_at: Mapped[datetime] = MappedColumn(nullable=False, default=datetime.now())
 
 
-class UserDetails(Base):
+class UserDetailsModel(Base):
     __tablename__ = "user_details"
 
     id: Mapped[int] = MappedColumn(primary_key=True, index=True)

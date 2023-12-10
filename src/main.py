@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.routers import healthz, users
+from .routers import healthz, users
 
 server = FastAPI(title="FastAPI server")
 
