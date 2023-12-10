@@ -53,6 +53,5 @@ async def test_get_by_user_username():
     actual_result = response.json()
 
     assert response.status_code == 200
-    assert len(actual_result) == 1
-    assert type(actual_result[0]["id"]) is int
-    assert actual_result[0]["username"] == expected_result
+    assert type(actual_result["id"]) is int
+    assert actual_result["username"] == expected_result

@@ -10,7 +10,7 @@ LOGGER = logging.getLogger(config.SERVICE_NAME)
 
 
 # TODO limit and skip
-async def get_users() -> list[schemas.User]:
+async def find_users() -> list[schemas.User]:
     async with database.async_session() as session:
         async with session.begin():
             stmt = select(models.User).limit(25)
@@ -20,19 +20,17 @@ async def get_users() -> list[schemas.User]:
             return result.scalars().all()
 
 
-async def get_user_by_username(username: str) -> list[schemas.User]:
+async def find_user_by_username(username: str) -> schemas.User:
     async with database.async_session() as session:
         async with session.begin():
             stmt = select(models.User).where(models.User.username == username)
             result = await session.execute(stmt)
             await session.close()
 
-            return result.scalars().all()
+            return result.scalars().one()
 
 
-async def post_user(user_request: Any) -> schemas.User:
-    logging.info(f"post_user user_request {user_request}")
-
+async def add_user(user_request: Any) -> schemas.User:
     password = user_request.password.encode("utf-8")
 
     salt = bcrypt.gensalt()
