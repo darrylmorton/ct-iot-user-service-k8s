@@ -40,10 +40,7 @@ async def add_user(user_request: Any) -> User:
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
     async with async_session() as session:
-        user = UserModel(
-            username=user_request.username,
-            password_hash=password_hash
-        )
+        user = UserModel(username=user_request.username, password_hash=password_hash)
 
         async with session.begin():
             session.add(user)
@@ -52,10 +49,7 @@ async def add_user(user_request: Any) -> User:
         await session.refresh(user)
         await session.close()
 
-        return User(
-            id=user.id,
-            username=user.username
-        )
+        return User(id=user.id, username=user.username)
 
 
 # async def get_user_details(db: AsyncSession):

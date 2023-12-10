@@ -15,7 +15,7 @@ LOGGER = logging.getLogger(SERVICE_NAME)
 
 
 @router.get("/users", response_model=list[User])
-async def users() -> list[User] | JSONResponse:
+async def get_users() -> list[User] | JSONResponse:
     try:
         return await find_users()
     except DatabaseError as e:
@@ -25,7 +25,7 @@ async def users() -> list[User] | JSONResponse:
 
 
 @router.get("/users/{username}", response_model=User)
-async def user_by_username(username: str) -> User | JSONResponse:
+async def get_user_by_username(username: str) -> User | JSONResponse:
     try:
         return await find_user_by_username(username)
     except DatabaseError as e:
@@ -35,7 +35,7 @@ async def user_by_username(username: str) -> User | JSONResponse:
 
 
 @router.post("/users", response_model=User, status_code=201)
-async def users(req: Request) -> User | JSONResponse:
+async def post_user(req: Request) -> User | JSONResponse:
     request_payload = await req.json()
 
     try:
