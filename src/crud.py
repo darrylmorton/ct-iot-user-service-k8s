@@ -7,47 +7,44 @@ from . import models, database
 
 # TODO limit and skip
 async def get_users():
-    session = database.async_session()
-    session.begin()
+    async with database.async_session() as session:
+        async with session.begin():
+            stmt = select(models.User).limit(25)
+            result = await session.execute(stmt)
+            await session.close()
 
-    stmt = select(models.User).limit(25)
-    result = await session.execute(stmt)
-    await session.close()
-
-    return result.scalars().all()
+            return result.scalars().all()
 
 
 async def get_user_by_username(username: str):
-    session = database.async_session()
-    session.begin()
+    async with database.async_session() as session:
+        async with session.begin():
+            stmt = select(models.User).where(models.User.username == username)
+            result = await session.execute(stmt)
+            await session.close()
 
-    stmt = select(models.User).where(models.User.username == username)
-    result = await session.execute(stmt)
-    await session.close()
-
-    return result.scalars().all()
+            return result.scalars().all()
 
 
 async def post_user(user_request: Any):
     salt = "salt"
 
-    session = database.async_session()
-    session.begin()
+    async with database.async_session() as session:
+        async with session.begin():
+            user = models.User(
+                username=user_request.username,
+                password_hash=user_request.password,
+                salt=salt,
+            )
 
-    user = models.User(
-        username=user_request.username,
-        password_hash=user_request.password,
-        salt=salt,
-    )
+            session.add(user)
+            await session.commit()
 
-    session.add(user)
-    await session.commit()
+            await session.close()
 
-    await session.close()
+            logging.info(f"*** CRUD post_user {user}")
 
-    logging.info(f"*** CRUD post_user {user}")
-
-    return user
+            return user
 
 
 # async def get_user_details(db: AsyncSession):
