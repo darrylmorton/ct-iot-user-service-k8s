@@ -1,14 +1,13 @@
 import logging
-from typing import Any
-from sqlalchemy import select, insert, column
+from sqlalchemy import select
 
-from . import models, database, config
+from . import models, database, config, schemas
 
 LOGGER = logging.getLogger(config.SERVICE_NAME)
 
 
 # TODO limit and skip
-async def get_users():
+async def get_users() -> list[schemas.User]:
     async with database.async_session() as session:
         async with session.begin():
             stmt = select(models.User).limit(25)
@@ -18,7 +17,7 @@ async def get_users():
             return result.scalars().all()
 
 
-async def get_user_by_username(username: str):
+async def get_user_by_username(username: str) -> list[schemas.User]:
     async with database.async_session() as session:
         async with session.begin():
             stmt = select(models.User).where(models.User.username == username)
@@ -28,8 +27,7 @@ async def get_user_by_username(username: str):
             return result.scalars().all()
 
 
-# TODO remove Any
-async def post_user(user_request: Any):
+async def post_user(user_request: schemas.User) -> schemas.User:
     # TODO create pashword_hash and salt
     salt = "salt"
 
@@ -47,7 +45,7 @@ async def post_user(user_request: Any):
         await session.refresh(user)
         await session.close()
 
-        return {"id": user.id, "username": user.username}
+        return schemas.User(id=user.id, username=user.username)
 
 
 # async def get_user_details(db: AsyncSession):

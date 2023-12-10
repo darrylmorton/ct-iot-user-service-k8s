@@ -21,7 +21,7 @@ async def users() -> list[User] | JSONResponse:
 
 
 @router.get("/users/{username}", response_model=list[User])
-async def user(username: str) -> User | JSONResponse:
+async def user(username: str) -> list[User] | JSONResponse:
     try:
         return await get_user_by_username(username)
     except DatabaseError as e:
