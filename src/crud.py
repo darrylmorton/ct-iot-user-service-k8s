@@ -1,11 +1,9 @@
 import logging
-from typing import Any
-
 import bcrypt
 from sqlalchemy import select
 
 from .config import SERVICE_NAME
-from .schemas import User
+from .schemas import User, UserRequest
 from .database import async_session
 from .models import UserModel
 
@@ -33,7 +31,7 @@ async def find_user_by_username(username: str) -> User:
             return result.scalars().one()
 
 
-async def add_user(user_request: Any) -> User:
+async def add_user(user_request: UserRequest) -> User:
     password = user_request.password.encode("utf-8")
 
     salt = bcrypt.gensalt()
