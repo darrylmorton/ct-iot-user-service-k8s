@@ -1,4 +1,5 @@
 import logging
+
 from fastapi import APIRouter
 from pydantic import ValidationError
 from sqlalchemy.exc import DatabaseError
@@ -19,7 +20,7 @@ async def get_users() -> list[User] | JSONResponse:
     try:
         return await find_users()
     except DatabaseError as e:
-        LOGGER.error(f"users error {e}")
+        LOGGER.error(f"get_users database error {e}")
 
         return JSONResponse(status_code=500, content="Database error")
 
@@ -28,8 +29,8 @@ async def get_users() -> list[User] | JSONResponse:
 async def get_user_by_username(username: str) -> User | JSONResponse:
     try:
         return await find_user_by_username(username)
-    except DatabaseError as e:
-        LOGGER.error(f"user_by_username error {e}")
+    except DatabaseError as error:
+        LOGGER.error(f"get_user_by_username database error {error}")
 
         return JSONResponse(status_code=500, content="Database error")
 
@@ -42,12 +43,19 @@ async def post_user(req: Request) -> User | JSONResponse:
         username = UserRequest.model_validate_json(request_payload).username
         password = UserRequest.model_validate_json(request_payload).password
 
-        user_request = UserRequest(username=username, password=password)
+        username_exists = await find_user_by_username(username)
 
-        return await add_user(user_request)
+        if username_exists:
+            LOGGER.debug("post_user username exists")
+
+            return JSONResponse(status_code=409, content="Username exists")
+
+        return await add_user(username, password)
     except ValidationError:
+        LOGGER.debug("post_user validation error")
+
         return JSONResponse(status_code=400, content="Invalid username or password")
     except DatabaseError as error:
-        LOGGER.error(f"post users error {error}")
+        LOGGER.error(f"post_user database error {error}")
 
         return JSONResponse(status_code=500, content="Database error")

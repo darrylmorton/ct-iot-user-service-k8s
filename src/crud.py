@@ -1,9 +1,11 @@
 import logging
 import bcrypt
+
 from sqlalchemy import select
+from starlette.responses import JSONResponse
 
 from .config import SERVICE_NAME
-from .schemas import User, UserRequest
+from .schemas import User
 from .database import async_session
 from .models import UserModel
 
@@ -28,17 +30,17 @@ async def find_user_by_username(username: str) -> User:
             result = await session.execute(stmt)
             await session.close()
 
-            return result.scalars().one()
+            return result.scalars().first()
 
 
-async def add_user(user_request: UserRequest) -> User:
-    password = user_request.password.encode("utf-8")
+async def add_user(_username: str, _password: str) -> JSONResponse | User:
+    password = _password.encode("utf-8")
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
     async with async_session() as session:
-        user = UserModel(username=user_request.username, password_hash=password_hash)
+        user = UserModel(username=_username, password_hash=password_hash)
 
         async with session.begin():
             session.add(user)

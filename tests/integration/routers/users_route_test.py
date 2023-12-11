@@ -3,7 +3,7 @@ import json
 from ...helper.routes import http_client, TEST_URL, http_post_client
 
 
-async def test_post_user_invalid_username(db_cleanup):
+async def test_post_user_invalid_username():
     username = "foo"
     payload = json.dumps({"username": username, "password": "barbarba"})
 
@@ -12,7 +12,7 @@ async def test_post_user_invalid_username(db_cleanup):
     assert response.status_code == 400
 
 
-async def test_post_user_invalid_password(db_cleanup):
+async def test_post_user_invalid_password():
     username = "foo@home.com"
     payload = json.dumps({"username": username, "password": "barbarb"})
 
@@ -31,6 +31,15 @@ async def test_post_user(db_cleanup):
     assert response.status_code == 201
     assert type(actual_result["id"]) is int
     assert actual_result["username"] == username
+
+
+async def test_post_user_exists():
+    username = "foo@home.com"
+    payload = json.dumps({"username": username, "password": "barbarba"})
+
+    response = await http_post_client(TEST_URL, "/api/users", payload)
+
+    assert response.status_code == 409
 
 
 async def test_get_users():
