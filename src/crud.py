@@ -12,11 +12,10 @@ from .models import UserModel
 LOGGER = logging.getLogger(SERVICE_NAME)
 
 
-# TODO limit and skip
-async def find_users() -> list[User]:
+async def find_users(offset=0) -> list[User]:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).limit(25)
+            stmt = select(UserModel).limit(25).offset(offset)
             result = await session.execute(stmt)
             await session.close()
 

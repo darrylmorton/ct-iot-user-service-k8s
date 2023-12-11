@@ -16,9 +16,16 @@ LOGGER = logging.getLogger(SERVICE_NAME)
 
 
 @router.get("/users", response_model=list[User])
-async def get_users() -> list[User] | JSONResponse:
+async def get_users(req: Request) -> list[User] | JSONResponse:
+    offset = req.query_params.get("offset")
+
+    if offset and offset.isnumeric():
+        offset = int(offset)
+    else:
+        offset = 0
+
     try:
-        return await find_users()
+        return await find_users(offset)
     except DatabaseError as e:
         LOGGER.error(f"get_users database error {e}")
 

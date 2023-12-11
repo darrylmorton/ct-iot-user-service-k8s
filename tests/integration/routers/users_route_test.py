@@ -54,6 +54,14 @@ async def test_get_users():
     assert actual_result[0]["username"] == expected_result
 
 
+async def test_get_users_offset():
+    response = await http_client(TEST_URL, "/api/users?offset=1")
+    actual_result = response.json()
+
+    assert response.status_code == 200
+    # assert len(actual_result) == 0
+
+
 async def test_get_by_user_username():
     expected_result = "foo@home.com"
 
