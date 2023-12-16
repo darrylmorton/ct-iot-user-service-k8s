@@ -22,7 +22,7 @@ async def find_users(offset=0) -> list[User]:
             return result.scalars().all()
 
 
-async def find_user_by_username(username: str) -> User:
+async def find_by_username(username: str) -> User:
     async with async_session() as session:
         async with session.begin():
             stmt = select(UserModel).where(UserModel.username == username)
@@ -49,6 +49,31 @@ async def add_user(_username: str, _password: str) -> JSONResponse | User:
         await session.close()
 
         return User(id=user.id, username=user.username)
+
+
+async def authorise(_username: str, _password: str) -> bool:
+    async with async_session() as session:
+        async with session.begin():
+            stmt = select(UserModel).where(UserModel.username == _username)
+            result = await session.execute(stmt)
+
+            user = result.scalars().first()
+            logging.info(f"*** crud authorise user: {user}")
+
+            if user:
+                password = _password.encode("utf-8")
+                password_hash = user.password_hash.encode("utf-8")
+
+                password_match = bcrypt.checkpw(password, password_hash)
+
+                if password_match:
+                    logging.info(f"*** crud authorise password_match: {password_match}")
+
+                    return True
+
+            logging.info(f"*** crud authorise FALSE")
+
+            return False
 
 
 # async def get_user_details(db: AsyncSession):

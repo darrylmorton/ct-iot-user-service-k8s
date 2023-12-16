@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 
 from ..config import SERVICE_NAME
 from ..schemas import User, UserRequest
-from ..crud import find_users, add_user, find_user_by_username
+from ..crud import find_users, add_user, find_by_username
 
 router = APIRouter()
 
@@ -35,7 +35,7 @@ async def get_users(req: Request) -> list[User] | JSONResponse:
 @router.get("/users/{username}", response_model=User)
 async def get_user_by_username(username: str) -> User | JSONResponse:
     try:
-        return await find_user_by_username(username)
+        return await find_by_username(username)
     except DatabaseError as error:
         LOGGER.error(f"get_user_by_username database error {error}")
 
@@ -50,7 +50,7 @@ async def post_user(req: Request) -> User | JSONResponse:
         username = UserRequest.model_validate_json(request_payload).username
         password = UserRequest.model_validate_json(request_payload).password
 
-        username_exists = await find_user_by_username(username)
+        username_exists = await find_by_username(username)
 
         if username_exists:
             LOGGER.debug("post_user username exists")

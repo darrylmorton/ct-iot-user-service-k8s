@@ -59,7 +59,7 @@ async def test_get_users_offset():
     actual_result = response.json()
 
     assert response.status_code == 200
-    # assert len(actual_result) == 0
+    assert len(actual_result) == 0
 
 
 async def test_get_by_user_username():
