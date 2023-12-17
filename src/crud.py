@@ -5,7 +5,7 @@ from sqlalchemy import select
 from starlette.responses import JSONResponse
 
 from .config import SERVICE_NAME
-from .schemas import User
+from .schemas import User, UserAuthenticated
 from .database import async_session
 from .models import UserModel
 
@@ -51,29 +51,34 @@ async def add_user(_username: str, _password: str) -> JSONResponse | User:
         return User(id=user.id, username=user.username)
 
 
-async def authorise(_username: str, _password: str) -> bool:
+async def authorise(_username: str, _password: str) -> UserAuthenticated:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).where(UserModel.username == _username)
+            stmt = select(UserModel).where(
+                UserModel.username == _username
+            )
             result = await session.execute(stmt)
 
             user = result.scalars().first()
-            logging.info(f"*** crud authorise user: {user}")
+            # print(f"*** crud authorise user: {user.enabled}")
 
             if user:
                 password = _password.encode("utf-8")
                 password_hash = user.password_hash.encode("utf-8")
 
                 password_match = bcrypt.checkpw(password, password_hash)
+                print(f"*** crud authorise password_match: {password_match}")
 
                 if password_match:
-                    logging.info(f"*** crud authorise password_match: {password_match}")
+                    LOGGER.info(f"*** crud authorise password_match: {password_match}")
 
-                    return True
+                    return UserAuthenticated(
+                        id=user.id, username=user.username, enabled=user.enabled
+                    )
 
-            logging.info(f"*** crud authorise FALSE")
+            LOGGER.info(f"*** crud authorise FALSE")
 
-            return False
+            return UserAuthenticated()
 
 
 # async def get_user_details(db: AsyncSession):

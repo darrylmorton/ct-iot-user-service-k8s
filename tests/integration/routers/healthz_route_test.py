@@ -1,4 +1,4 @@
-from tests.helper.routes import TEST_URL, http_client
+from tests.helper.routes_helper import TEST_URL, http_client
 
 
 async def test_healthz():

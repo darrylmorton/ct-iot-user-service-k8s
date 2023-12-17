@@ -10,9 +10,9 @@ from ..config import SERVICE_NAME
 from ..schemas import User, UserRequest
 from ..crud import find_users, add_user, find_by_username
 
-router = APIRouter()
-
 LOGGER = logging.getLogger(SERVICE_NAME)
+
+router = APIRouter()
 
 
 @router.get("/users", response_model=list[User])

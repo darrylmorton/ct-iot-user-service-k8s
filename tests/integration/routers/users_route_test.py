@@ -1,6 +1,6 @@
 import json
 
-from ...helper.routes import http_client, TEST_URL, http_post_client
+from ...helper.routes_helper import http_client, TEST_URL, http_post_client
 
 
 async def test_post_user_invalid_username():

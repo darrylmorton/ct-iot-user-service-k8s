@@ -9,7 +9,7 @@ lint: fmt
 .PHONY:lint
 
 run-dev: fmt
-	poetry run uvicorn src.main:server --reload --port 8001
+	poetry run uvicorn --log-level=debug src.main:server --reload --port 8001
 .PHONY:run-dev
 
 run: fmt

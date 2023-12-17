@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr
+from pydantic_core.core_schema import ModelField, model_field
 
 
 class UserBase(BaseModel):
@@ -7,6 +8,13 @@ class UserBase(BaseModel):
 
 
 class User(UserBase):
+    class ConfigDict:
+        from_attributes = True
+
+
+class UserAuthenticated(UserBase):
+    enabled: bool
+
     class ConfigDict:
         from_attributes = True
 
