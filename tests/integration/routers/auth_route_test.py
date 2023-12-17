@@ -12,7 +12,7 @@ import pytest
 # from fastapi import HTTPException
 # from jwt import ExpiredSignatureError
 
-from ...helper.user_helper import create_user_payload, add_test_user
+from ...helper.user_helper import create_user_payload
 from src.config import JWT_SECRET
 from ...helper.routes_helper import TEST_URL, http_post_client
 
@@ -102,14 +102,15 @@ async def test_post_login_invalid_password():
     assert response.status_code == 401
 
 
-# @pytest.mark.asyncio
-async def test_post_login_user(db_cleanup):
+@pytest.mark.parametrize('add_test_user', [[{
+    "username": "foo@home.com",
+    "password": "barbarba",
+    "enabled": True
+}]], indirect=True)
+async def test_post_login_user(db_cleanup, add_test_user):
     username = "foo@home.com"
     password = "barbarba"
     payload = create_user_payload(username, password)
-
-    user_enabled = await add_test_user(username, password, True)
-    print(f"test - response user_enabled {user_enabled}")
 
     response = await http_post_client(TEST_URL, "/api/login", payload)
     response_json = response.json()
@@ -120,16 +121,16 @@ async def test_post_login_user(db_cleanup):
     assert actual_result["username"] == username
 
 
-async def test_post_login_user_not_enabled(db_cleanup):
-    username = "foo@home.com"
-    password = "barbarba"
-    payload = create_user_payload(username, password)
-
-    # await http_post_client(TEST_URL, "/api/signup", payload)
-    await add_test_user(username, password)
-    response = await http_post_client(TEST_URL, "/api/login", payload)
-
-    assert response.status_code == 403
+# async def test_post_login_user_not_enabled(db_cleanup, add_test_user):
+#     username = "foo@home.com"
+#     password = "barbarba"
+#     payload = create_user_payload(username, password)
+#
+#     # await http_post_client(TEST_URL, "/api/signup", payload)
+#     await add_test_user(username, password)
+#     response = await http_post_client(TEST_URL, "/api/login", payload)
+#
+#     assert response.status_code == 403
 
 
 # @patch("src.routers.auth.create_token_expiry")

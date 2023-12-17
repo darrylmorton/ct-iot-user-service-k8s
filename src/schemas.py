@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field, EmailStr
-from pydantic_core.core_schema import ModelField, model_field
 
 
 class UserBase(BaseModel):
