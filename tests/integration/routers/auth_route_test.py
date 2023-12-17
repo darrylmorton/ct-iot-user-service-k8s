@@ -5,6 +5,9 @@ import logging
 from unittest.mock import patch, MagicMock
 
 import jwt
+import pytest
+
+# from tests.conftest import add_test_user
 # import pytest
 # from fastapi import HTTPException
 # from jwt import ExpiredSignatureError
@@ -99,6 +102,7 @@ async def test_post_login_invalid_password():
     assert response.status_code == 401
 
 
+# @pytest.mark.asyncio
 async def test_post_login_user(db_cleanup):
     username = "foo@home.com"
     password = "barbarba"

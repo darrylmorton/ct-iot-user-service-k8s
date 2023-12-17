@@ -2,14 +2,23 @@ import json
 
 import bcrypt
 
+from tests.database import async_session
 from src.schemas import User
 from src.models import UserModel
-from src.database import async_session
+# from ..database import async_session
+# from src.database import get_db
 
 
 def create_user_payload(_username: str, _password: str):
     return json.dumps({"username": _username, "password": _password})
     # return {"username": _username, "password": _password}
+
+
+# async def delete_users():
+#     async with async_session() as session:
+#         async with session.begin():
+#             session.delete(UserModel)
+#             await session.commit()
 
 
 async def add_test_user(_username: str, _password: str, _enabled=False):
@@ -18,12 +27,11 @@ async def add_test_user(_username: str, _password: str, _enabled=False):
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
+    user = UserModel(
+        username=_username, password_hash=password_hash, enabled=_enabled
+    )
 
     async with async_session() as session:
-        user = UserModel(
-            username=_username, password_hash=password_hash, enabled=_enabled
-        )
-
         async with session.begin():
             session.add(user)
             await session.commit()

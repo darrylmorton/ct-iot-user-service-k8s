@@ -54,9 +54,7 @@ async def add_user(_username: str, _password: str) -> JSONResponse | User:
 async def authorise(_username: str, _password: str) -> UserAuthenticated:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).where(
-                UserModel.username == _username
-            )
+            stmt = select(UserModel).where(UserModel.username == _username)
             result = await session.execute(stmt)
 
             user = result.scalars().first()
