@@ -1,5 +1,4 @@
 import asyncio
-
 import bcrypt
 import pytest
 from sqlalchemy import delete
@@ -45,44 +44,3 @@ async def add_test_user(request):
         await session.close()
 
         return User(id=user.id, username=user.username, enabled=user_request["enabled"])
-
-
-# async def add_test_user(_username: str, _password: str, _enabled=False):
-#     # user = create_user(_username, _password, _enabled)
-#     password = _password.encode("utf-8")
-#
-#     salt = bcrypt.gensalt()
-#     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
-#     # user = UserModel(username=_username, password_hash=password_hash, enabled=_enabled)
-
-
-# engine = async_engine
-#
-# async with engine.begin() as conn:
-#     await conn.execute(add(UserModel(username=_username, password_hash=password_hash, enabled=_enabled)))
-#
-# await engine.dispose()
-
-# async with async_session() as session:
-#     user = UserModel(
-#         username=_username, password_hash=password_hash, enabled=_enabled
-#     )
-#
-#     async with session.begin():
-#         session.add(user)
-#         await session.commit()
-#
-#     await session.refresh(user)
-#     await session.close()
-#
-#     return User(id=user.id, username=user.username, enabled=_enabled)
-
-# async def db_user_enabled():
-#     user = create_user(_enabled=True)
-#     user = await add_user(_username=user.username, _password=user.password)
-#     engine = async_engine
-#
-#     async with engine.begin() as conn:
-#         await conn.execute(add(user))
-#
-#     await engine.dispose()
