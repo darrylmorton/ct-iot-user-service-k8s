@@ -9,7 +9,7 @@ from .schemas import User, UserAuthenticated
 from .database import async_session
 from .models import UserModel
 
-LOGGER = logging.getLogger(SERVICE_NAME)
+logger = logging.getLogger(SERVICE_NAME)
 
 
 async def find_users(offset=0) -> list[User]:
@@ -68,13 +68,13 @@ async def authorise(_username: str, _password: str) -> UserAuthenticated:
                 print(f"*** crud authorise password_match: {password_match}")
 
                 if password_match:
-                    LOGGER.info(f"*** crud authorise password_match: {password_match}")
+                    logger.info(f"*** crud authorise password_match: {password_match}")
 
                     return UserAuthenticated(
                         id=user.id, username=user.username, enabled=user.enabled
                     )
 
-            LOGGER.info(f"*** crud authorise FALSE")
+            logger.info(f"*** crud authorise FALSE")
 
             return UserAuthenticated()
 

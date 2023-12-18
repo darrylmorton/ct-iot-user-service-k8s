@@ -22,7 +22,8 @@ psycopg2-binary = "^2.9.9"
 psycopg = "^3.1.13"
 bcrypt = "^4.1.1"
 email-validator = "^2.1.0.post1"
-pyjwt = "^2.8.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+cryptography = "^41.0.7"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"

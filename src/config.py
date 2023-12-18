@@ -1,5 +1,3 @@
-import logging
-from fastapi.logger import logger as fastapi_logger
 import os
 from dotenv import load_dotenv
 
@@ -17,12 +15,7 @@ DATABASE_URL = "postgresql+asyncpg://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_P
     DB_NAME=os.environ.get("DB_NAME"),
 )
 
+JWT_EXCLUDED_ENDPOINTS = ["/healthz", "/api/signup", "/api/login"]
+
 JWT_SECRET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 JWT_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7
-
-# LOGGER = logging.getLogger("gunicorn.info")
-# fastapi_logger.handlers = LOGGER.handlers
-# fastapi_logger.setLevel(LOGGER.level)
-
-# LOGGER = logging.getLogger(__name__)
-# LOGGER.setLevel(logging.DEBUG)

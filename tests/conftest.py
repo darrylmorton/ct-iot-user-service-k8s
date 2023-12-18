@@ -16,7 +16,7 @@ def event_loop(request):
     loop.close()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 async def db_cleanup():
     async with async_session() as session:
         async with session.begin():
@@ -33,7 +33,11 @@ async def add_test_user(request):
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
-    user = UserModel(username=user_request["username"], password_hash=password_hash, enabled=user_request["enabled"])
+    user = UserModel(
+        username=user_request["username"],
+        password_hash=password_hash,
+        enabled=user_request["enabled"],
+    )
 
     async with async_session() as session:
         async with session.begin():

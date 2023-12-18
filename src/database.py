@@ -12,6 +12,7 @@ async_session = async_sessionmaker(async_engine, expire_on_commit=False, autoflu
 Base = declarative_base()
 
 
+# TODO try to use this or remove
 async def get_db() -> AsyncSession:
     async with async_session() as session:
         yield session
