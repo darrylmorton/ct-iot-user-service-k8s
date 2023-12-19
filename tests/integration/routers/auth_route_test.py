@@ -3,31 +3,42 @@ import pytest
 from jose import jwt
 
 from src.config import JWT_SECRET
-from ...helper.user_helper import create_user_payload
+from ...helper.user_helper import create_signup_payload
 from ...helper.routes_helper import TEST_URL, http_post_client
 
 username = "foo@home.com"
 password = "barbarba"
+first_name = "Foo"
+last_name = "Bar"
 
 
 class TestAuthRoute:
     async def test_post_signup_invalid_username(self):
         _username = "foo"
-        payload = create_user_payload(_username, password)
+        payload = create_signup_payload(_username=_username)
 
         response = await http_post_client(TEST_URL, "/api/signup", payload)
 
-        assert response.status_code == 400
+        assert response.status_code == 422
 
     async def test_post_signup_invalid_password(self):
-        payload = create_user_payload(username, "barbarb")
+        payload = create_signup_payload(_password="barbarb")
 
         response = await http_post_client(TEST_URL, "/api/signup", payload)
 
-        assert response.status_code == 400
+        assert response.status_code == 422
+
+    async def test_post_signup(self, db_cleanup):
+        payload = create_signup_payload()
+
+        response = await http_post_client(TEST_URL, "/api/signup", payload)
+        actual_result = response.json()
+
+        assert response.status_code == 201
+        assert actual_result["username"] == username
 
     async def test_post_signup_user_exists(self):
-        payload = create_user_payload()
+        payload = create_signup_payload()
 
         response = await http_post_client(TEST_URL, "/api/signup", payload)
 
@@ -35,14 +46,14 @@ class TestAuthRoute:
 
     async def test_post_login_invalid_username(self):
         _username = "foo"
-        payload = create_user_payload(_username, password)
+        payload = create_signup_payload(_username)
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
 
         assert response.status_code == 401
 
     async def test_post_login_invalid_password(self):
-        payload = create_user_payload(username, "barbarb")
+        payload = create_signup_payload(_password="barbarb")
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
 
@@ -50,11 +61,11 @@ class TestAuthRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[{"username": username, "password": password, "enabled": True}]],
+        [[create_signup_payload(_enabled=True)]],
         indirect=True,
     )
     async def test_post_login_user(self, db_cleanup, add_test_user):
-        payload = create_user_payload()
+        payload = create_signup_payload()
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
         response_json = response.json()

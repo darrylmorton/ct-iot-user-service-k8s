@@ -3,8 +3,8 @@ import bcrypt
 import pytest
 from sqlalchemy import delete
 
-from src.schemas import User
-from src.models import UserModel
+from src.schemas import User, UserDetails
+from src.models import UserModel, UserDetailsModel
 from tests.database import async_session
 
 
@@ -20,11 +20,14 @@ def event_loop(request):
 async def db_cleanup():
     async with async_session() as session:
         async with session.begin():
+            await session.execute(delete(UserDetailsModel))
             await session.execute(delete(UserModel))
             await session.commit()
             await session.close()
 
 
+# TODO separate into 2 fixtures?
+#   this could be problematic with parameters?
 @pytest.fixture(scope="function")
 async def add_test_user(request):
     user_request = request.param[0]
@@ -39,7 +42,7 @@ async def add_test_user(request):
         enabled=user_request["enabled"],
     )
 
-    async with async_session() as session:
+    async with (async_session() as session):
         async with session.begin():
             session.add(user)
             await session.commit()
@@ -47,4 +50,27 @@ async def add_test_user(request):
         await session.refresh(user)
         await session.close()
 
-        return User(id=user.id, username=user.username, enabled=user_request["enabled"])
+    user_details = UserDetailsModel(
+        user_id=user.id,
+        first_name=user_request["first_name"],
+        last_name=user_request["last_name"],
+    )
+
+    async with (async_session() as session):
+        async with session.begin():
+            session.add(user_details)
+            await session.commit()
+
+        await session.refresh(user)
+        await session.close()
+
+    return User(
+        id=user_details.id,
+        username=user.username,
+        enabled=user_request["enabled"]
+    )
+        # , UserDetails(
+        #     user_id=user.id,
+        #     first_name=user_details.first_name,
+        #     last_name=user_details.last_name
+        # )

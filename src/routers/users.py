@@ -1,14 +1,12 @@
 import logging
-
 from fastapi import APIRouter
-from pydantic import ValidationError
 from sqlalchemy.exc import DatabaseError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from ..config import SERVICE_NAME
-from ..schemas import User, UserRequest
-from ..crud import find_users, add_user, find_by_username
+from ..schemas import User
+from ..crud import find_users, find_user_by_username
 
 LOGGER = logging.getLogger(SERVICE_NAME)
 
@@ -35,75 +33,75 @@ async def get_users(req: Request) -> list[User] | JSONResponse:
 @router.get("/users/{username}", response_model=User)
 async def get_user_by_username(username: str) -> User | JSONResponse:
     try:
-        return await find_by_username(username)
+        return await find_user_by_username(username)
     except DatabaseError as error:
         LOGGER.error(f"get_user_by_username database error {error}")
 
         return JSONResponse(status_code=500, content="Database error")
 
 
-@router.post("/users", response_model=User, status_code=201)
-async def post_user(req: Request) -> User | JSONResponse:
-    request_payload = await req.json()
+# @router.post("/users", response_model=User, status_code=201)
+# async def post_user(req: Request) -> User | JSONResponse:
+#     request_payload = await req.json()
+#
+#     try:
+#         username = UserRequest.model_validate_json(request_payload).username
+#         password = UserRequest.model_validate_json(request_payload).password
+#
+#         username_exists = await find_by_username(username)
+#
+#         if username_exists:
+#             LOGGER.debug("post_user username exists")
+#
+#             return JSONResponse(status_code=409, content="Username exists")
+#
+#         return await add_user(username, password)
+#     except ValidationError:
+#         LOGGER.debug("post_user validation error")
+#
+#         return JSONResponse(status_code=400, content="Invalid username or password")
+#     except DatabaseError as error:
+#         LOGGER.error(f"post_user database error {error}")
+#
+#         return JSONResponse(status_code=500, content="Database error")
 
-    try:
-        username = UserRequest.model_validate_json(request_payload).username
-        password = UserRequest.model_validate_json(request_payload).password
+# async def test_post_signup_user_not_enabled(db_cleanup):
+#     username = "foo@home.com"
+#     password = "barbarba"
+#     payload = create_user_payload(username, password)
+#
+#     # mock_function.return_value = MagicMock(await add_test_user(username, password))
+#
+#     response = await http_post_client(TEST_URL, "/api/signup", payload)
+#     # actual_result = response.json()
+#
+#     assert response.status_code == 403
 
-        username_exists = await find_by_username(username)
+# @patch("src.routers.auth.add_user")
+# async def test_post_signup_user_enabled(mock_function, db_cleanup):
+#     username = "foo@home.com"
+#     password = "barbarba"
+#     payload = create_user_payload(username, password)
+#
+#     mock_function.return_value = MagicMock(await add_test_user(username, password))
+#
+#     response = await http_post_client(TEST_URL, "/api/signup", payload)
+#     actual_result = response.json()
+#
+#     assert response.status_code == 201
+#     assert type(actual_result["id"]) is int
+#     assert actual_result["username"] == username
 
-        if username_exists:
-            LOGGER.debug("post_user username exists")
-
-            return JSONResponse(status_code=409, content="Username exists")
-
-        return await add_user(username, password)
-    except ValidationError:
-        LOGGER.debug("post_user validation error")
-
-        return JSONResponse(status_code=400, content="Invalid username or password")
-    except DatabaseError as error:
-        LOGGER.error(f"post_user database error {error}")
-
-        return JSONResponse(status_code=500, content="Database error")
-
-    # async def test_post_signup_user_not_enabled(db_cleanup):
-    #     username = "foo@home.com"
-    #     password = "barbarba"
-    #     payload = create_user_payload(username, password)
-    #
-    #     # mock_function.return_value = MagicMock(await add_test_user(username, password))
-    #
-    #     response = await http_post_client(TEST_URL, "/api/signup", payload)
-    #     # actual_result = response.json()
-    #
-    #     assert response.status_code == 403
-
-    # @patch("src.routers.auth.add_user")
-    # async def test_post_signup_user_enabled(mock_function, db_cleanup):
-    #     username = "foo@home.com"
-    #     password = "barbarba"
-    #     payload = create_user_payload(username, password)
-    #
-    #     mock_function.return_value = MagicMock(await add_test_user(username, password))
-    #
-    #     response = await http_post_client(TEST_URL, "/api/signup", payload)
-    #     actual_result = response.json()
-    #
-    #     assert response.status_code == 201
-    #     assert type(actual_result["id"]) is int
-    #     assert actual_result["username"] == username
-
-    # async def test_post_signup(db_cleanup):
-    #     username = "foo@home.com"
-    #     payload = await add_test_user(create_user_payload(username,"barbarba")
-    #
-    #     response = await http_post_client(TEST_URL, "/api/signup", payload)
-    #     actual_result = response.json()
-    #
-    #     assert response.status_code == 201
-    #     assert type(actual_result["id"]) is int
-    #     assert actual_result["username"] == username
+# async def test_post_signup(db_cleanup):
+#     username = "foo@home.com"
+#     payload = await add_test_user(create_user_payload(username,"barbarba")
+#
+#     response = await http_post_client(TEST_URL, "/api/signup", payload)
+#     actual_result = response.json()
+#
+#     assert response.status_code == 201
+#     assert type(actual_result["id"]) is int
+#     assert actual_result["username"] == username
 
 
 # async def test_post_login_user_not_enabled(self, db_cleanup, add_test_user):
@@ -145,10 +143,3 @@ async def post_user(req: Request) -> User | JSONResponse:
 #     assert error.value.detail == error_message
 #
 # assert actual_result["username"] == username
-#
-#
-# try:
-#     jwt.decode("JWT_STRING", "secret", algorithms=["HS256"])
-# except jwt.ExpiredSignatureError:
-#     # Signature has expired
-#     ...
