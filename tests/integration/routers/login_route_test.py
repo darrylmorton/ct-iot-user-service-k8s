@@ -12,7 +12,7 @@ last_name = "Bar"
 
 
 class TestAuthRoute:
-    
+
     async def test_post_login_invalid_username(self):
         _username = "foo"
         payload = create_signup_payload(_username)
