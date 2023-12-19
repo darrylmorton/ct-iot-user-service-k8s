@@ -63,3 +63,17 @@ class SignupResponse(SignupBase):
 
     class ConfigDict:
         from_attributes = True
+
+
+class LoginBase(BaseModel):
+    id: int
+    username: EmailStr
+    password: str = Field(min_length=8, max_length=16)
+
+
+class LoginRequest(LoginBase):
+    id: int = Field(None, exclude=True)
+
+    class ConfigDict:
+        from_attributes = True
+

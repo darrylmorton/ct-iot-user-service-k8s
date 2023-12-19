@@ -1,4 +1,3 @@
-import logging
 import pytest
 from jose import jwt
 
@@ -69,7 +68,6 @@ class TestAuthRoute:
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
         response_json = response.json()
-        logging.info(f"response json {response_json}")
 
         actual_result = jwt.decode(
             response_json["token"], JWT_SECRET, algorithms=["HS256"]

@@ -15,7 +15,6 @@ oauth2_scheme.auto_error = False
 server = FastAPI(title="FastAPI server")
 
 
-# TODO lookup user...
 @server.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
@@ -23,18 +22,10 @@ async def authenticate(request: Request, call_next):
 
     if request_path not in JWT_EXCLUDED_ENDPOINTS:
         try:
-            logger.debug(f"login - unauthorized request: {request}")
-            print(f"middleware - unauthorized request {request_path}")
-
             auth_token = request.headers["Authorization"]
-            print(f"middleware - auth_token: {auth_token}")
-
             payload = jwt.decode(auth_token, JWT_SECRET, algorithms=["HS256"])
-            print(f"middleware - payload: {payload}")
 
             username = payload.get("username")
-            print(f"middleware - username: {username}")
-
             request.state.username = username
         except KeyError as error:
             logger.debug(f"login - invalid key error {error}")
