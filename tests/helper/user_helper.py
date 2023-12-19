@@ -9,21 +9,13 @@ def create_signup_payload(
     _first_name="Foo",
     _last_name="Bar",
 ):
-    if _enabled:
-        return {
-            "username": _username,
-            "password": _password,
-            "enabled": _enabled,
-            "first_name": _first_name,
-            "last_name": _last_name,
-        }
-    else:
-        return {
-            "username": _username,
-            "password": _password,
-            "first_name": _first_name,
-            "last_name": _last_name,
-        }
+    return {
+        "username": _username,
+        "password": _password,
+        "enabled": _enabled,
+        "first_name": _first_name,
+        "last_name": _last_name,
+    }
 
 
 async def add_test_user_details(_user_id: int, _first_name="Foo", _last_name="Bar"):
@@ -33,7 +25,7 @@ async def add_test_user_details(_user_id: int, _first_name="Foo", _last_name="Ba
         last_name=_last_name,
     )
 
-    async with (async_session() as session):
+    async with async_session() as session:
         async with session.begin():
             session.add(user_details)
             await session.commit()

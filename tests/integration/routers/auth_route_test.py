@@ -60,6 +60,18 @@ class TestAuthRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
+        [[create_signup_payload()]],
+        indirect=True,
+    )
+    async def test_post_login_user_not_enabled(self, db_cleanup, add_test_user):
+        payload = create_signup_payload()
+
+        response = await http_post_client(TEST_URL, "/api/login", payload)
+
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "add_test_user",
         [[create_signup_payload(_enabled=True)]],
         indirect=True,
     )

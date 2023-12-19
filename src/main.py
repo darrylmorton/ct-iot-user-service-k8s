@@ -1,14 +1,16 @@
 import logging
+
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError, ExpiredSignatureError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from .config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS, JWT_SECRET
+from .config import JWT_EXCLUDED_ENDPOINTS, JWT_SECRET, LOG_LEVEL
 from .routers import healthz, auth, users, user_details
 
-logger = logging.getLogger(SERVICE_NAME)
+logger = logging.getLogger("uvicorn")
+logger.setLevel(logging.getLevelName(LOG_LEVEL))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
@@ -33,11 +35,11 @@ async def authenticate(request: Request, call_next):
         except ExpiredSignatureError as error:
             logger.debug(f"login - expired signature error {error}")
 
-            return JSONResponse(status_code=401, content="Expired jwt")
+            return JSONResponse(status_code=401, content="Expired token error")
         except JWTError as error:
-            logger.debug(f"login - invalid jwt error {error}")
+            logger.debug(f"login - invalid token error {error}")
 
-            return JSONResponse(status_code=401, content="Invalid jwt")
+            return JSONResponse(status_code=401, content="Invalid token error")
 
     return await call_next(request)
 

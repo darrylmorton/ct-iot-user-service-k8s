@@ -70,7 +70,7 @@ async def authorise(_username: str, _password: str) -> UserAuthenticated:
                         id=user.id, username=user.username, enabled=user.enabled
                     )
 
-            return UserAuthenticated()
+            return UserAuthenticated(enabled=False)
 
 
 async def find_user_details(offset=0) -> list[UserDetails]:

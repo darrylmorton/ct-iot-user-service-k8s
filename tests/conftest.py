@@ -27,20 +27,20 @@ async def db_cleanup():
 
 @pytest.fixture(scope="function")
 async def add_test_user(request):
-    print(f"request {request}")
     user_request = request.param[0]
 
     password = user_request["password"].encode("utf-8")
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
+
     user = UserModel(
         username=user_request["username"],
         password_hash=password_hash,
         enabled=user_request["enabled"],
     )
 
-    async with (async_session() as session):
+    async with async_session() as session:
         async with session.begin():
             session.add(user)
             await session.commit()
@@ -53,5 +53,5 @@ async def add_test_user(request):
         "username": user.username,
         "enabled": user.enabled,
         "first_name": user_request["first_name"],
-        "last_name": user_request["last_name"]
+        "last_name": user_request["last_name"],
     }

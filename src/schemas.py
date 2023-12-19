@@ -76,4 +76,3 @@ class LoginRequest(LoginBase):
 
     class ConfigDict:
         from_attributes = True
-

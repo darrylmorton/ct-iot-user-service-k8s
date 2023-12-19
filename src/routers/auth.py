@@ -10,12 +10,13 @@ from sqlalchemy.exc import DatabaseError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from ..utils.date_util import create_token_expiry
+from ..utils.auth_util import create_token_expiry
 from ..config import JWT_SECRET, SERVICE_NAME
 from ..schemas import (
     User,
     SignupResponse,
-    SignupRequest, LoginRequest,
+    SignupRequest,
+    LoginRequest,
 )
 from ..crud import add_user, find_user_by_username, authorise, add_user_details
 
@@ -26,7 +27,7 @@ router = APIRouter()
 
 @router.post("/signup", response_model=SignupResponse, status_code=201)
 async def signup(
-        signup_request: Annotated[SignupRequest, Body(embed=False)],
+    signup_request: Annotated[SignupRequest, Body(embed=False)],
 ) -> JSONResponse | SignupResponse:
     validation_status_code = HTTPStatus.UNAUTHORIZED
     validation_message = "Invalid username or password"
@@ -53,7 +54,7 @@ async def signup(
         return SignupResponse(
             username=user.username,
             first_name=user_details.first_name,
-            last_name=user_details.last_name
+            last_name=user_details.last_name,
         )
     except ValidationError as error:
         logger.debug("signup validation error")
@@ -70,16 +71,14 @@ async def signup(
 
 
 @router.post("/login", response_model=User, status_code=200)
-async def login(
-        req: Request
-) -> JSONResponse:
+async def login(req: Request) -> JSONResponse:
     request_payload = await req.json()
 
     try:
         LoginRequest.model_validate(request_payload)
 
-        username = request_payload['username']
-        password = request_payload['password']
+        username = request_payload["username"]
+        password = request_payload["password"]
 
         authorised_user = await authorise(_username=username, _password=password)
 
@@ -99,7 +98,7 @@ async def login(
             return JSONResponse(status_code=200, content=token)
     except ValueError as error:
         logger.debug("login validation error")
-        
+
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid username or password"
         ) from error
