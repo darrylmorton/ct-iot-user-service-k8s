@@ -58,23 +58,17 @@ async def authorise(_username: str, _password: str) -> UserAuthenticated:
             result = await session.execute(stmt)
 
             user = result.scalars().first()
-            # print(f"*** crud authorise user: {user.enabled}")
 
             if user:
                 password = _password.encode("utf-8")
                 password_hash = user.password_hash.encode("utf-8")
 
                 password_match = bcrypt.checkpw(password, password_hash)
-                print(f"*** crud authorise password_match: {password_match}")
 
                 if password_match:
-                    logger.info(f"*** crud authorise password_match: {password_match}")
-
                     return UserAuthenticated(
                         id=user.id, username=user.username, enabled=user.enabled
                     )
-
-            logger.info(f"*** crud authorise FALSE")
 
             return UserAuthenticated()
 

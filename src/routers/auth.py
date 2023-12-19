@@ -33,7 +33,6 @@ async def signup(
 
     try:
         username_exists = await find_user_by_username(signup_request.username)
-        print(f"username_exists: {username_exists}")
 
         if username_exists:
             return JSONResponse(status_code=409, content="Username exists")
@@ -100,6 +99,7 @@ async def login(
             return JSONResponse(status_code=200, content=token)
     except ValueError as error:
         logger.debug("login validation error")
+        
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid username or password"
         ) from error

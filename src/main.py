@@ -18,7 +18,6 @@ server = FastAPI(title="FastAPI server")
 @server.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
-    print(f"middleware - request_path {request_path}")
 
     if request_path not in JWT_EXCLUDED_ENDPOINTS:
         try:
