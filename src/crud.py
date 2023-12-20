@@ -1,15 +1,14 @@
-import logging
 import bcrypt
 
 from sqlalchemy import select
 from starlette.responses import JSONResponse
 
-from .config import SERVICE_NAME
+from .config import get_logger
 from .schemas import User, UserAuthenticated, UserDetails
 from .database import async_session
 from .models import UserModel, UserDetailsModel
 
-logger = logging.getLogger(SERVICE_NAME)
+logger = get_logger()
 
 
 async def find_users(offset=0) -> list[User]:

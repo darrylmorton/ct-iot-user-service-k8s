@@ -6,11 +6,10 @@ from jose import jwt, JWTError, ExpiredSignatureError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from .config import JWT_EXCLUDED_ENDPOINTS, JWT_SECRET, LOG_LEVEL
+from .config import JWT_EXCLUDED_ENDPOINTS, JWT_SECRET, get_logger
 from .routers import healthz, auth, users, user_details
 
-logger = logging.getLogger("uvicorn")
-logger.setLevel(logging.getLevelName(LOG_LEVEL))
+logger = get_logger()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
