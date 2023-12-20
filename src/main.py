@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError, ExpiredSignatureError
