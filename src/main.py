@@ -1,17 +1,58 @@
+import contextlib
+
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError, ExpiredSignatureError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from .config import JWT_EXCLUDED_ENDPOINTS, JWT_SECRET, get_logger
+from .config import JWT_EXCLUDED_ENDPOINTS, JWT_SECRET, get_logger, SERVICE_NAME
 from .routers import healthz, auth, users, user_details
 
 logger = get_logger()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
-server = FastAPI(title="FastAPI server")
+
+
+async def run_migrations():
+    logger.info("Running migrations...")
+
+    try:
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+
+        logger.info("Migrations completed successfully")
+    except Exception as error:
+        logger.error(f"Database migration error on startup: {error}")
+
+
+@contextlib.asynccontextmanager
+async def lifespan_wrapper(app: FastAPI):
+    logger.info(f"Starting {SERVICE_NAME}...{app.host}")
+
+    await run_migrations()
+
+    logger.info(f"{SERVICE_NAME} is ready")
+
+    yield
+    logger.info(f"{SERVICE_NAME} is shutting down...")
+
+    logger.info(f"{SERVICE_NAME} has shut down")
+
+
+server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+
+
+# @server.on_event("startup")
+# async def startup():
+#     logger.info(f"Starting {SERVICE_NAME}...")
+#
+#     await run_migrations()
+#
+#     logger.info(f"{SERVICE_NAME} is ready")
 
 
 @server.middleware("http")
