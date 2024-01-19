@@ -29,5 +29,5 @@ run-migrations-downgrade-base: fmt
 .PHONY:run-migrations-downgrade-base
 
 test: fmt
-	poetry run pytest
+	poetry run pytest tests
 .PHONY:test

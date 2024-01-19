@@ -24,10 +24,12 @@ bcrypt = "^4.1.1"
 email-validator = "^2.1.0.post1"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 cryptography = "^41.0.7"
+structlog = "^24.1.0"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
 ruff = "^0.1.1"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.group.test]
 [tool.poetry.group.test.dependencies]
@@ -99,7 +101,8 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-log_cli = false
+log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+addopts = "--cov --cov-config=pytest-cov.ini --cov-report term-missing --cov-report=html"
