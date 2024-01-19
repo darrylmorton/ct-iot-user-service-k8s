@@ -18,6 +18,13 @@ def create_signup_payload(
     }
 
 
+def create_login_payload(_username="foo@home.com", _password="barbarba"):
+    return {
+        "username": _username,
+        "password": _password,
+    }
+
+
 async def add_test_user_details(_user_id: int, _first_name="Foo", _last_name="Bar"):
     user_details = UserDetailsModel(
         user_id=_user_id,

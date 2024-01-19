@@ -2,7 +2,7 @@ import pytest
 from jose import jwt
 
 from src.config import JWT_SECRET
-from ...helper.user_helper import create_signup_payload
+from ...helper.user_helper import create_signup_payload, create_login_payload
 from ...helper.routes_helper import TEST_URL, http_post_client
 
 username = "foo@home.com"
@@ -45,26 +45,27 @@ class TestAuthRoute:
 
     async def test_post_login_invalid_username(self):
         _username = "foo"
-        payload = create_signup_payload(_username)
+        payload = create_login_payload(_username)
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
 
         assert response.status_code == 401
 
     async def test_post_login_invalid_password(self):
-        payload = create_signup_payload(_password="barbarb")
+        payload = create_login_payload(_password="barbarb")
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
 
         assert response.status_code == 401
 
+    # @pytest.mark.skip
     @pytest.mark.parametrize(
         "add_test_user",
         [[create_signup_payload()]],
         indirect=True,
     )
     async def test_post_login_user_not_enabled(self, db_cleanup, add_test_user):
-        payload = create_signup_payload()
+        payload = create_login_payload()
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
 
@@ -76,7 +77,7 @@ class TestAuthRoute:
         indirect=True,
     )
     async def test_post_login_user(self, db_cleanup, add_test_user):
-        payload = create_signup_payload()
+        payload = create_login_payload()
 
         response = await http_post_client(TEST_URL, "/api/login", payload)
         response_json = response.json()
