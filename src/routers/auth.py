@@ -40,7 +40,6 @@ async def signup(
         user = await add_user(
             _username=signup_request.username, _password=signup_request.password
         )
-        logger.info(f"**** user {user}")
 
         validation_status_code = HTTPStatus.BAD_REQUEST
         validation_message = "Invalid first or last name"
