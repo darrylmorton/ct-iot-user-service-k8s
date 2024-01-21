@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "ct-iot-user-service"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = ["Darryl Morton"]
+license = "GNU"
 readme = "README.md"
 packages = [{include = "ct-iot-user-service", from="src"}]
 repository = "https://github.com/darrylmorton/ct-iot-user-service.git"
