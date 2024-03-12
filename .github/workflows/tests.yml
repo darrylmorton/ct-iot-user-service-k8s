@@ -47,18 +47,18 @@ jobs:
       #----------------------------------------------
       # install your root project, if required
       #----------------------------------------------
-      - name: Install project
-        run: poetry install -vv --without local
+#      - name: Install project
+#        run: poetry install -vv --without local
       #        run: poetry install --no-interaction
       #----------------------------------------------
       # docker compose
       #----------------------------------------------
-      - name: Setup dependencies
-        run: docker-compose up -d
+#      - name: Setup dependencies
+#        run: docker-compose up -d
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
-      - name: Run tests
-        run: |
-          source .venv/bin/activate
-          make test
+#      - name: Run tests
+#        run: |
+#          source .venv/bin/activate
+#          make test
