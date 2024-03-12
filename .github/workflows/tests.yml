@@ -32,6 +32,11 @@ jobs:
 
       - name: Setup dependencies
         run: docker-compose up -d
+
+      - name: Run tests
+        run: make test
+#          source .venv/bin/activate
+#          make test
 #      - name: Run tests
 #        run: |
 #          poetry run pytest tests/
