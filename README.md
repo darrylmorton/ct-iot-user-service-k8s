@@ -1,8 +1,8 @@
 # ct-iot-user-service
 
 ## Requirements
-Python 3.10.6
-Poetry 1.6.1
+Python 3.12.0
+Poetry 1.7.1
 
 ## Install
 ```
