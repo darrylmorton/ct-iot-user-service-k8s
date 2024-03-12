@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up python
+      - name: Set up python:wq
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -23,6 +23,18 @@ jobs:
       - name: Install Poetry
         if: steps.cached-poetry.outputs.cache-hit != 'true'
         uses: snok/install-poetry@v1
+#      - name: Install dependencies
+#        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+#        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+#      - name: Run tests
+#        run: |
+#          poetry run pytest tests/
+#          poetry run coverage report
+
 
 #jobs:
 #  test:
