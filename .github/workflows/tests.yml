@@ -30,6 +30,8 @@ jobs:
       - name: Install project
         run: poetry install --no-interaction --no-root
 
+      - name: Setup dependencies
+        run: docker-compose up -d
 #      - name: Run tests
 #        run: |
 #          poetry run pytest tests/
