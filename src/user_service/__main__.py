@@ -1,12 +1,11 @@
 import os
 import uvicorn
 
-from config import SERVICE_NAME
-from constants import PORT
+from config import SERVICE_NAME, APP_PORT
 from logger import log
 
 
-def main(port: int = PORT):
+def main(port: int = APP_PORT):
     log.info(f"Starting {SERVICE_NAME}...")
 
     try:

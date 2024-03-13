@@ -36,8 +36,11 @@ jobs:
       - name: Start application
         run: make run
 
-      - name: Run tests
-        run: make test
+      - name: Run unit tests
+        run: make test-unit
+
+      - name: Run integration tests
+        run: make test-integration
 #          source .venv/bin/activate
 #          make test
 #      - name: Run tests

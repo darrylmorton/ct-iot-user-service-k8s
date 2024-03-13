@@ -1,5 +1,3 @@
-import logging
-
 import bcrypt
 
 from sqlalchemy import select
