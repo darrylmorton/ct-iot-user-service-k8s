@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ENVIRONMENT = os.environ.get("ENVIRONMENT")
-LOG_LEVEL = os.environ.get("LOG_LEVEL")
-SERVICE_NAME = os.environ.get("SERVICE_NAME")
+ENVIRONMENT = os.environ.get("ENVIRONMENT") or "DEVELOPMENT"
+LOG_LEVEL = os.environ.get("LOG_LEVEL") or "INFO"
+SERVICE_NAME = os.environ.get("SERVICE_NAME") or "user-service"
+APP_PORT = os.environ.get("APP_PORT") or 8001
 
 DATABASE_URL_PREFIX = "postgresql+asyncpg"
 DATABASE_URL_SUFFIX = (

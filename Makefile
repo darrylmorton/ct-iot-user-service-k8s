@@ -8,13 +8,13 @@ lint: fmt
 	poetry run ruff check . --fix
 .PHONY:lint
 
-run-dev: fmt
-	poetry run uvicorn --log-level=debug src.main:server --reload --port 8001
-.PHONY:run-dev
+dev-server-start: fmt
+	poetry run uvicorn --log-level=debug src.user_service.service:server --reload --port 8001
+.PHONY:dev-server-start
 
-run: fmt
-	poetry run uvicorn src.main:server --port 8001
-.PHONY:run
+server-start: fmt
+	poetry run uvicorn src.user_service.service:server --port 8001 &
+.PHONY:server-start
 
 run-migrations: fmt
 	poetry run alembic upgrade head
@@ -27,6 +27,18 @@ run-migrations-rollback: fmt
 run-migrations-downgrade-base: fmt
 	poetry run alembic downgrade base
 .PHONY:run-migrations-downgrade-base
+
+test-unit: fmt
+	poetry run pytest tests/unit
+.PHONY:test-unit
+
+test-integration: fmt
+	poetry run pytest tests/integration
+.PHONY:test-integration
+
+test-integration-with-server: server-start
+	poetry run pytest tests/integration
+.PHONY:test-integration-with-server
 
 test: fmt
 	poetry run pytest tests

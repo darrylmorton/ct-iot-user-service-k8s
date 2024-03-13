@@ -1,11 +1,11 @@
 from httpx import AsyncClient
 
-TEST_URL = "http://localhost:8001"
+from src.config import APP_PORT
+
+TEST_URL = f"http://localhost:{APP_PORT}"
 
 
 async def http_client(base_url, path, token=None):
-    # path = urllib.parse.unquote(path)
-
     async with AsyncClient(base_url=base_url) as ac:
         if token:
             ac.headers["Authorization"] = token
