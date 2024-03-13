@@ -36,6 +36,10 @@ test-integration: fmt
 	poetry run pytest tests/integration
 .PHONY:test-integration
 
+test-integration-with-server: fmt
+	make -j 2 run test-integration
+.PHONY:test-integration-with-server
+
 test: fmt
 	poetry run pytest tests
 .PHONY:test

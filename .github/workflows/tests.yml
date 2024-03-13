@@ -33,8 +33,11 @@ jobs:
       - name: Setup dependencies
         run: docker-compose up -d
 
+      - name: Run unit tests
+        run: make test-unit
+
       - name: Start application
-        run: make run
+        run: make test-integration-with-server
         env:
 #          ENVIRONMENT: "TEST"
 #          SERVICE_NAME: "user-service"
@@ -45,11 +48,10 @@ jobs:
           DB_PORT: 5432
           DB_NAME: "users"
 
-      - name: Run unit tests
-        run: make test-unit
 
-      - name: Run integration tests
-        run: make test-integration
+
+#      - name: Run integration tests
+#        run: make test-integration
 #          source .venv/bin/activate
 #          make test
 #      - name: Run tests
