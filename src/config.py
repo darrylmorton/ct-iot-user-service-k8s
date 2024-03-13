@@ -7,7 +7,7 @@ load_dotenv()
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or "INFO"
 SERVICE_NAME = os.environ.get("SERVICE_NAME")
-APP_PORT = os.environ.get("APP_PORT")
+APP_PORT = int(os.environ.get("APP_PORT"))
 
 DATABASE_URL_PREFIX = "postgresql+asyncpg"
 DATABASE_URL_SUFFIX = (
