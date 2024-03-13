@@ -4,6 +4,16 @@ on:
   push:
     branches-ignore: ["main"]
 
+env:
+#          ENVIRONMENT: "TEST"
+#          SERVICE_NAME: "user-service"
+#          APP_PORT: 8001
+  DB_USERNAME: "postgres"
+  DB_PASSWORD: "postgres"
+  DB_HOST: "localhost"
+  DB_PORT: 5432
+  DB_NAME: "users"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,23 +40,14 @@ jobs:
       - name: Install project
         run: poetry install --no-interaction --no-root
 
-      - name: Setup dependencies
-        run: docker-compose up -d
-
       - name: Run unit tests
         run: make test-unit
 
-      - name: Start application
+      - name: Setup dependencies
+        run: docker-compose up -d
+
+      - name: Run tests
         run: make test-integration-with-server
-        env:
-#          ENVIRONMENT: "TEST"
-#          SERVICE_NAME: "user-service"
-#          APP_PORT: 8001
-          DB_USERNAME: "postgres"
-          DB_PASSWORD: "postgres"
-          DB_HOST: "localhost"
-          DB_PORT: 5432
-          DB_NAME: "users"
 
 
 
