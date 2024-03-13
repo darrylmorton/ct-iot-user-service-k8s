@@ -8,7 +8,7 @@ lint: fmt
 	poetry run ruff check . --fix
 .PHONY:lint
 
-run-dev: fmt
+dev-server-start: fmt
 	poetry run uvicorn --log-level=debug src.user_service.service:server --reload --port 8001
 .PHONY:dev-server-start
 
@@ -37,7 +37,6 @@ test-integration: fmt
 .PHONY:test-integration
 
 test-integration-with-server: server-start
-	#make -j 2 run test-integration &
 	poetry run pytest tests/integration
 .PHONY:test-integration-with-server
 

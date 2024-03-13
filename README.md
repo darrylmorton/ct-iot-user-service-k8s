@@ -11,23 +11,30 @@ poetry install
 
 ## Environment Variables
 ```
-SERVICE_NAME="user-service"
-LOG_LEVEL="DEBUG"
-ENVIRONMENT="DEVELOPMENT"
+SERVICE_NAME
+LOG_LEVEL
+ENVIRONMENT
+APP_PORT
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME=
 ```
 
 ## Dev
 Swagger docs: http://localhost:8001/docs
 ```
-make run-dev
+make dev-server-start
 ```
 
 ## Prod
 ```
-make run
+make server-start
 ```
 
 ## Test
 ```
-make test
+make test-unit
+make test-integration
 ```

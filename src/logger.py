@@ -2,6 +2,7 @@ import logging
 import structlog
 
 
+# TODO
 structlog.configure(
     processors=[
         # structlog.contextvars.merge_contextvars,
