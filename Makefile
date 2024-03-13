@@ -10,11 +10,11 @@ lint: fmt
 
 run-dev: fmt
 	poetry run uvicorn --log-level=debug src.user_service.service:server --reload --port 8001
-.PHONY:run-dev
+.PHONY:dev-server-start
 
-run: fmt
-	poetry run uvicorn src.user_service.service:server --port 8001
-.PHONY:run
+server-start: fmt
+	poetry run uvicorn src.user_service.service:server --port 8001 &
+.PHONY:server-start
 
 run-migrations: fmt
 	poetry run alembic upgrade head
@@ -36,8 +36,9 @@ test-integration: fmt
 	poetry run pytest tests/integration
 .PHONY:test-integration
 
-test-integration-with-server: fmt
-	make -j 2 run test-integration
+test-integration-with-server: server-start
+	#make -j 2 run test-integration &
+	poetry run pytest tests/integration
 .PHONY:test-integration-with-server
 
 test: fmt
