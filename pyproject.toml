@@ -5,7 +5,7 @@ description = ""
 authors = ["Darryl Morton"]
 license = "GNU"
 readme = "README.md"
-packages = [{include = "ct-iot-user-service", from="src"}]
+packages = [{include = "user_service", from="src"}]
 repository = "https://github.com/darrylmorton/ct-iot-user-service.git"
 keywords = ["ct", "iot", "user", "service"]
 
@@ -106,4 +106,4 @@ log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"
-addopts = "--cov --cov-config=./tests/pytest-cov.ini --cov-report term-missing --cov-report=html"
+addopts = "--cov --cov-config=./pytest-cov.ini --cov-report term-missing --cov-report=html"

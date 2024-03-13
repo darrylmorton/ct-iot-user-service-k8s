@@ -33,6 +33,9 @@ jobs:
       - name: Setup dependencies
         run: docker-compose up -d
 
+      - name: Start application
+        run: make run
+
       - name: Run tests
         run: make test
 #          source .venv/bin/activate
