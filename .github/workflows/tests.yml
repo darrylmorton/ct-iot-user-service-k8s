@@ -49,6 +49,12 @@ jobs:
         with:
           time: '30s'
 
+      - name: Venv
+        run: python3 -m venv ./venv
+
+      - name: Activate venv
+        run: . ./venv/bin/activate
+
       - name: Run migrations
         run: make run-migrations
 
