@@ -35,6 +35,12 @@ jobs:
         if: steps.cached-poetry.outputs.cache-hit != 'true'
         uses: snok/install-poetry@v1
 
+      - name: Venv
+        run: python3 -m venv ./venv
+
+      - name: Activate venv
+        run: . ./venv/bin/activate
+
       - name: Install project
         run: poetry install --no-interaction --no-root
 
@@ -48,12 +54,6 @@ jobs:
         uses: kibertoad/wait-action@1.0.1
         with:
           time: '30s'
-
-      - name: Venv
-        run: python3 -m venv ./venv
-
-      - name: Activate venv
-        run: . ./venv/bin/activate
 
       - name: Run migrations
         run: make run-migrations
