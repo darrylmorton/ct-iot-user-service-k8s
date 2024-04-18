@@ -1,6 +1,6 @@
 from jose import jwt
 
-from src.config import JWT_SECRET
+from config import JWT_SECRET
 from ...helper.auth_helper import create_token_expiry
 from ...helper.routes_helper import http_client, TEST_URL
 

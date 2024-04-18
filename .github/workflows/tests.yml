@@ -44,5 +44,8 @@ jobs:
       - name: Setup dependencies
         run: docker-compose up -d
 
+      - name: Run migrations
+        run: make run-migrations
+
       - name: Run tests
-        run: make test-integration-with-server
+        run: make test-integration

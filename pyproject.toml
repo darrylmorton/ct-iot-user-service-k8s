@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "ct-iot-user-service"
+name = "user-service"
 version = "0.0.1"
-description = ""
+description = "user_service"
 authors = ["Darryl Morton"]
 license = "GNU"
 readme = "README.md"
@@ -47,7 +47,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 preview = true
-include = ["*.py", "*.pyi", "**/prproject.toml", "*.ipynb"]
+include = ["*.py", "*.pyi", "pyproject.toml", "*.ipynb"]
 line-length = 88  # defaults to 88 like black
 target-version = "py310"  # the python version to target, useful when considering code upgrades, defaults to "py310"
 # Exclude a variety of commonly ignored directories.
@@ -101,6 +101,7 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.pytest.ini_options]
+pythonpath = ["src/"]
 asyncio_mode = "auto"
 log_cli = true
 log_cli_level = "INFO"

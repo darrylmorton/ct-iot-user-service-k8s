@@ -1,5 +1,3 @@
-.DEFAULT_GOAL := build
-
 fmt:
 	poetry run ruff format .
 .PHONY:fmt
@@ -9,11 +7,11 @@ lint: fmt
 .PHONY:lint
 
 dev-server-start: fmt
-	poetry run uvicorn --log-level=debug src.user_service.service:server --reload --port 8001
+	poetry run uvicorn --log-level=debug user_service.service:server --reload --port 8001
 .PHONY:dev-server-start
 
 server-start: fmt
-	poetry run uvicorn src.user_service.service:server --port 8001 &
+	poetry run uvicorn user_service.service:server --port 8001 &
 .PHONY:server-start
 
 run-migrations: fmt
@@ -29,17 +27,13 @@ run-migrations-downgrade-base: fmt
 .PHONY:run-migrations-downgrade-base
 
 test-unit: fmt
-	poetry run pytest tests/unit
+	poetry run pytest tests/unit/
 .PHONY:test-unit
 
 test-integration: fmt
-	poetry run pytest tests/integration
+	poetry run pytest tests/integration/
 .PHONY:test-integration
 
-test-integration-with-server: server-start
-	poetry run pytest tests/integration
-.PHONY:test-integration-with-server
-
 test: fmt
-	poetry run pytest tests
+	poetry run pytest tests/
 .PHONY:test

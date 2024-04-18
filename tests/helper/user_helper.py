@@ -1,5 +1,5 @@
-from src.database import async_session
-from src.models import UserDetailsModel
+from database import async_session
+from models import UserDetailsModel
 
 
 def create_signup_payload(

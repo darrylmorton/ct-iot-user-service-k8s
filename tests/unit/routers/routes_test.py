@@ -1,4 +1,4 @@
-from src.user_service.service import server
+from user_service.service import server
 from ...helper.routes_helper import mock_http_client
 
 

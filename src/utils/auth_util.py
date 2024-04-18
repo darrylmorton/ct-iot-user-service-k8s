@@ -1,6 +1,6 @@
 import datetime
 
-from ..config import JWT_TOKEN_EXPIRY_SECONDS
+from config import JWT_TOKEN_EXPIRY_SECONDS
 
 
 def create_token_expiry() -> datetime:

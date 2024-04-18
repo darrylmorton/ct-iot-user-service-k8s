@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import src.config as db_config
+import config as db_config
 
 logger = db_config.get_logger()
 

@@ -9,15 +9,15 @@ from sqlalchemy.exc import DatabaseError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from ..utils.auth_util import create_token_expiry
-from ..config import JWT_SECRET, get_logger
-from ..schemas import (
+from utils.auth_util import create_token_expiry
+from config import JWT_SECRET, get_logger
+from schemas import (
     User,
     SignupResponse,
     SignupRequest,
     LoginRequest,
 )
-from ..crud import add_user, find_user_by_username, authorise, add_user_details
+from crud import add_user, find_user_by_username, authorise, add_user_details
 
 logger = get_logger()
 
