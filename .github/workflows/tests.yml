@@ -48,7 +48,7 @@ jobs:
         uses: kibertoad/wait-action@1.0.1
         with:
           time: '30s'
-          
+
       - name: Run migrations
         run: make run-migrations
 
