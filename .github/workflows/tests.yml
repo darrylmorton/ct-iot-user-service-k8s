@@ -67,7 +67,7 @@ jobs:
           db_user: ${{ env.DB_USERNAME }}
           db_password: ${{ env.DB_PASSWORD }}
           db_name: ${{ env.DB_NAME }}
-          migrations_path: ./alembic/versions/
+          migrations_path: ./alembic/
 
 #      - name: Run migrations
 #        run: make run-migrations
