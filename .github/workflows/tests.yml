@@ -4,6 +4,18 @@ on:
   push:
     branches-ignore: ["main"]
 
+env:
+  SERVICE_NAME: test-user-service
+  LOG_LEVEL: DEBUG
+  ENVIRONMENT: TEST
+  JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+  JWT_TOKEN_EXPIRY_SECONDS: 3600
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: localhost
+  DB_PORT: 5432
+  DB_NAME: users
+  
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -44,14 +56,3 @@ jobs:
 
       - name: Run tests
         run: make test-integration-with-server
-        env:
-          SERVICE_NAME: test-user-service
-          LOG_LEVEL: DEBUG
-          ENVIRONMENT: TEST
-          JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-          JWT_TOKEN_EXPIRY_SECONDS: 3600
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: users
