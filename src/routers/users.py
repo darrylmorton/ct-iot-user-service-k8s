@@ -3,9 +3,9 @@ from sqlalchemy.exc import DatabaseError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from ..config import get_logger
-from ..schemas import User
-from ..crud import find_users, find_user_by_username
+from config import get_logger
+from schemas import User
+from crud import find_users, find_user_by_username
 
 logger = get_logger()
 

@@ -19,7 +19,7 @@ def main(port: int = APP_PORT):
         log.info(f"Running uvicorn with multiple workers {calculated_workers}")
 
         uvicorn.run(
-            app="src.user_service.service.server",
+            app="user_service.service.server",
             host="0.0.0.0",
             port=port,
             workers=calculated_workers,

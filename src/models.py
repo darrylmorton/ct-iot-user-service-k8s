@@ -4,7 +4,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import MappedColumn, Mapped
 
-from .database import Base
+from database import Base
 
 
 class UserModel(Base):

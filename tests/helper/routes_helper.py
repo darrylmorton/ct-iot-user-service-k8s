@@ -1,6 +1,7 @@
 from httpx import AsyncClient
 
-from src.config import APP_PORT
+from tests.config import APP_PORT
+
 
 TEST_URL = f"http://localhost:{APP_PORT}"
 

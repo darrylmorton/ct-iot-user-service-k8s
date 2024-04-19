@@ -3,9 +3,9 @@ import bcrypt
 from sqlalchemy import select
 from starlette.responses import JSONResponse
 
-from .schemas import User, UserAuthenticated, UserDetails
-from .database import async_session
-from .models import UserModel, UserDetailsModel
+from schemas import User, UserAuthenticated, UserDetails
+from database import async_session
+from models import UserModel, UserDetailsModel
 
 
 async def find_users(offset=0) -> list[User]:

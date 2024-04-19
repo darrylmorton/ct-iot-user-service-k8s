@@ -3,7 +3,7 @@ import bcrypt
 import pytest
 from sqlalchemy import delete
 
-from src.models import UserModel, UserDetailsModel
+from models import UserModel, UserDetailsModel
 from tests.database import async_session
 
 
@@ -15,7 +15,7 @@ def event_loop(request):
     loop.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def db_cleanup():
     async with async_session() as session:
         async with session.begin():
@@ -25,7 +25,7 @@ async def db_cleanup():
             await session.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def add_test_user(request):
     user_request = request.param[0]
 
