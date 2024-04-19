@@ -54,23 +54,23 @@ jobs:
       - name: Setup dependencies
         run: docker-compose up -d
 
-#      - name: Sleep
-#        uses: kibertoad/wait-action@1.0.1
-#        with:
-#          time: '30s'
-
-      - name: Check Alembic Migration Version
-        uses: DevGlitch/alembic-migration-checker@v1
+      - name: Sleep
+        uses: kibertoad/wait-action@1.0.1
         with:
-          db_host: ${{ env.DB_HOST }}
-#          db_port: ${{ env.DB_PORT }}  # Only if not using 5432 default port
-          db_user: ${{ env.DB_USERNAME }}
-          db_password: ${{ env.DB_PASSWORD }}
-          db_name: ${{ env.DB_NAME }}
-          migrations_path: ./alembic/
+          time: '5s'
 
-#      - name: Run migrations
-#        run: make run-migrations
+#      - name: Check Alembic Migration Version
+#        uses: DevGlitch/alembic-migration-checker@v1
+#        with:
+#          db_host: ${{ env.DB_HOST }}
+#          db_port: ${{ env.DB_PORT }}  # Only if not using 5432 default port
+#          db_user: ${{ env.DB_USERNAME }}
+#          db_password: ${{ env.DB_PASSWORD }}
+#          db_name: ${{ env.DB_NAME }}
+#          migrations_path: ./alembic/
+
+      - name: Run migrations
+        run: make run-migrations
 
       - name: Run tests
         run: make test-integration
