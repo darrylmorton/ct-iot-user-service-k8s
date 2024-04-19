@@ -1,9 +1,9 @@
 import pytest
 from jose import jwt
 
-from config import JWT_SECRET
-from ...helper.user_helper import create_signup_payload, create_login_payload
-from ...helper.routes_helper import TEST_URL, http_post_client
+from tests.config import JWT_SECRET
+from tests.helper.user_helper import create_signup_payload, create_login_payload
+from tests.helper.routes_helper import TEST_URL, http_post_client
 
 username = "foo@home.com"
 password = "barbarba"

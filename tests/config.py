@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env.test")
 
-ENVIRONMENT = os.environ.get("ENVIRONMENT") or "DEVELOPMENT"
-LOG_LEVEL = os.environ.get("LOG_LEVEL") or "INFO"
-SERVICE_NAME = os.environ.get("SERVICE_NAME") or "user-service"
+ENVIRONMENT = os.environ.get("ENVIRONMENT") or "TEST"
+LOG_LEVEL = os.environ.get("LOG_LEVEL") or "DEBUG"
+SERVICE_NAME = os.environ.get("SERVICE_NAME") or "test-user-service"
 APP_PORT = os.environ.get("APP_PORT") or 8001
 JWT_SECRET = os.environ.get("JWT_SECRET")
 JWT_TOKEN_EXPIRY_SECONDS = int(os.environ.get("JWT_TOKEN_EXPIRY_SECONDS"))

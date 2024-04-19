@@ -1,8 +1,8 @@
 from jose import jwt
 
-from config import JWT_SECRET
-from ...helper.auth_helper import create_token_expiry
-from ...helper.routes_helper import http_client, TEST_URL
+from tests.config import JWT_SECRET
+from tests.helper.auth_helper import create_token_expiry
+from tests.helper.routes_helper import http_client, TEST_URL
 
 username = "foo@home.com"
 password = "barbarba"

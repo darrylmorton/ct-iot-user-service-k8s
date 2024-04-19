@@ -1,5 +1,5 @@
-from database import async_session
 from models import UserDetailsModel
+from tests.database import async_session
 
 
 def create_signup_payload(
