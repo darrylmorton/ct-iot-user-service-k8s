@@ -4,16 +4,16 @@ on:
   push:
     branches-ignore: ["main"]
 
-env:
-  SERVICE_NAME: user-service-test
-  LOG_LEVEL: DEBUG
-  ENVIRONMENT: TEST
-  APP_PORT: 8001
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
-  DB_HOST: localhost
-  DB_PORT: 5432
-  DB_NAME: users
+#env:
+#  SERVICE_NAME: user-service-test
+#  LOG_LEVEL: DEBUG
+#  ENVIRONMENT: TEST
+#  APP_PORT: 8001
+#  DB_USERNAME: postgres
+#  DB_PASSWORD: postgres
+#  DB_HOST: localhost
+#  DB_PORT: 5432
+#  DB_NAME: users
 
 jobs:
   test:
@@ -73,4 +73,4 @@ jobs:
         run: make run-migrations
 
       - name: Run tests
-        run: make test-integration
+        run: make test-integration-with-server

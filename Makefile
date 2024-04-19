@@ -30,9 +30,13 @@ test-unit: fmt
 	poetry run pytest tests/unit/
 .PHONY:test-unit
 
-test-integration: server-start
+test-integration: fmt
 	poetry run pytest tests/integration/
 .PHONY:test-integration
+
+test-integration-with-server: server-start
+	poetry run pytest tests/integration
+.PHONY:test-integration-with-server
 
 test: fmt
 	poetry run pytest tests/
