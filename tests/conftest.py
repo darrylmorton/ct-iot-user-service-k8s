@@ -1,14 +1,10 @@
 import asyncio
 import bcrypt
 import pytest
-from dotenv import load_dotenv
 from sqlalchemy import delete
 
 from models import UserModel, UserDetailsModel
-
-load_dotenv(dotenv_path=".env.test")
-
-from tests.database import async_session  # noqa
+from tests.database import async_session
 
 
 @pytest.fixture(scope="session")

@@ -42,8 +42,5 @@ jobs:
         with:
           time: '5s'
 
-      - name: Run migrations
-        run: make run-migrations
-
       - name: Run tests
         run: make test-integration-with-server
