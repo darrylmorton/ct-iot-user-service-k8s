@@ -35,7 +35,7 @@ test-integration: fmt
 .PHONY:test-integration
 
 test-integration-with-server: server-start
-	poetry run pytest tests/integration
+	poetry run pytest tests/integration/
 .PHONY:test-integration-with-server
 
 test: fmt
