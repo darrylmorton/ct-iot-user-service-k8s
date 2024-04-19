@@ -1,10 +1,13 @@
 import asyncio
 import bcrypt
 import pytest
+from dotenv import load_dotenv
 from sqlalchemy import delete
 
 from models import UserModel, UserDetailsModel
 from tests.database import async_session
+
+load_dotenv(dotenv_path=".env.test")
 
 
 @pytest.fixture(scope="session")
