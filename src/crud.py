@@ -1,3 +1,5 @@
+import uuid
+
 import bcrypt
 
 from sqlalchemy import select
@@ -79,7 +81,7 @@ async def find_user_details(offset=0) -> list[UserDetails]:
             return result.scalars().all()
 
 
-async def find_user_details_by_user_id(user_id: int, offset=0) -> UserDetails:
+async def find_user_details_by_user_id(user_id: uuid, offset=0) -> UserDetails:
     async with async_session() as session:
         async with session.begin():
             stmt = (
@@ -95,7 +97,7 @@ async def find_user_details_by_user_id(user_id: int, offset=0) -> UserDetails:
 
 
 async def add_user_details(
-    _user_id: int, _first_name: str, _last_name: str
+    _user_id: uuid, _first_name: str, _last_name: str
 ) -> JSONResponse | UserDetails:
     async with async_session() as session:
         user_details = UserDetailsModel(

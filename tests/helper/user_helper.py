@@ -1,3 +1,5 @@
+import uuid
+
 from models import UserDetailsModel
 from tests.database import async_session
 
@@ -25,7 +27,7 @@ def create_login_payload(_username="foo@home.com", _password="barbarba"):
     }
 
 
-async def add_test_user_details(_user_id: int, _first_name="Foo", _last_name="Bar"):
+async def add_test_user_details(_user_id: uuid, _first_name="Foo", _last_name="Bar"):
     user_details = UserDetailsModel(
         user_id=_user_id,
         first_name=_first_name,

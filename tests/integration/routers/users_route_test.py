@@ -2,7 +2,7 @@ from jose import jwt
 
 from tests.config import JWT_SECRET
 from tests.helper.auth_helper import create_token_expiry
-from tests.helper.routes_helper import http_client, TEST_URL
+from tests.helper.routes_helper import http_client, TEST_URL, validate_uuid4
 
 username = "foo@home.com"
 password = "barbarba"
@@ -21,7 +21,7 @@ class TestUsersRoute:
 
         assert response.status_code == 200
         assert len(actual_result) == 1
-        assert type(actual_result[0]["id"]) is int
+        assert validate_uuid4(actual_result[0]["id"])
         assert actual_result[0]["username"] == username
 
     async def test_get_users(self):
@@ -30,7 +30,7 @@ class TestUsersRoute:
 
         assert response.status_code == 200
         assert len(actual_result) == 1
-        assert type(actual_result[0]["id"]) is int
+        assert validate_uuid4(actual_result[0]["id"])
         assert actual_result[0]["username"] == username
 
     async def test_get_users_offset(self):
@@ -45,5 +45,5 @@ class TestUsersRoute:
         actual_result = response.json()
 
         assert response.status_code == 200
-        assert type(actual_result["id"]) is int
+        assert validate_uuid4(actual_result["id"])
         assert actual_result["username"] == username

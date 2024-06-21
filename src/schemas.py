@@ -1,8 +1,9 @@
+from uuid import UUID
 from pydantic import BaseModel, Field, EmailStr
 
 
 class UserBase(BaseModel):
-    id: int
+    id: UUID
     username: EmailStr
 
 
@@ -19,13 +20,13 @@ class UserAuthenticated(UserBase):
 
 
 class UserRequest(UserBase):
-    id: int = Field(None, exclude=True)
+    id: UUID = Field(None, exclude=True)
     password: str = Field(min_length=8, max_length=16)
 
 
 class UserDetailsBase(BaseModel):
-    id: int
-    user_id: int
+    id: UUID
+    user_id: UUID
     first_name: str = Field(min_length=2, max_length=30)
     last_name: str = Field(min_length=2, max_length=30)
 
@@ -36,12 +37,12 @@ class UserDetails(UserDetailsBase):
 
 
 class UserDetailsRequest(UserDetailsBase):
-    id: int = Field(None, exclude=True)
+    id: UUID = Field(None, exclude=True)
 
 
 class SignupBase(BaseModel):
-    id: int
-    user_id: int
+    id: UUID
+    user_id: UUID
     username: EmailStr
     password: str = Field(min_length=8, max_length=16)
     first_name: str = Field(min_length=2, max_length=30)
@@ -49,16 +50,16 @@ class SignupBase(BaseModel):
 
 
 class SignupRequest(SignupBase):
-    id: int = Field(None, exclude=True)
-    user_id: int = Field(None, exclude=True)
+    id: UUID = Field(None, exclude=True)
+    user_id: UUID = Field(None, exclude=True)
 
     class ConfigDict:
         from_attributes = True
 
 
 class SignupResponse(SignupBase):
-    id: int = Field(None, exclude=True)
-    user_id: int = Field(None, exclude=True)
+    id: UUID = Field(None, exclude=True)
+    user_id: UUID = Field(None, exclude=True)
     password: str = Field(None, exclude=True)
 
     class ConfigDict:
@@ -66,13 +67,13 @@ class SignupResponse(SignupBase):
 
 
 class LoginBase(BaseModel):
-    id: int
+    id: UUID
     username: EmailStr
     password: str = Field(min_length=8, max_length=16)
 
 
 class LoginRequest(LoginBase):
-    id: int = Field(None, exclude=True)
+    id: UUID = Field(None, exclude=True)
 
     class ConfigDict:
         from_attributes = True
