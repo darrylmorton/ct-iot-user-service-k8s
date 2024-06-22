@@ -5,52 +5,47 @@ from fastapi import APIRouter, HTTPException, Body
 from jose import jwt
 
 from pydantic import ValidationError
-from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from utils.auth_util import create_token_expiry
-from config import JWT_SECRET, get_logger
-from schemas import (
-    User,
-    SignupResponse,
-    SignupRequest,
-    LoginRequest,
-)
-from crud import add_user, find_user_by_username, authorise, add_user_details
+import config
+import schemas
+from utils import auth_util
+import crud
 
-logger = get_logger()
+logger = config.get_logger()
 
 router = APIRouter()
 
 
-@router.post("/signup", response_model=SignupResponse, status_code=201)
+@router.post("/signup", response_model=schemas.SignupResponse, status_code=201)
 async def signup(
-    signup_request: Annotated[SignupRequest, Body(embed=False)],
-) -> JSONResponse | SignupResponse:
+    signup_request: Annotated[schemas.SignupRequest, Body(embed=False)],
+) -> JSONResponse | schemas.SignupResponse:
     validation_status_code = HTTPStatus.UNAUTHORIZED
     validation_message = "Invalid username or password"
 
     try:
-        username_exists = await find_user_by_username(signup_request.username)
+        username_exists = await crud.find_user_by_username(signup_request.username)
 
         if username_exists:
             return JSONResponse(status_code=409, content="Username exists")
 
-        user = await add_user(
+        user = await crud.add_user(
             _username=signup_request.username, _password=signup_request.password
         )
 
         validation_status_code = HTTPStatus.BAD_REQUEST
         validation_message = "Invalid first or last name"
 
-        user_details = await add_user_details(
+        user_details = await crud.add_user_details(
             _user_id=user.id,
             _first_name=signup_request.first_name,
             _last_name=signup_request.last_name,
         )
 
-        return SignupResponse(
+        return schemas.SignupResponse(
             username=user.username,
             first_name=user_details.first_name,
             last_name=user_details.last_name,
@@ -61,35 +56,35 @@ async def signup(
         raise HTTPException(
             status_code=validation_status_code, detail=validation_message
         ) from error
-    except DatabaseError as error:
-        logger.error(f"signup database error {error}")
+    except SQLAlchemyError as error:
+        logger.error(f"Cannot signup {error}")
 
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Database error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot signup"
         ) from error
 
 
-@router.post("/login", response_model=User, status_code=200)
+@router.post("/login", response_model=schemas.User, status_code=200)
 async def login(req: Request) -> JSONResponse:
     request_payload = await req.json()
 
     try:
-        LoginRequest.model_validate(request_payload)
+        schemas.LoginRequest.model_validate(request_payload)
 
         username = request_payload["username"]
         password = request_payload["password"]
 
-        authorised_user = await authorise(_username=username, _password=password)
+        authorised_user = await crud.authorise(_username=username, _password=password)
 
         if not authorised_user.enabled:
             return JSONResponse(status_code=403, content="Account not enabled")
         elif authorised_user.enabled:
-            expiry = create_token_expiry()
+            expiry = auth_util.create_token_expiry()
 
             token = {
                 "token": jwt.encode(
                     {"username": username, "exp": expiry},
-                    JWT_SECRET,
+                    config.JWT_SECRET,
                     algorithm="HS256",
                 )
             }
@@ -101,9 +96,9 @@ async def login(req: Request) -> JSONResponse:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid username or password"
         ) from error
-    except DatabaseError as error:
-        logger.error(f"login database error {error}")
+    except SQLAlchemyError as error:
+        logger.error(f"Cannot login {error}")
 
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Database error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot login"
         ) from error
