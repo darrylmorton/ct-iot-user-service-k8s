@@ -1,11 +1,9 @@
 import uuid
 import bcrypt
 
-from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
-import models
 import schemas
 from database import async_session
 from utils import db_util
