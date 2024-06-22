@@ -142,21 +142,28 @@ async def find_user_details_by_user_id(user_id: uuid, offset=0) -> schemas.UserD
 async def add_user_details(
     _user_id: uuid, _first_name: str, _last_name: str
 ) -> JSONResponse | schemas.UserDetails:
-    async with async_session() as session:
-        user_details = models.UserDetailsModel(
-            user_id=_user_id, first_name=_first_name, last_name=_last_name
-        )
+    error_message = f"Cannot add user details with {_first_name=} {_last_name=}"
 
-        async with session.begin():
-            session.add(user_details)
-            await session.commit()
+    try:
+        async with async_session() as session:
+            user_details = db_util.add_user_details_model(
+                user_id=_user_id, first_name=_first_name, last_name=_last_name
+            )
 
-        await session.refresh(user_details)
+            async with session.begin():
+                session.add(user_details)
+                await session.commit()
+
+            await session.refresh(user_details)
+
+            return schemas.UserDetails(
+                id=user_details.id,
+                user_id=user_details.user_id,
+                first_name=user_details.first_name,
+                last_name=user_details.last_name,
+            )
+    except SQLAlchemyError:
+        log.error(error_message)
+        raise SQLAlchemyError(error_message)
+    finally:
         await session.close()
-
-        return schemas.UserDetails(
-            id=user_details.id,
-            user_id=user_details.id,
-            first_name=user_details.first_name,
-            last_name=user_details.last_name,
-        )
