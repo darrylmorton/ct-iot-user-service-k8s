@@ -99,6 +99,8 @@ async def authorise(_username: str, _password: str) -> schemas.UserAuthenticated
             except SQLAlchemyError:
                 log.error(error_message)
                 raise SQLAlchemyError(error_message)
+            finally:
+                await session.close()
 
 
 async def find_user_details(offset=0) -> list[schemas.UserDetails]:
