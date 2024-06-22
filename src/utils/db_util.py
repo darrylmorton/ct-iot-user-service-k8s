@@ -13,3 +13,7 @@ def find_user_by_username_stmt(username: str):
 
 def add_user_model(username: str, password_hash: str):
     return models.UserModel(username=username, password_hash=password_hash)
+
+
+def find_user_details_stmt(offset=0):
+    return select(models.UserDetailsModel).limit(25).offset(offset)

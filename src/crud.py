@@ -106,11 +106,18 @@ async def authorise(_username: str, _password: str) -> schemas.UserAuthenticated
 async def find_user_details(offset=0) -> list[schemas.UserDetails]:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(models.UserDetailsModel).limit(25).offset(offset)
-            result = await session.execute(stmt)
-            await session.close()
+            error_message = "Cannot find user details"
 
-            return result.scalars().all()
+            try:
+                stmt = db_util.find_user_details_stmt(offset=offset)
+                result = await session.execute(stmt)
+
+                return result.scalars().all()
+            except SQLAlchemyError:
+                log.error(error_message)
+                raise SQLAlchemyError(error_message)
+            finally:
+                await session.close()
 
 
 async def find_user_details_by_user_id(user_id: uuid, offset=0) -> schemas.UserDetails:

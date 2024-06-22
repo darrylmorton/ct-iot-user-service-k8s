@@ -37,3 +37,10 @@ class TestCrudExceptions:
 
         with pytest.raises(SQLAlchemyError):
             await crud.authorise(self.username, self.password)
+
+    @patch("utils.db_util.find_user_details_stmt")
+    async def test_find_user_details_exception(self, mock_stmt):
+        mock_stmt.return_value = None
+
+        with pytest.raises(SQLAlchemyError):
+            await crud.find_user_details()
