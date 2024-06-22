@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from config import get_logger
 from schemas import User
-from crud import find_users, find_user_by_username
+import crud
 
 logger = get_logger()
 
@@ -22,18 +22,18 @@ async def get_users(req: Request) -> list[User] | JSONResponse:
         offset = 0
 
     try:
-        return await find_users(offset)
-    except DatabaseError as e:
-        logger.error(f"get_users database error {e}")
+        return await crud.find_users(offset)
+    except SQLAlchemyError as error:
+        logger.error(f"get_users {error}")
 
-        return JSONResponse(status_code=500, content="Database error")
+        return JSONResponse(status_code=500, content="Cannot get users")
 
 
 @router.get("/users/{username}", response_model=User)
 async def get_user_by_username(username: str) -> User | JSONResponse:
     try:
-        return await find_user_by_username(username)
-    except DatabaseError as error:
-        logger.error(f"get_user_by_username database error {error}")
+        return await crud.find_user_by_username(username)
+    except SQLAlchemyError as error:
+        logger.error(f"get_user_by_username {error}")
 
-        return JSONResponse(status_code=500, content="Database error")
+        return JSONResponse(status_code=500, content="Cannot get users by username")
