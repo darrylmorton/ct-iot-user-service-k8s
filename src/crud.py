@@ -3,41 +3,58 @@ import uuid
 import bcrypt
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
-from schemas import User, UserAuthenticated, UserDetails
+import models
+import schemas
 from database import async_session
-from models import UserModel, UserDetailsModel
+from utils import db_util
+from logger import log
 
 
-async def find_users(offset=0) -> list[User]:
+async def find_users(offset=0) -> list[schemas.User]:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).limit(25).offset(offset)
-            result = await session.execute(stmt)
-            await session.close()
+            error_message = "Cannot find users"
 
-            return result.scalars().all()
+            try:
+                stmt = db_util.find_users_stmt(offset=offset)
+                result = await session.execute(stmt)
+
+                return result.scalars().all()
+            except SQLAlchemyError:
+                log.error(error_message)
+                raise SQLAlchemyError(error_message)
+            finally:
+                await session.close()
 
 
-async def find_user_by_username(username: str) -> User:
+async def find_user_by_username(username: str) -> schemas.User:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).where(UserModel.username == username)
-            result = await session.execute(stmt)
-            await session.close()
+            error_message = f"Cannot find user with username {username=}"
 
-            return result.scalars().first()
+            try:
+                stmt = db_util.find_user_by_username_stmt(username=username)
+                result = await session.execute(stmt)
+
+                return result.scalars().first()
+            except SQLAlchemyError:
+                log.error(error_message)
+                raise SQLAlchemyError(error_message)
+            finally:
+                await session.close()
 
 
-async def add_user(_username: str, _password: str) -> JSONResponse | User:
+async def add_user(_username: str, _password: str) -> JSONResponse | schemas.User:
     password = _password.encode("utf-8")
 
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
     async with async_session() as session:
-        user = UserModel(username=_username, password_hash=password_hash)
+        user = models.UserModel(username=_username, password_hash=password_hash)
 
         async with session.begin():
             session.add(user)
@@ -46,13 +63,15 @@ async def add_user(_username: str, _password: str) -> JSONResponse | User:
         await session.refresh(user)
         await session.close()
 
-        return User(id=user.id, username=user.username)
+        return schemas.User(id=user.id, username=user.username)
 
 
-async def authorise(_username: str, _password: str) -> UserAuthenticated:
+async def authorise(_username: str, _password: str) -> schemas.UserAuthenticated:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserModel).where(UserModel.username == _username)
+            stmt = select(models.UserModel).where(
+                _username == models.UserModel.username
+            )
             result = await session.execute(stmt)
 
             user = result.scalars().first()
@@ -64,29 +83,29 @@ async def authorise(_username: str, _password: str) -> UserAuthenticated:
                 password_match = bcrypt.checkpw(password, password_hash)
 
                 if password_match:
-                    return UserAuthenticated(
+                    return schemas.UserAuthenticated(
                         id=user.id, username=user.username, enabled=user.enabled
                     )
 
-            return UserAuthenticated(enabled=False)
+            return schemas.UserAuthenticated(enabled=False)
 
 
-async def find_user_details(offset=0) -> list[UserDetails]:
+async def find_user_details(offset=0) -> list[schemas.UserDetails]:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(UserDetailsModel).limit(25).offset(offset)
+            stmt = select(models.UserDetailsModel).limit(25).offset(offset)
             result = await session.execute(stmt)
             await session.close()
 
             return result.scalars().all()
 
 
-async def find_user_details_by_user_id(user_id: uuid, offset=0) -> UserDetails:
+async def find_user_details_by_user_id(user_id: uuid, offset=0) -> schemas.UserDetails:
     async with async_session() as session:
         async with session.begin():
             stmt = (
-                select(UserDetailsModel)
-                .where(UserDetailsModel.user_id == user_id)
+                select(models.UserDetailsModel)
+                .where(models.UserDetailsModel.user_id == user_id)
                 .limit(25)
                 .offset(offset)
             )
@@ -98,9 +117,9 @@ async def find_user_details_by_user_id(user_id: uuid, offset=0) -> UserDetails:
 
 async def add_user_details(
     _user_id: uuid, _first_name: str, _last_name: str
-) -> JSONResponse | UserDetails:
+) -> JSONResponse | schemas.UserDetails:
     async with async_session() as session:
-        user_details = UserDetailsModel(
+        user_details = models.UserDetailsModel(
             user_id=_user_id, first_name=_first_name, last_name=_last_name
         )
 
@@ -111,7 +130,7 @@ async def add_user_details(
         await session.refresh(user_details)
         await session.close()
 
-        return UserDetails(
+        return schemas.UserDetails(
             id=user_details.id,
             user_id=user_details.id,
             first_name=user_details.first_name,
