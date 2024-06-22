@@ -1,5 +1,4 @@
 import uuid
-
 import bcrypt
 
 from sqlalchemy import select
@@ -53,17 +52,25 @@ async def add_user(_username: str, _password: str) -> JSONResponse | schemas.Use
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
-    async with async_session() as session:
-        user = models.UserModel(username=_username, password_hash=password_hash)
+    try:
+        async with async_session() as session:
+            error_message = f"Cannot add user with {_username=}"
 
-        async with session.begin():
-            session.add(user)
-            await session.commit()
+            user = db_util.add_user_model(
+                username=_username, password_hash=password_hash
+            )
 
-        await session.refresh(user)
+            async with session.begin():
+                session.add(user)
+                await session.commit()
+
+            await session.refresh(user)
+            return schemas.User(id=user.id, username=user.username)
+    except SQLAlchemyError:
+        log.error(error_message)
+        raise SQLAlchemyError(error_message)
+    finally:
         await session.close()
-
-        return schemas.User(id=user.id, username=user.username)
 
 
 async def authorise(_username: str, _password: str) -> schemas.UserAuthenticated:
