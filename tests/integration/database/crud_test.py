@@ -1,5 +1,4 @@
 import crud
-from logger import log
 
 
 class TestCrud:
@@ -8,7 +7,6 @@ class TestCrud:
 
     async def test_find_users(self, db_cleanup):
         result = await crud.find_users()
-        log.info(f"test find users {result=}")
 
         assert len(result) == 0
 
