@@ -57,10 +57,10 @@ async def signup(
             status_code=validation_status_code, detail=validation_message
         ) from error
     except SQLAlchemyError as error:
-        logger.error(f"signup database error {error}")
+        logger.error(f"Cannot signup {error}")
 
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Database error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot signup"
         ) from error
 
 
@@ -97,8 +97,8 @@ async def login(req: Request) -> JSONResponse:
             status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid username or password"
         ) from error
     except SQLAlchemyError as error:
-        logger.error(f"login database error {error}")
+        logger.error(f"Cannot login {error}")
 
         raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Database error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot login"
         ) from error
