@@ -7,6 +7,7 @@ import crud
 
 
 class TestCrudExceptions:
+    user_id = "00000000-0000-0000-0000-000000000000"
     username = "foo@home.com"
     password = "barbarba"
 
@@ -44,3 +45,10 @@ class TestCrudExceptions:
 
         with pytest.raises(SQLAlchemyError):
             await crud.find_user_details()
+
+    @patch("utils.db_util.find_user_details_by_user_id_stmt")
+    async def test_find_user_details_by_user_id_exception(self, mock_stmt):
+        mock_stmt.return_value = None
+
+        with pytest.raises(SQLAlchemyError):
+            await crud.find_user_details_by_user_id(self.user_id)

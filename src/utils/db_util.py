@@ -17,3 +17,12 @@ def add_user_model(username: str, password_hash: str):
 
 def find_user_details_stmt(offset=0):
     return select(models.UserDetailsModel).limit(25).offset(offset)
+
+
+def find_user_details_by_user_id_stmt(user_id: int, offset=0):
+    return (
+        select(models.UserDetailsModel)
+        .where(user_id == models.UserDetailsModel.user_id)
+        .limit(25)
+        .offset(offset)
+    )

@@ -2,6 +2,7 @@ import crud
 
 
 class TestCrud:
+    user_id = "00000000-0000-0000-0000-000000000000"
     username = "foo@home.com"
     password = "barbarba"
 
@@ -35,3 +36,8 @@ class TestCrud:
         result = await crud.find_user_details()
 
         assert len(result) == 0
+
+    async def test_user_details_by_user_id(self, db_cleanup):
+        result = await crud.find_user_details_by_user_id(self.user_id)
+
+        assert not result

@@ -123,16 +123,20 @@ async def find_user_details(offset=0) -> list[schemas.UserDetails]:
 async def find_user_details_by_user_id(user_id: uuid, offset=0) -> schemas.UserDetails:
     async with async_session() as session:
         async with session.begin():
-            stmt = (
-                select(models.UserDetailsModel)
-                .where(models.UserDetailsModel.user_id == user_id)
-                .limit(25)
-                .offset(offset)
-            )
-            result = await session.execute(stmt)
-            await session.close()
+            error_message = "Cannot find user details"
 
-            return result.scalars().first()
+            try:
+                stmt = db_util.find_user_details_by_user_id_stmt(
+                    user_id=user_id, offset=offset
+                )
+                result = await session.execute(stmt)
+
+                return result.scalars().first()
+            except SQLAlchemyError:
+                log.error(error_message)
+                raise SQLAlchemyError(error_message)
+            finally:
+                await session.close()
 
 
 async def add_user_details(
