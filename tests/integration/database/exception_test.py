@@ -30,3 +30,10 @@ class TestCrudExceptions:
 
         with pytest.raises(SQLAlchemyError):
             await crud.add_user(self.username, self.password)
+
+    @patch("utils.db_util.find_user_by_username_stmt")
+    async def test_authorise_exception(self, mock_model):
+        mock_model.return_value = None
+
+        with pytest.raises(SQLAlchemyError):
+            await crud.authorise(self.username, self.password)

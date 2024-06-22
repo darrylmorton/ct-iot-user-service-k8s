@@ -76,25 +76,29 @@ async def add_user(_username: str, _password: str) -> JSONResponse | schemas.Use
 async def authorise(_username: str, _password: str) -> schemas.UserAuthenticated:
     async with async_session() as session:
         async with session.begin():
-            stmt = select(models.UserModel).where(
-                _username == models.UserModel.username
-            )
-            result = await session.execute(stmt)
+            error_message = f"Cannot authorise {_username=}"
 
-            user = result.scalars().first()
+            try:
+                stmt = db_util.find_user_by_username_stmt(username=_username)
+                result = await session.execute(stmt)
 
-            if user:
-                password = _password.encode("utf-8")
-                password_hash = user.password_hash.encode("utf-8")
+                user = result.scalars().first()
 
-                password_match = bcrypt.checkpw(password, password_hash)
+                if user:
+                    password = _password.encode("utf-8")
+                    password_hash = user.password_hash.encode("utf-8")
 
-                if password_match:
-                    return schemas.UserAuthenticated(
-                        id=user.id, username=user.username, enabled=user.enabled
-                    )
+                    password_match = bcrypt.checkpw(password, password_hash)
 
-            return schemas.UserAuthenticated(enabled=False)
+                    if password_match:
+                        return schemas.UserAuthenticated(
+                            id=user.id, username=user.username, enabled=user.enabled
+                        )
+
+                return schemas.UserAuthenticated(enabled=False)
+            except SQLAlchemyError:
+                log.error(error_message)
+                raise SQLAlchemyError(error_message)
 
 
 async def find_user_details(offset=0) -> list[schemas.UserDetails]:
