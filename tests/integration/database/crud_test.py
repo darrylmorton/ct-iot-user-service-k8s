@@ -23,17 +23,6 @@ class TestCrud:
 
         assert result
 
-    async def test_authorise(self, db_cleanup):
-        expected_result = await crud.add_user(
-            _username=self.username, _password=self.password
-        )
-
-        actual_result = await crud.authorise(self.username, self.password)
-
-        assert actual_result.id == expected_result.id
-        assert actual_result.username == expected_result.username
-        assert actual_result.enabled is False
-
     async def test_find_user_details(self, db_cleanup):
         result = await crud.find_user_details()
 

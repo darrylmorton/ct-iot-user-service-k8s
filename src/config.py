@@ -2,14 +2,18 @@ import logging
 import os
 from dotenv import load_dotenv
 
+from utils import app_util
+
 load_dotenv()
+
+APP_VERSION = app_util.get_app_version()
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+AWS_REGION = os.environ.get("AWS_REGION")
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT") or "DEVELOPMENT"
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or "INFO"
 SERVICE_NAME = os.environ.get("SERVICE_NAME") or "user-service"
 APP_PORT = os.environ.get("APP_PORT") or 8001
-JWT_SECRET = os.environ.get("JWT_SECRET")
-JWT_TOKEN_EXPIRY_SECONDS = int(os.environ.get("JWT_TOKEN_EXPIRY_SECONDS"))
 
 DATABASE_URL_PREFIX = "postgresql+asyncpg"
 DATABASE_URL_SUFFIX = (

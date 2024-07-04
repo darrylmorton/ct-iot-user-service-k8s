@@ -26,6 +26,8 @@ email-validator = "^2.1.0.post1"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 cryptography = "^41.0.7"
 structlog = "^24.1.0"
+toml = "^0.10.2"
+sentry-sdk = {version = "^2.7.1", extras = ["fastapi"]}
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"

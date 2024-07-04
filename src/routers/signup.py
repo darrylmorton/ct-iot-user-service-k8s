@@ -2,16 +2,13 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Body
-from jose import jwt
 
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
 import schemas
-from utils import auth_util
 import crud
 
 logger = config.get_logger()
@@ -61,44 +58,4 @@ async def signup(
 
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot signup"
-        ) from error
-
-
-@router.post("/login", response_model=schemas.User, status_code=200)
-async def login(req: Request) -> JSONResponse:
-    request_payload = await req.json()
-
-    try:
-        schemas.LoginRequest.model_validate(request_payload)
-
-        username = request_payload["username"]
-        password = request_payload["password"]
-
-        authorised_user = await crud.authorise(_username=username, _password=password)
-
-        if not authorised_user.enabled:
-            return JSONResponse(status_code=403, content="Account not enabled")
-        elif authorised_user.enabled:
-            expiry = auth_util.create_token_expiry()
-
-            token = {
-                "token": jwt.encode(
-                    {"username": username, "exp": expiry},
-                    config.JWT_SECRET,
-                    algorithm="HS256",
-                )
-            }
-
-            return JSONResponse(status_code=200, content=token)
-    except ValueError as error:
-        logger.debug("login validation error")
-
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid username or password"
-        ) from error
-    except SQLAlchemyError as error:
-        logger.error(f"Cannot login {error}")
-
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot login"
         ) from error
