@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  user-service-postgres-development:
-    container_name: user-service-postgres-development
+  user-db:
+    container_name: user-db
     image: postgres:16.0-alpine
     ports:
       - "5432:5432"
@@ -10,3 +10,26 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=users
+    healthcheck :
+      test: [ "CMD", "pg_isready", "-q", "-d", "users", "-U", "postgres" ]
+      interval : 5s
+      timeout : 5s
+      retries : 5
+
+  authentication-service:
+    env_file:
+      - .env.sentry
+    container_name: authentication-service
+    image: ghcr.io/darrylmorton/ct-iot-authentication-service:0.0.1
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - SERVICE_NAME=authentication-service
+      - UVICORN_PORT=8001
+      - JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+      - JWT_TOKEN_EXPIRY_SECONDS=3600
+    depends_on:
+      user-db:
+        condition: service_healthy

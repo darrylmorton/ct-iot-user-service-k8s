@@ -20,13 +20,13 @@ def main():
 
         uvicorn.run(
             app="user_service.service.server",
-            host=config.APP_HOST,
-            port=config.APP_PORT,
+            # host=config.APP_HOST,
+            # port=config.APP_PORT,
             workers=calculated_workers,
             log_config=None,
         )
-    except Exception as e:
-        log.error(f"Error with uvicorn {e}")
+    except Exception as error:
+        log.error(f"Error with uvicorn {error}")
         raise Exception
 
 

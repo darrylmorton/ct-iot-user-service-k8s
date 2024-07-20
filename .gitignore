@@ -5,6 +5,7 @@ __pycache__/
 bin/
 venv/
 .env
+.env.sentry
 *.log
 htmlcov/
 .coverage

@@ -16,7 +16,9 @@ logger = config.get_logger()
 router = APIRouter()
 
 
-@router.post("/signup", response_model=schemas.SignupResponse, status_code=201)
+@router.post(
+    "/signup", response_model=schemas.SignupResponse, status_code=HTTPStatus.CREATED
+)
 async def signup(
     signup_request: Annotated[schemas.SignupRequest, Body(embed=False)],
 ) -> JSONResponse | schemas.SignupResponse:
@@ -27,7 +29,9 @@ async def signup(
         username_exists = await crud.find_user_by_username(signup_request.username)
 
         if username_exists:
-            return JSONResponse(status_code=409, content="Username exists")
+            raise HTTPException(
+                status_code=HTTPStatus.CONFLICT, detail="Username exists"
+            )
 
         user = await crud.add_user(
             _username=signup_request.username, _password=signup_request.password
