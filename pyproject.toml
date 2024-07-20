@@ -11,7 +11,7 @@ keywords = ["ct", "iot", "user", "service"]
 
 [tool.poetry.dependencies]
 python = "^3.11.9"
-fastapi = "^0.103.1"
+fastapi = "^0.109.1"
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
 python-dotenv = "^1.0.0"
 sqlalchemy = "^2.0.22"
