@@ -123,5 +123,8 @@ jobs:
 
       - name: Run integration tests
         run: |
-          make dev-server-start
+          make dev-server-start &
+          sleep 10 && 
+          curl http://localhost:8001/healthz &&
+          curl http://localhost:8002/healthz &&
           make test-integration
