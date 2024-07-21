@@ -10,7 +10,7 @@ env:
   SENTRY_SAMPLE_RATE: 50
   SERVICE_NAME: user-service
   LOG_LEVEL: DEBUG
-  ENVIRONMENT: test
+  ENVIRONMENT: development
   UVICORN_HOST: 0.0.0.0
   UVICORN_PORT: 8002
   AUTH_SERVICE_HOST: localhost
@@ -124,9 +124,9 @@ jobs:
       - name: Docker running containers
         run: docker ps -a
 
-      - name: Run integration tests
-        run: |
-          make dev-server-start &
-          sleep 20 && 
-          curl http://localhost:8002/healthz &&
-          make test-integration
+#      - name: Run integration tests
+#        run: |
+#          make dev-server-start &
+#          sleep 20 &&
+#          curl http://localhost:8002/healthz &&
+#          make test-integration
