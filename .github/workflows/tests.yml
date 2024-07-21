@@ -9,6 +9,8 @@ env:
   SENTRY_PROFILES_SAMPLE_RATE: 0.5
   SENTRY_SAMPLE_RATE: 50
   ENVIRONMENT: test
+  APP_HOST: localhost
+  UVICORN_PORT: 8002
   LOG_LEVEL: DEBUG
   SERVICE_NAME: user-service
   JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
@@ -115,7 +117,7 @@ jobs:
       - name: Sleep
         uses: kibertoad/wait-action@1.0.1
         with:
-          time: '5s'
+          time: '10s'
 
       - name: Run integration tests
         run: |
