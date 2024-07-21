@@ -119,9 +119,9 @@ jobs:
       - name: Sleep
         uses: kibertoad/wait-action@1.0.1
         with:
-          time: '10s'
+          time: '30s'
 
       - name: Run integration tests
         run: |
-          make dev-server-start &
+          make dev-server-start
           make test-integration
