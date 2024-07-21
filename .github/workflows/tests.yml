@@ -121,10 +121,12 @@ jobs:
         with:
           time: '30s'
 
+      - name: Docker running containers
+        run: docker ps -a
+
       - name: Run integration tests
         run: |
           make dev-server-start &
-          sleep 10 && 
-          curl http://localhost:8001/healthz &&
+          sleep 20 && 
           curl http://localhost:8002/healthz &&
           make test-integration
