@@ -119,5 +119,5 @@ jobs:
 
       - name: Run integration tests
         run: |
-          make server-start &
+          make dev-server-start &
           make test-integration
