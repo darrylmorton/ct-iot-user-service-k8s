@@ -5,10 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env.test")
 
-SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE"))
-SENTRY_PROFILES_SAMPLE_RATE = float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE"))
-SENTRY_SAMPLE_RATE = int(os.environ.get("SENTRY_SAMPLE_RATE"))
-
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL")
 SERVICE_NAME = os.environ.get("SERVICE_NAME")
