@@ -116,17 +116,18 @@ jobs:
       - name: Setup dependencies
         run: docker-compose up
 
-#      - name: Sleep
-#        uses: kibertoad/wait-action@1.0.1
-#        with:
-#          time: '30s'
+      - name: Sleep
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '5s'
 
       - name: Docker running containers
         run: docker ps -a
 
-#      - name: Run integration tests
-#        run: |
-#          make dev-server-start &
-#          sleep 20 &&
-#          curl http://localhost:8002/healthz &&
-#          make test-integration
+      - name: Run integration tests
+        run: |
+          make dev-server-start &
+          sleep 5 &&
+          curl http://localhost:8001/healthz &&
+          curl http://localhost:8002/healthz &&
+          make test-integration
