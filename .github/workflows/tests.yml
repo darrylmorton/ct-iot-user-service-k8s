@@ -114,12 +114,12 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Setup dependencies
-        run: docker-compose up -d
+        run: docker-compose up
 
-      - name: Sleep
-        uses: kibertoad/wait-action@1.0.1
-        with:
-          time: '30s'
+#      - name: Sleep
+#        uses: kibertoad/wait-action@1.0.1
+#        with:
+#          time: '30s'
 
       - name: Docker running containers
         run: docker ps -a
