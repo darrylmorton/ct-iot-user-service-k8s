@@ -25,7 +25,7 @@ services:
       - SENTRY_TRACES_SAMPLE_RATE=1.0
       - SENTRY_PROFILES_SAMPLE_RATE=0.5
       - SENTRY_SAMPLE_RATE=50
-      - ENVIRONMENT=development
+      - ENVIRONMENT=test
       - LOG_LEVEL=DEBUG
       - SERVICE_NAME=authentication-service
       - UVICORN_PORT=8001
