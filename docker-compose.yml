@@ -17,13 +17,14 @@ services:
       retries : 5
 
   authentication-service:
-    env_file:
-      - .env.sentry
     container_name: authentication-service
     image: ghcr.io/darrylmorton/ct-iot-authentication-service:0.0.1
     ports:
       - "8001:8001"
     environment:
+      - SENTRY_TRACES_SAMPLE_RATE=1.0
+      - SENTRY_PROFILES_SAMPLE_RATE=0.5
+      - SENTRY_SAMPLE_RATE=50
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
       - SERVICE_NAME=authentication-service
