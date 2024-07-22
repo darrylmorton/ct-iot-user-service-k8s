@@ -40,7 +40,7 @@ DATABASE_URL_SUFFIX = (
 )
 DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"
 
-JWT_EXCLUDED_ENDPOINTS = ["/healthz", "/api/signup"]
+JWT_EXCLUDED_ENDPOINTS = ["/openapi.json", "/docs", "/healthz", "/api/signup"]
 
 
 def get_logger() -> logging.Logger:

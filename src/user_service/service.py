@@ -18,6 +18,7 @@ import crud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login
+from utils import app_util
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
@@ -72,7 +73,7 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"{SERVICE_NAME} is shutting down...")
 
 
-server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
 # TODO check user path param matches user in token
@@ -80,7 +81,7 @@ server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 #  Could be achieved within users/{username} route by
 #  comparing path param and session user?
 #  Or obtain path param from within middleware would be cleaner and more secure
-@server.middleware("http")
+@app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
 
@@ -121,11 +122,13 @@ async def authenticate(request: Request, call_next):
     return await call_next(request)
 
 
-server.include_router(health.router, include_in_schema=False)
+app.include_router(health.router, include_in_schema=False)
 
-server.include_router(signup.router, prefix="/api", tags=["signup"])
-server.include_router(login.router, prefix="/api", tags=["login"])
-server.include_router(users.router, prefix="/api", tags=["users"])
-server.include_router(user_details.router, prefix="/api", tags=["user-details"])
+app.include_router(signup.router, prefix="/api", tags=["signup"])
+app.include_router(login.router, prefix="/api", tags=["login"])
+app.include_router(users.router, prefix="/api", tags=["users"])
+app.include_router(user_details.router, prefix="/api", tags=["user-details"])
 # roles need to be implemented to restrict access
-# server.include_router(users.router, prefix="/api", tags=["admin"])
+# app.include_router(users.router, prefix="/api", tags=["admin"])
+
+app = app_util.set_openapi_info(app=app)
