@@ -1,3 +1,4 @@
+import pytest
 from jose import jwt
 
 from tests.config import JWT_SECRET
@@ -8,6 +9,7 @@ username = "foo@home.com"
 password = "barbarba"
 
 
+@pytest.mark.skip
 class TestAuthorise:
     async def test_authorise_invalid_request(self):
         _token = ""

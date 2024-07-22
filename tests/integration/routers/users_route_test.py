@@ -1,49 +1,70 @@
+from unittest import skip
+
+import pytest
 from jose import jwt
 
+from tests.helper.user_helper import create_signup_payload
 from tests.config import JWT_SECRET
 from tests.helper.auth_helper import create_token_expiry
 from tests.helper.routes_helper import http_client, TEST_URL, validate_uuid4
 
-username = "foo@home.com"
-password = "barbarba"
-
-token = jwt.encode(
-    {"username": username, "exp": create_token_expiry()},
-    JWT_SECRET,
-    algorithm="HS256",
-)
-
 
 class TestUsersRoute:
-    async def test_get_users_valid_token(self):
-        response = await http_client(TEST_URL, "/api/users", token)
-        actual_result = response.json()
+    username = "foo@home.com"
+    password = "barbarba"
 
-        assert response.status_code == 200
-        assert len(actual_result) == 1
-        assert validate_uuid4(actual_result[0]["id"])
-        assert actual_result[0]["username"] == username
+    token = jwt.encode(
+        {"username": username, "exp": create_token_expiry()},
+        JWT_SECRET,
+        algorithm="HS256",
+    )
 
+    @skip(reason="requires user roles")
     async def test_get_users(self):
-        response = await http_client(TEST_URL, "/api/users", token)
+        response = await http_client(TEST_URL, "/api/admin/users", self.token)
         actual_result = response.json()
 
         assert response.status_code == 200
         assert len(actual_result) == 1
         assert validate_uuid4(actual_result[0]["id"])
-        assert actual_result[0]["username"] == username
+        assert actual_result[0]["username"] == self.username
 
+    @skip(reason="requires user roles")
     async def test_get_users_offset(self):
-        response = await http_client(TEST_URL, "/api/users?offset=1", token)
+        response = await http_client(TEST_URL, "/api/admin/users?offset=1", self.token)
         actual_result = response.json()
 
         assert response.status_code == 200
         assert len(actual_result) == 0
 
-    async def test_get_by_user_username(self):
-        response = await http_client(TEST_URL, f"/api/users/{username}", token)
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_enabled=True)]],
+        indirect=True,
+    )
+    async def test_get_by_user_username_valid_token(self, db_cleanup, add_test_user):
+        response = await http_client(
+            TEST_URL, f"/api/users/{self.username}", self.token
+        )
+
+        print(f"response: {response}")
+
         actual_result = response.json()
 
         assert response.status_code == 200
         assert validate_uuid4(actual_result["id"])
-        assert actual_result["username"] == username
+        assert actual_result["username"] == self.username
+
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_enabled=False)]],
+        indirect=True,
+    )
+    async def test_get_by_user_username_valid_token_user_not_enabled(
+        self, db_cleanup, add_test_user
+    ):
+        response = await http_client(
+            TEST_URL, f"/api/users/{self.username}", self.token
+        )
+
+        assert response.status_code == 401

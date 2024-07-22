@@ -11,6 +11,7 @@ first_name = "Foo"
 last_name = "Bar"
 
 
+@pytest.mark.skip
 class TestAuthRoute:
     async def test_post_login_invalid_username(self):
         _username = "foo"

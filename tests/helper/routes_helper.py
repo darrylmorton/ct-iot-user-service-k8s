@@ -2,10 +2,10 @@ import uuid
 
 from httpx import AsyncClient
 
-from tests.config import APP_PORT
+from tests.config import APP_HOST, APP_PORT
 
 
-TEST_URL = f"http://localhost:{APP_PORT}"
+TEST_URL = f"http://{APP_HOST}:{APP_PORT}"
 
 
 async def http_client(base_url, path, token=None):

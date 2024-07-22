@@ -1,7 +1,7 @@
 # ct-iot-user-service
 
 ## Requirements
-Python 3.12.0
+Python 3.11.9
 Poetry 1.7.1
 
 ## Install
@@ -23,7 +23,7 @@ DB_NAME=
 ```
 
 ## Dev
-Swagger docs: http://localhost:8001/docs
+Swagger docs: http://localhost:8002/docs
 ```
 make dev-server-start
 ```

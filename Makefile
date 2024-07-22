@@ -6,12 +6,16 @@ lint: fmt
 	poetry run ruff check . --fix
 .PHONY: lint
 
+build: lint
+	DOCKER_BUILDKIT=1 docker build --platform=linux/amd64 --target=runtime --progress=plain .
+.PHONY: build
+
 dev-server-start: fmt
-	poetry run uvicorn --log-level=debug user_service.service:server --reload --port 8001
+	poetry run uvicorn --log-level=debug user_service.service:server --reload --port 8002
 .PHONY: dev-server-start
 
 server-start: fmt
-	poetry run uvicorn user_service.service:server --port 8001 &
+	poetry run uvicorn user_service.service:server
 .PHONY: server-start
 
 run-migrations: fmt
@@ -33,10 +37,6 @@ test-unit: fmt
 test-integration: fmt
 	poetry run pytest tests/integration/
 .PHONY: test-integration
-
-test-integration-with-server: server-start
-	poetry run pytest tests/integration/
-.PHONY: test-integration-with-server
 
 test: fmt
 	poetry run pytest tests/
