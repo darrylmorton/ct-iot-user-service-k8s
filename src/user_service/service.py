@@ -39,30 +39,30 @@ async def run_migrations():
 async def lifespan_wrapper(app: FastAPI):
     log.info(f"Starting {SERVICE_NAME}...{app.host}")
 
-    # if config.ENVIRONMENT == "production":
-    sentry_sdk.init(
-        dsn=config.SENTRY_DSN,
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for tracing.
-        traces_sample_rate=config.SENTRY_TRACES_SAMPLE_RATE,
-        # Set profiles_sample_rate to 1.0 to profile 100%
-        # of sampled transactions.
-        # We recommend adjusting this value in production.
-        profiles_sample_rate=config.SENTRY_PROFILES_SAMPLE_RATE,
-        sample_rate=config.SENTRY_SAMPLE_RATE,
-        environment=config.ENVIRONMENT,
-        server_name=config.SERVICE_NAME,
-        integrations=[
-            StarletteIntegration(
-                transaction_style="endpoint",
-                failed_request_status_codes=[403, range(500, 599)],
-            ),
-            FastApiIntegration(
-                transaction_style="endpoint",
-                failed_request_status_codes=[403, range(500, 599)],
-            ),
-        ],
-    )
+    if config.ENVIRONMENT == "production":
+        sentry_sdk.init(
+            dsn=config.SENTRY_DSN,
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for tracing.
+            traces_sample_rate=config.SENTRY_TRACES_SAMPLE_RATE,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=config.SENTRY_PROFILES_SAMPLE_RATE,
+            sample_rate=config.SENTRY_SAMPLE_RATE,
+            environment=config.ENVIRONMENT,
+            server_name=config.SERVICE_NAME,
+            integrations=[
+                StarletteIntegration(
+                    transaction_style="endpoint",
+                    failed_request_status_codes=[403, range(500, 599)],
+                ),
+                FastApiIntegration(
+                    transaction_style="endpoint",
+                    failed_request_status_codes=[403, range(500, 599)],
+                ),
+            ],
+        )
 
     await run_migrations()
 
