@@ -20,7 +20,6 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11.9-slim as runtime
 
-#COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 ENV VIRTUAL_ENV=/ct-iot-user-service/venv \
