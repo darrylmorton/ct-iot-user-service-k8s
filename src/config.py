@@ -17,8 +17,6 @@ SENTRY_SAMPLE_RATE = int(os.environ.get("SENTRY_SAMPLE_RATE"))
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL")
 SERVICE_NAME = os.environ.get("SERVICE_NAME")
-APP_HOST = os.environ.get("APP_HOST")
-APP_PORT = os.environ.get("UVICORN_PORT")
 
 AUTH_SERVICE_HOST = os.environ.get("AUTH_SERVICE_HOST")
 AUTH_SERVICE_PORT = os.environ.get("AUTH_SERVICE_PORT")

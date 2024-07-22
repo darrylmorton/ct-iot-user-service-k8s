@@ -20,8 +20,6 @@ def main():
 
         uvicorn.run(
             app="user_service.service.server",
-            # host=config.APP_HOST,
-            # port=config.APP_PORT,
             workers=calculated_workers,
             log_config=None,
         )
