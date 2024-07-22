@@ -17,11 +17,11 @@ AUTH_SERVICE_HOST = os.environ.get("AUTH_SERVICE_HOST")
 AUTH_SERVICE_PORT = os.environ.get("AUTH_SERVICE_PORT")
 AUTH_SERVICE_URL = f"http://{AUTH_SERVICE_HOST}:{AUTH_SERVICE_PORT}/api"
 
-DB_USERNAME = os.environ.get("DB_USERNAME") or "postgres"
-DB_PASSWORD = os.environ.get("DB_PASSWORD") or "postgres"
-DB_HOST = os.environ.get("DB_HOST") or "localhost"
-DB_PORT = os.environ.get("DB_PORT") or 5432
-DB_NAME = os.environ.get("DB_NAME") or "users"
+DB_USERNAME = os.environ.get("DB_USERNAME")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_HOST = os.environ.get("DB_HOST")
+DB_PORT = os.environ.get("DB_PORT")
+DB_NAME = os.environ.get("DB_NAME")
 
 DATABASE_URL_PREFIX = "postgresql+asyncpg"
 DATABASE_URL_SUFFIX = (
