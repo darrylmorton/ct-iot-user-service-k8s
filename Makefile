@@ -11,11 +11,11 @@ build: lint
 .PHONY: build
 
 dev-server-start: fmt
-	poetry run uvicorn --log-level=debug user_service.service:server --reload --port 8002
+	poetry run uvicorn --log-level=debug user_service.service:app --reload --port 8002
 .PHONY: dev-server-start
 
 server-start: fmt
-	poetry run uvicorn user_service.service:server
+	poetry run uvicorn user_service.service:app
 .PHONY: server-start
 
 run-migrations: fmt
