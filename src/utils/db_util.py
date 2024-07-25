@@ -14,9 +14,13 @@ def find_user_by_username_stmt(username: str):
     return select(models.UserModel).where(username == models.UserModel.username)
 
 
-def find_user_by_username_and_enabled_stmt(username: str):
+def find_user_by_id_stmt(_id: str):
+    return select(models.UserModel).where(_id == models.UserModel.id)
+
+
+def find_user_by_id_and_enabled_stmt(_id: str):
     return select(models.UserModel).where(
-        username == models.UserModel.username,
+        _id == models.UserModel.id,
         models.UserModel.enabled,
     )
 

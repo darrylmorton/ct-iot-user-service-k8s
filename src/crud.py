@@ -1,4 +1,5 @@
 import uuid
+
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -53,17 +54,32 @@ async def find_users(offset=0) -> list[schemas.User]:
                 await session.close()
 
 
-async def find_user_by_username_and_enabled(username: str) -> schemas.User:
+async def find_user_by_id(_id: str) -> schemas.User:
     async with async_session() as session:
         async with session.begin():
             try:
-                stmt = db_util.find_user_by_username_and_enabled_stmt(username=username)
+                stmt = db_util.find_user_by_id_stmt(_id=_id)
                 result = await session.execute(stmt)
 
                 return result.scalars().first()
             except SQLAlchemyError as error:
-                log.error(f"find_user_by_username {error}")
-                raise SQLAlchemyError("Cannot find user with username")
+                log.error(f"find_user_by_id {error}")
+                raise SQLAlchemyError("Cannot find user by id")
+            finally:
+                await session.close()
+
+
+async def find_user_by_id_and_enabled(_id: str) -> schemas.User:
+    async with async_session() as session:
+        async with session.begin():
+            try:
+                stmt = db_util.find_user_by_id_and_enabled_stmt(_id=_id)
+                result = await session.execute(stmt)
+
+                return result.scalars().first()
+            except SQLAlchemyError as error:
+                log.error(f"find_user_by_id_and_enabled {error}")
+                raise SQLAlchemyError("Cannot find enabled user by id")
             finally:
                 await session.close()
 
