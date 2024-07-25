@@ -1,4 +1,6 @@
 import asyncio
+from uuid import UUID
+
 import bcrypt
 import pytest
 from sqlalchemy import delete
@@ -35,6 +37,7 @@ async def add_test_user(request):
     password_hash = bcrypt.hashpw(password, salt).decode(encoding="utf-8")
 
     user = UserModel(
+        id=UUID("848a3cdd-cafd-4ec6-a921-afb0bcc841dd"),
         username=user_request["username"],
         password_hash=password_hash,
         enabled=user_request["enabled"],

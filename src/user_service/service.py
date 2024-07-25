@@ -1,5 +1,6 @@
 import contextlib
 from http import HTTPStatus
+from uuid import UUID
 
 import requests
 
@@ -76,11 +77,6 @@ async def lifespan_wrapper(app: FastAPI):
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-# TODO check user path param matches user in token
-#  (unless roles are implemented and another user has permission to access other users)
-#  Could be achieved within users/{username} route by
-#  comparing path param and session user?
-#  Or obtain path param from within middleware would be cleaner and more secure
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
@@ -108,12 +104,19 @@ async def authenticate(request: Request, call_next):
 
         response_json = response.json()
 
-        username = response_json["username"]
+        _id = response_json["id"]
 
-        user = await crud.find_user_by_username_and_enabled(username=username)
+        if not app_util.validate_uuid4(_id):
+            log.debug("authenticate - invalid uuid")
 
-        if not user or user.username != username:
-            log.debug("authenticate - username not found")
+            return JSONResponse(
+                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+            )
+
+        user = await crud.find_user_by_id_and_enabled(_id=_id)
+
+        if not user or user.id != UUID(_id):
+            log.debug("authenticate - user not found")
 
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
