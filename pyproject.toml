@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "user-service"
-version = "0.0.1"
+version = "0.0.2"
 description = "user_service"
 authors = ["Darryl Morton"]
 license = "GNU"
