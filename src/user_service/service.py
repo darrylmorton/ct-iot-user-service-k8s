@@ -15,11 +15,11 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-import crud
+from crud import Crud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login
-from utils import app_util
+from utils.app_util import AppUtil
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
@@ -74,10 +74,10 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"{SERVICE_NAME} is shutting down...")
 
 
-app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-@app.middleware("http")
+@server.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
 
@@ -106,14 +106,14 @@ async def authenticate(request: Request, call_next):
 
         _id = response_json["id"]
 
-        if not app_util.validate_uuid4(_id):
+        if not AppUtil.validate_uuid4(_id):
             log.debug("authenticate - invalid uuid")
 
             return JSONResponse(
                 status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
             )
 
-        user = await crud.find_user_by_id_and_enabled(_id=_id)
+        user = await Crud().find_user_by_id_and_enabled(_id=_id)
 
         if not user or user.id != UUID(_id):
             log.debug("authenticate - user not found")
@@ -125,13 +125,13 @@ async def authenticate(request: Request, call_next):
     return await call_next(request)
 
 
-app.include_router(health.router, include_in_schema=False)
+server.include_router(health.router, include_in_schema=False)
 
-app.include_router(signup.router, prefix="/api", tags=["signup"])
-app.include_router(login.router, prefix="/api", tags=["login"])
-app.include_router(users.router, prefix="/api", tags=["users"])
-app.include_router(user_details.router, prefix="/api", tags=["user-details"])
+server.include_router(signup.router, prefix="/api", tags=["signup"])
+server.include_router(login.router, prefix="/api", tags=["login"])
+server.include_router(users.router, prefix="/api", tags=["users"])
+server.include_router(user_details.router, prefix="/api", tags=["user-details"])
 # roles need to be implemented to restrict access
 # app.include_router(users.router, prefix="/api", tags=["admin"])
 
-app = app_util.set_openapi_info(app=app)
+server = AppUtil.set_openapi_info(app=server)

@@ -1,25 +1,27 @@
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
-from tests.config import APP_HOST, APP_PORT
-
-
-TEST_URL = f"http://{APP_HOST}:{APP_PORT}"
+from tests.config import APP_PORT
 
 
-async def http_client(base_url, path, token=None):
-    async with AsyncClient(base_url=base_url) as ac:
-        if token:
-            ac.headers["Authorization"] = token
-        return await ac.get(path)
+class RoutesHelper:
+    TEST_URL = f"http://localhost:{APP_PORT}"
 
+    @staticmethod
+    async def http_client(app, path, token=None):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url=RoutesHelper.TEST_URL
+        ) as ac:
+            if token:
+                ac.headers["Authorization"] = token
 
-async def http_post_client(base_url, path, payload, token=None):
-    async with AsyncClient(base_url=base_url) as ac:
-        if token:
-            ac.headers["Authorization"] = token
-        return await ac.post(path, json=payload)
+            return await ac.get(path)
 
+    @staticmethod
+    async def http_post_client(app, path, payload, token=None):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url=RoutesHelper.TEST_URL
+        ) as ac:
+            if token:
+                ac.headers["Authorization"] = token
 
-async def mock_http_client(app, base_url, path):
-    async with AsyncClient(app=app, base_url=base_url) as ac:
-        return await ac.get(path)
+            return await ac.post(path, json=payload)

@@ -3,7 +3,8 @@ from jose import jwt
 
 from tests.config import JWT_SECRET
 from tests.helper.auth_helper import create_token_expiry
-from tests.helper.routes_helper import http_client, TEST_URL
+from tests.helper.routes_helper import RoutesHelper
+from user_service.service import server
 
 
 @pytest.mark.skip(reason="Users not implemented yet")
@@ -14,7 +15,7 @@ class TestAuthorise:
 
     async def test_authorise_invalid_request(self):
         _token = ""
-        response = await http_client(TEST_URL, "/api/users", _token)
+        response = await RoutesHelper.http_client(server, "/api/users", _token)
         actual_result = response.json()
 
         assert response.status_code == 401
@@ -27,7 +28,7 @@ class TestAuthorise:
             algorithm="HS256",
         )
 
-        response = await http_client(TEST_URL, "/api/users", _token)
+        response = await RoutesHelper.http_client(server, "/api/users", _token)
         actual_result = response.json()
 
         assert response.status_code == 401
@@ -40,7 +41,7 @@ class TestAuthorise:
             algorithm="HS256",
         )
 
-        response = await http_client(TEST_URL, "/api/users", _token)
+        response = await RoutesHelper.http_client(server, "/api/users", _token)
         actual_result = response.json()
 
         assert response.status_code == 401

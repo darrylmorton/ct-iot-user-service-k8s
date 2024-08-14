@@ -4,8 +4,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-import crud
 import schemas
+from crud import Crud
 
 logger = config.get_logger()
 
@@ -22,7 +22,7 @@ async def get_users(req: Request) -> list[schemas.User] | JSONResponse:
         offset = 0
 
     try:
-        return await crud.find_users(offset)
+        return await Crud().find_users(offset)
     except SQLAlchemyError as error:
         logger.error(f"get_users {error}")
 
