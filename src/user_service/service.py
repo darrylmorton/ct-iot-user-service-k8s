@@ -74,10 +74,10 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"{SERVICE_NAME} is shutting down...")
 
 
-app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-@app.middleware("http")
+@server.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
 
@@ -125,13 +125,13 @@ async def authenticate(request: Request, call_next):
     return await call_next(request)
 
 
-app.include_router(health.router, include_in_schema=False)
+server.include_router(health.router, include_in_schema=False)
 
-app.include_router(signup.router, prefix="/api", tags=["signup"])
-app.include_router(login.router, prefix="/api", tags=["login"])
-app.include_router(users.router, prefix="/api", tags=["users"])
-app.include_router(user_details.router, prefix="/api", tags=["user-details"])
+server.include_router(signup.router, prefix="/api", tags=["signup"])
+server.include_router(login.router, prefix="/api", tags=["login"])
+server.include_router(users.router, prefix="/api", tags=["users"])
+server.include_router(user_details.router, prefix="/api", tags=["user-details"])
 # roles need to be implemented to restrict access
 # app.include_router(users.router, prefix="/api", tags=["admin"])
 
-app = app_util.set_openapi_info(app=app)
+server = app_util.set_openapi_info(app=server)

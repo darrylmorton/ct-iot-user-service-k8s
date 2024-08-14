@@ -32,7 +32,7 @@ DB_NAME=
 ```
 
 ## Dev
-Swagger docs: http://localhost:8002/docs
+Swagger docs: http://localhost:8000/docs
 ```
 make dev-server-start
 ```
