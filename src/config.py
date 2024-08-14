@@ -2,11 +2,11 @@ import logging
 import os
 from dotenv import load_dotenv
 
-from utils import app_util
+from utils.app_util import AppUtil
 
 load_dotenv()
 
-APP_VERSION = app_util.get_app_version()
+APP_VERSION = AppUtil.get_app_version()
 
 AWS_REGION = os.environ.get("AWS_REGION")
 SENTRY_DSN = os.environ.get("SENTRY_DSN")

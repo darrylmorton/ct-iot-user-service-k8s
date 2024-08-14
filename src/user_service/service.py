@@ -19,7 +19,7 @@ import crud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login
-from utils import app_util
+from utils.app_util import AppUtil
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 oauth2_scheme.auto_error = False
@@ -106,7 +106,7 @@ async def authenticate(request: Request, call_next):
 
         _id = response_json["id"]
 
-        if not app_util.validate_uuid4(_id):
+        if not AppUtil.validate_uuid4(_id):
             log.debug("authenticate - invalid uuid")
 
             return JSONResponse(
@@ -134,4 +134,4 @@ server.include_router(user_details.router, prefix="/api", tags=["user-details"])
 # roles need to be implemented to restrict access
 # app.include_router(users.router, prefix="/api", tags=["admin"])
 
-server = app_util.set_openapi_info(app=server)
+server = AppUtil.set_openapi_info(app=server)

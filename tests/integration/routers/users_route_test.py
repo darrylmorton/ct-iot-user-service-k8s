@@ -8,7 +8,7 @@ import tests.config as tests_config
 from tests.helper.auth_helper import create_token_expiry
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import server
-from utils import app_util
+from utils.app_util import AppUtil
 
 
 class TestUsersRoute:
@@ -31,7 +31,7 @@ class TestUsersRoute:
 
         assert response.status_code == 200
         assert len(actual_result) == 1
-        assert app_util.validate_uuid4(actual_result[0]["id"])
+        assert AppUtil.validate_uuid4(actual_result[0]["id"])
         assert actual_result[0]["username"] == self.username
 
     @skip(reason="requires user roles")
@@ -57,7 +57,7 @@ class TestUsersRoute:
         actual_result = response.json()
 
         assert response.status_code == 200
-        assert app_util.validate_uuid4(actual_result["id"])
+        assert AppUtil.validate_uuid4(actual_result["id"])
         assert actual_result["username"] == self.username
 
     @pytest.mark.parametrize(
