@@ -4,7 +4,8 @@ from starlette.responses import JSONResponse
 
 import config
 import schemas
-from crud import Crud
+
+from database.crud import Crud
 
 logger = config.get_logger()
 

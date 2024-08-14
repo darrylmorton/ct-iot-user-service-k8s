@@ -5,7 +5,7 @@ import bcrypt
 import pytest
 from sqlalchemy import delete
 
-from models import UserModel, UserDetailsModel
+from database.models import UserModel, UserDetailsModel
 from tests.database import async_session
 
 

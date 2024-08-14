@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import select
 
 from database import models
-from abstract_crud_stmt import AbstractCrudStmt
+from database.abstract_crud_stmt import AbstractCrudStmt
 
 
 class CrudStmt(AbstractCrudStmt):
