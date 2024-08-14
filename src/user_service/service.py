@@ -15,7 +15,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-import crud
+from crud import Crud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login
@@ -113,7 +113,7 @@ async def authenticate(request: Request, call_next):
                 status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
             )
 
-        user = await crud.find_user_by_id_and_enabled(_id=_id)
+        user = await Crud().find_user_by_id_and_enabled(_id=_id)
 
         if not user or user.id != UUID(_id):
             log.debug("authenticate - user not found")

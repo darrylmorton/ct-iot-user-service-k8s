@@ -4,8 +4,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-import crud
 import schemas
+from crud import Crud
 
 logger = config.get_logger()
 
@@ -22,7 +22,7 @@ async def get_users(req: Request) -> list[schemas.UserDetails] | JSONResponse:
         offset = 0
 
     try:
-        return await crud.find_user_details(offset)
+        return await Crud().find_user_details(offset)
     except SQLAlchemyError as error:
         logger.error(f"get_user_details {error}")
 
@@ -34,7 +34,7 @@ async def get_user_details_by_user_id(
     user_id: int,
 ) -> schemas.UserDetails | JSONResponse:
     try:
-        return await crud.find_user_details_by_user_id(user_id)
+        return await Crud().find_user_details_by_user_id(user_id)
     except SQLAlchemyError as error:
         logger.error(f"get_user_details_by_user_id {error}")
 

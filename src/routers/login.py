@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 import config
 import schemas
-import crud
+from crud import Crud
 
 logger = config.get_logger()
 
@@ -27,7 +27,9 @@ async def login(req: Request) -> JSONResponse:
         username = request_payload["username"]
         password = request_payload["password"]
 
-        authorised_user = await crud.authorise(_usernavme=username, _password=password)
+        authorised_user = await Crud().authorise(
+            _usernavme=username, _password=password
+        )
 
         if not authorised_user.enabled:
             logger.error("Account not enabled")
