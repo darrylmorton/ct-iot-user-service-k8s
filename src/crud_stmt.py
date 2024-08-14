@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import select
 
-import models
+from database import models
 from abstract_crud_stmt import AbstractCrudStmt
 
 

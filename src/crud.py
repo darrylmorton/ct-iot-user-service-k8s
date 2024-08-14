@@ -1,13 +1,12 @@
 import uuid
-
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
 import schemas
-from database.abstract_crud import AbstractCrud
-from database.crud_stmt import CrudStmt
+from abstract_crud import AbstractCrud
+from crud_stmt import CrudStmt
 from database.config import async_session
 from logger import log
 
