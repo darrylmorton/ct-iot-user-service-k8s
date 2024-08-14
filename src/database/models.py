@@ -6,7 +6,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import MappedColumn, Mapped
 
-from database import Base
+from database.config import Base
 
 
 class UserModel(Base):

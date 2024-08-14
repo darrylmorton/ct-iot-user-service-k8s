@@ -1,4 +1,4 @@
-from crud import Crud
+from database.crud import Crud
 
 
 class TestCrud:

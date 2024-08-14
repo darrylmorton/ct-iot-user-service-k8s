@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 
-from crud import Crud
+from database.crud import Crud
 
 
 class TestCrudExceptions:
@@ -15,56 +15,56 @@ class TestCrudExceptions:
     last_name = "Bar"
 
     @pytest.mark.skip
-    @patch("crud_stmt.CrudStmt.find_users_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_users_stmt")
     async def test_find_users_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_users()
 
-    @patch("crud_stmt.CrudStmt.find_user_by_id_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_user_by_id_stmt")
     async def test_find_user_by_id_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_user_by_id(self.id)
 
-    @patch("crud_stmt.CrudStmt.find_user_by_id_and_enabled_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_user_by_id_and_enabled_stmt")
     async def test_find_user_by_id__and_enabled_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_user_by_id_and_enabled(self.id)
 
-    @patch("crud_stmt.CrudStmt.find_user_by_username_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_user_by_username_stmt")
     async def test_find_user_by_username_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_user_by_username(self.username)
 
-    @patch("crud_stmt.CrudStmt.add_user_model")
+    @patch("database.crud_stmt.CrudStmt.add_user_model")
     async def test_add_user_exception(self, mock_model):
         mock_model.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().add_user(self.username, self.password)
 
-    @patch("crud_stmt.CrudStmt.find_user_details_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_user_details_stmt")
     async def test_find_user_details_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_user_details()
 
-    @patch("crud_stmt.CrudStmt.find_user_details_by_user_id_stmt")
+    @patch("database.crud_stmt.CrudStmt.find_user_details_by_user_id_stmt")
     async def test_find_user_details_by_user_id_exception(self, mock_stmt):
         mock_stmt.return_value = None
 
         with pytest.raises(SQLAlchemyError):
             await Crud().find_user_details_by_user_id(self.user_id)
 
-    @patch("crud_stmt.CrudStmt.add_user_details_model")
+    @patch("database.crud_stmt.CrudStmt.add_user_details_model")
     async def test_add_user_details_model_exception(self, mock_stmt):
         mock_stmt.return_value = None
 

@@ -1,6 +1,6 @@
 import uuid
 
-from models import UserDetailsModel
+from database.models import UserDetailsModel
 from tests.database import async_session
 
 
