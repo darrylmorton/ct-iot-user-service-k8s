@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Uuid(), primary_key=True),
         sa.Column("username", sa.String(50), unique=True, nullable=False),
         sa.Column("password_hash", sa.String(64), nullable=False),
-        sa.Column("enabled", sa.Boolean(), default=False, nullable=False),
+        sa.Column("enabled", sa.Boolean(), default=False),
         sa.Column("created_at", sa.DateTime, default=datetime.now()),
         sa.Column("updated_at", sa.DateTime, default=datetime.now()),
         sa.Index("idx_users_username", "username"),
