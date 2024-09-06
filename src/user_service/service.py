@@ -15,7 +15,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-from database.crud import Crud
+from database.user_crud import UserCrud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login
@@ -74,12 +74,13 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"{SERVICE_NAME} is shutting down...")
 
 
-server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-@server.middleware("http")
+@app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
+    log.info(f"{request_path=}")
 
     if request_path not in JWT_EXCLUDED_ENDPOINTS:
         auth_token = request.headers["Authorization"]
@@ -105,6 +106,7 @@ async def authenticate(request: Request, call_next):
         response_json = response.json()
 
         _id = response_json["id"]
+        _admin = response_json["admin"]
 
         if not AppUtil.validate_uuid4(_id):
             log.debug("authenticate - invalid uuid")
@@ -113,9 +115,20 @@ async def authenticate(request: Request, call_next):
                 status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
             )
 
-        user = await Crud().find_user_by_id_and_enabled(_id=_id)
+        if not _admin and request_path.startswith("/api/admin"):
+            return JSONResponse(
+                status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+            )
 
-        if not user or user.id != UUID(_id):
+        user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
+
+        # /api/users GET
+        # /api/users/{id} GET POST PATCH DELETE
+
+        # if request_path
+
+        # user must be valid and same as authenticated user
+        if not user or not user.is_admin and user.id != UUID(_id):
             log.debug("authenticate - user not found")
 
             return JSONResponse(
@@ -125,13 +138,13 @@ async def authenticate(request: Request, call_next):
     return await call_next(request)
 
 
-server.include_router(health.router, include_in_schema=False)
+app.include_router(health.router, include_in_schema=False)
 
-server.include_router(signup.router, prefix="/api", tags=["signup"])
-server.include_router(login.router, prefix="/api", tags=["login"])
-server.include_router(users.router, prefix="/api", tags=["users"])
-server.include_router(user_details.router, prefix="/api", tags=["user-details"])
+app.include_router(signup.router, prefix="/api", tags=["signup"])
+app.include_router(login.router, prefix="/api", tags=["login"])
+app.include_router(users.router, prefix="/api", tags=["users"])
+app.include_router(user_details.router, prefix="/api", tags=["user-details"])
 # roles need to be implemented to restrict access
 # app.include_router(users.router, prefix="/api", tags=["admin"])
 
-server = AppUtil.set_openapi_info(app=server)
+app = AppUtil.set_openapi_info(app=app)

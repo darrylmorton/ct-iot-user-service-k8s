@@ -56,3 +56,10 @@ class AppUtil:
         # valid uuid4. This is bad for validation purposes.
 
         return str(val) == uuid_string
+
+    @staticmethod
+    def get_path_param(name: str) -> str:
+        # using hardcoded value for now...
+        name = "id"
+
+        return name
