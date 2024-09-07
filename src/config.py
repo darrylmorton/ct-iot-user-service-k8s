@@ -43,6 +43,8 @@ DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"
 
 JWT_EXCLUDED_ENDPOINTS = ["/openapi.json", "/docs", "/healthz", "/api/signup"]
 
+UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]
+
 
 def get_logger() -> logging.Logger:
     logger = logging.getLogger("uvicorn")

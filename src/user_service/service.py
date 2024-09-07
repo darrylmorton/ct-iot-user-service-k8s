@@ -1,6 +1,5 @@
 import contextlib
 from http import HTTPStatus
-from uuid import UUID
 
 import requests
 
@@ -15,10 +14,10 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
-from database.crud import Crud
+from database.user_crud import UserCrud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
-from routers import health, users, user_details, signup, login
+from routers import health, users, user_details, signup, login, admin
 from utils.app_util import AppUtil
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -74,64 +73,103 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"{SERVICE_NAME} is shutting down...")
 
 
-server = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
+app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-@server.middleware("http")
+@app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
 
-    if request_path not in JWT_EXCLUDED_ENDPOINTS:
-        auth_token = request.headers["Authorization"]
+    try:
+        if request_path not in JWT_EXCLUDED_ENDPOINTS:
+            auth_token = request.headers["Authorization"]
 
-        if not auth_token:
-            log.debug("authenticate - missing auth token")
+            if not auth_token:
+                log.debug("authenticate - missing auth token")
 
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            response = requests.get(
+                f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
             )
 
-        response = requests.get(
-            f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
+            if response.status_code != HTTPStatus.OK:
+                log.debug("authenticate - invalid token")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            response_json = response.json()
+
+            _id = response_json["id"]
+            _admin = response_json["admin"]
+
+            # token user id must be a valid uuid
+            if not AppUtil.validate_uuid4(_id):
+                log.debug("authenticate - invalid uuid")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
+
+            # user must exist
+            if not user:
+                log.debug("authenticate - user not found")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            # admin status must match user status
+            if _admin != user.is_admin:
+                log.debug("authenticate - invalid user")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            # only admins can access admin paths
+            if not user.is_admin and request_path.startswith("/api/admin"):
+                log.debug("authenticate - only admins can access admin paths")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+                )
+
+            # only a user can access their own user record by id
+            if (
+                not user.is_admin
+                and not AppUtil.validate_uuid_path_param(request_path, str(user.id))
+                # and not AppUtil.validate_uuid_path_param(
+                #     request_path, "/api/user-details/", str(user.id)
+                # )
+            ):
+                log.debug("authenticate - user cannot access another user record")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+                )
+    except KeyError:
+        log.debug("authenticate - missing token")
+
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
         )
-
-        if response.status_code != HTTPStatus.OK:
-            log.debug("authenticate - invalid token")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
-
-        response_json = response.json()
-
-        _id = response_json["id"]
-
-        if not AppUtil.validate_uuid4(_id):
-            log.debug("authenticate - invalid uuid")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
-
-        user = await Crud().find_user_by_id_and_enabled(_id=_id)
-
-        if not user or user.id != UUID(_id):
-            log.debug("authenticate - user not found")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
 
     return await call_next(request)
 
 
-server.include_router(health.router, include_in_schema=False)
+app.include_router(health.router, include_in_schema=False)
 
-server.include_router(signup.router, prefix="/api", tags=["signup"])
-server.include_router(login.router, prefix="/api", tags=["login"])
-server.include_router(users.router, prefix="/api", tags=["users"])
-server.include_router(user_details.router, prefix="/api", tags=["user-details"])
-# roles need to be implemented to restrict access
-# app.include_router(users.router, prefix="/api", tags=["admin"])
+app.include_router(signup.router, prefix="/api", tags=["signup"])
+app.include_router(login.router, prefix="/api", tags=["login"])
+app.include_router(users.router, prefix="/api", tags=["users"])
+app.include_router(user_details.router, prefix="/api", tags=["user-details"])
+app.include_router(admin.router, prefix="/api", tags=["admin"])
 
-server = AppUtil.set_openapi_info(app=server)
+app = AppUtil.set_openapi_info(app=app)

@@ -13,6 +13,7 @@ class User(UserBase):
 
 
 class UserAuthenticated(UserBase):
+    is_admin: bool
     enabled: bool
 
     class ConfigDict:

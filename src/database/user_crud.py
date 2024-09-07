@@ -1,26 +1,22 @@
-import uuid
-
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
 import schemas
-from database.abstract_crud import AbstractCrud
-from database.crud_stmt import CrudStmt
 from database.config import async_session
+from database.user_crud_interface import UserCrudInterface
+from database.user_crud_stmt import UserCrudStmt
 from logger import log
 
 
-class Crud(AbstractCrud):
+class UserCrud(UserCrudInterface):
     def __init__(self):
         super().__init__()
-        self.stmt = CrudStmt()
+        self.stmt = UserCrudStmt()
         self.session = async_session()
 
-    async def authorise(
-        self, _username: str, _password: str
-    ) -> schemas.UserAuthenticated:
+    async def authorise(self, _username: str, _password: str) -> schemas.User:
         async with self.session as session:
             async with session.begin():
                 try:
@@ -36,28 +32,14 @@ class Crud(AbstractCrud):
                         password_match = bcrypt.checkpw(password, password_hash)
 
                         if password_match:
-                            return schemas.UserAuthenticated(
+                            return schemas.User(
                                 id=user.id, username=user.username, enabled=user.enabled
                             )
 
-                    return schemas.UserAuthenticated(enabled=False)
+                    return schemas.User(enabled=False)
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")
-                finally:
-                    await session.close()
-
-    async def find_users(self, offset=0) -> list[schemas.User]:
-        async with self.session as session:
-            async with session.begin():
-                try:
-                    stmt = self.stmt.find_users_stmt(offset=offset)
-                    result = await session.execute(stmt)
-
-                    return result.scalars().all()
-                except SQLAlchemyError as error:
-                    log.error(f"find_users {error}")
-                    raise SQLAlchemyError("Cannot find users")
                 finally:
                     await session.close()
 
@@ -75,7 +57,7 @@ class Crud(AbstractCrud):
                 finally:
                     await session.close()
 
-    async def find_user_by_id_and_enabled(self, _id: str) -> schemas.User:
+    async def find_user_by_id_and_enabled(self, _id: str) -> schemas.UserAuthenticated:
         async with self.session as session:
             async with session.begin():
                 try:
@@ -126,64 +108,5 @@ class Crud(AbstractCrud):
         except SQLAlchemyError as error:
             log.error(f"add_user {error}")
             raise SQLAlchemyError("Cannot add user")
-        finally:
-            await session.close()
-
-    async def find_user_details(self, offset=0) -> list[schemas.UserDetails]:
-        async with self.session as session:
-            async with session.begin():
-                try:
-                    stmt = self.stmt.find_user_details_stmt(offset=offset)
-                    result = await session.execute(stmt)
-
-                    return result.scalars().all()
-                except SQLAlchemyError as error:
-                    log.error(f"find_user_details {error}")
-                    raise SQLAlchemyError("Cannot find user details")
-                finally:
-                    await session.close()
-
-    async def find_user_details_by_user_id(
-        self, user_id: uuid, offset=0
-    ) -> schemas.UserDetails:
-        async with self.session as session:
-            async with session.begin():
-                try:
-                    stmt = self.stmt.find_user_details_by_user_id_stmt(
-                        user_id=user_id, offset=offset
-                    )
-                    result = await session.execute(stmt)
-
-                    return result.scalars().first()
-                except SQLAlchemyError as error:
-                    log.error(f"find_user_details_by_user_id {error}")
-                    raise SQLAlchemyError("Cannot find user details")
-                finally:
-                    await session.close()
-
-    async def add_user_details(
-        self, _user_id: uuid, _first_name: str, _last_name: str
-    ) -> JSONResponse | schemas.UserDetails:
-        try:
-            async with self.session as session:
-                user_details = self.stmt.add_user_details_model(
-                    user_id=_user_id, first_name=_first_name, last_name=_last_name
-                )
-
-                async with session.begin():
-                    session.add(user_details)
-                    await session.commit()
-
-                await session.refresh(user_details)
-
-                return schemas.UserDetails(
-                    id=user_details.id,
-                    user_id=user_details.user_id,
-                    first_name=user_details.first_name,
-                    last_name=user_details.last_name,
-                )
-        except SQLAlchemyError as error:
-            log.error(f"add_user_details {error}")
-            raise SQLAlchemyError("Cannot add user details")
         finally:
             await session.close()

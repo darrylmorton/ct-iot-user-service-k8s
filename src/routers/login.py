@@ -10,8 +10,7 @@ from starlette.responses import JSONResponse
 
 import config
 import schemas
-
-from database.crud import Crud
+from database.user_crud import UserCrud
 
 logger = config.get_logger()
 
@@ -28,8 +27,8 @@ async def login(req: Request) -> JSONResponse:
         username = request_payload["username"]
         password = request_payload["password"]
 
-        authorised_user = await Crud().authorise(
-            _usernavme=username, _password=password
+        authorised_user = await UserCrud().authorise(
+            _username=username, _password=password
         )
 
         if not authorised_user.enabled:
@@ -38,8 +37,12 @@ async def login(req: Request) -> JSONResponse:
             raise HTTPException(
                 status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
             )
-        elif authorised_user.enabled:
-            response = requests.post(f"{config.AUTH_SERVICE_URL}/jwt", username)
+        else:
+            response = requests.post(
+                f"{config.AUTH_SERVICE_URL}/jwt",
+                authorised_user.username,
+                authorised_user.is_admin,
+            )
 
             if response.status_code == HTTPStatus.CREATED:
                 return JSONResponse(status_code=HTTPStatus.OK, content=response.json())

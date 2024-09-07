@@ -56,3 +56,17 @@ class AppUtil:
         # valid uuid4. This is bad for validation purposes.
 
         return str(val) == uuid_string
+
+    @staticmethod
+    def validate_uuid_path_param(request_path: str, _id: str) -> bool:
+        for path_prefix in config.UUID_PATH_PARAMS_ROUTES:
+            if path_prefix in request_path:
+                path_params = request_path.split("/")
+
+                return (
+                    len(path_params) == 4
+                    and AppUtil.validate_uuid4(path_params[3])
+                    and _id == path_params[3]
+                )
+
+        return False
