@@ -59,18 +59,8 @@ class AppUtil:
 
     @staticmethod
     def validate_uuid_path_param(request_path: str, path_prefix: str, _id: str) -> bool:
-        # print(f"{request_path=}")
-        # print(f"{path_prefix=}")
-        # print(f"{_id=}")
-
         if request_path.startswith(path_prefix):
             path_params = request_path.split("/")
-
-            # print(f"{path_params=}")
-            #
-            # print(f"{len(path_params)=}")
-            # print(f"{AppUtil.validate_uuid4(path_params[3])=}")
-            # print(f"{_id != path_params[3]=}")
 
             return (
                 len(path_params) == 4

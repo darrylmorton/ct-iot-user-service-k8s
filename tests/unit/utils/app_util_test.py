@@ -7,12 +7,12 @@ class TestAppUtil:
     def test_validate_uuid4(self):
         actual_result = AppUtil.validate_uuid4(self._id)
 
-        assert actual_result == True
+        assert actual_result is True
 
     def test_validate_uuid4_invalid_uuid(self):
         actual_result = AppUtil.validate_uuid4("848a3cdd")
 
-        assert actual_result == False
+        assert actual_result is False
 
     async def test_get_app_version(self):
         actual_result = AppUtil.get_app_version()
@@ -27,7 +27,7 @@ class TestAppUtil:
             request_path, path_prefix, self._id
         )
 
-        assert actual_result == True
+        assert actual_result is True
 
     def test_validate_uuid_path_param_invalid_users(self):
         path_prefix = "/api/users/"
@@ -37,7 +37,7 @@ class TestAppUtil:
             request_path, path_prefix, self._id
         )
 
-        assert actual_result == False
+        assert actual_result is False
 
     def test_validate_uuid_path_param_user_details_success(self):
         path_prefix = "/api/user-details/"
@@ -47,7 +47,7 @@ class TestAppUtil:
             request_path, path_prefix, self._id
         )
 
-        assert actual_result == True
+        assert actual_result is True
 
     def test_validate_uuid_path_param_invalid_user_details(self):
         path_prefix = "/api/user-details/"
@@ -57,4 +57,4 @@ class TestAppUtil:
             request_path, path_prefix, self._id
         )
 
-        assert actual_result == False
+        assert actual_result is False

@@ -2,11 +2,6 @@ from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
-username = "foo@home.com"
-password = "barbarba"
-first_name = "Foo"
-last_name = "Bar"
-
 
 class TestSignupRoute:
     async def test_post_signup_invalid_username(self):
@@ -31,7 +26,7 @@ class TestSignupRoute:
         actual_result = response.json()
 
         assert response.status_code == 201
-        assert actual_result["username"] == username
+        assert actual_result["username"] == "foo@home.com"
 
     async def test_post_signup_user_exists(self):
         payload = create_signup_payload()

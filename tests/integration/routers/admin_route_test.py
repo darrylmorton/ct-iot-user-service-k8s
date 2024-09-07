@@ -10,13 +10,6 @@ from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
 
-# TODO Scenarios
-#   admin creates user (reset password required for user login)
-#   UPDATES to another user:
-#       admin disables user
-#       admin updates user to admin
-#       admin updates user to admin
-#       admin updates another admin to user
 class TestAdminRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     username = "foo@home.com"
@@ -53,5 +46,30 @@ class TestAdminRoute:
         assert response.status_code == 200
         assert len(actual_result) == 0
 
-    # TODO implement pagination to remove hardcoded
-    #  limit on number of users returned
+    @skip(reason="Not implemented yet")
+    async def test_pagination(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_creates_user(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_disables_user(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_enables_user(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_updates_another_user(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_updates_another_user_to_admin(self):
+        pass
+
+    @skip(reason="Not implemented yet")
+    async def test_admin_updates_another_admin_to_user(self):
+        pass

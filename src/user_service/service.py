@@ -1,7 +1,5 @@
 import contextlib
 from http import HTTPStatus
-from http.cookiejar import request_path
-from uuid import UUID
 
 import requests
 
@@ -135,7 +133,7 @@ async def authenticate(request: Request, call_next):
 
             # only admins can access admin paths
             if not user.is_admin and request_path.startswith("/api/admin"):
-                log.debug(f"authenticate - only admins can access admin paths")
+                log.debug("authenticate - only admins can access admin paths")
 
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
@@ -159,7 +157,7 @@ async def authenticate(request: Request, call_next):
                     request_path, "/api/user-details/", _id
                 )
             ):
-                log.debug(f"authenticate - user cannot access another user record")
+                log.debug("authenticate - user cannot access another user record")
 
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"

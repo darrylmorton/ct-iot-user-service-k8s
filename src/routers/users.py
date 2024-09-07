@@ -13,12 +13,7 @@ router = APIRouter()
 
 @router.get("/users/{id}", response_model=schemas.User)
 async def get_user_by_id(id: str) -> schemas.User | JSONResponse:
-    logger.info(f"**** Getting user with id: {id=}")
-
     try:
-        result = await UserCrud().find_user_by_id(_id=id)
-        logger.info(f"**** USER BY ID ROUTE RESULT: {result=}")
-
         return await UserCrud().find_user_by_id(_id=id)
     except SQLAlchemyError as error:
         logger.error(f"get_user_by_id {error}")
