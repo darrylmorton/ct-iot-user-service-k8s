@@ -78,11 +78,7 @@ app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
-    log.debug("**** 00000000")
-
     request_path = request["path"]
-    log.info(f"{request_path=}")
-    log.info(f"{request.path_params=}")
 
     try:
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
@@ -111,9 +107,15 @@ async def authenticate(request: Request, call_next):
             _id = response_json["id"]
             _admin = response_json["admin"]
 
-            # TODO user props should be used instead from here onwards!!!
+            # token user id must be a valid uuid
+            if not AppUtil.validate_uuid4(_id):
+                log.debug("authenticate - invalid uuid")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
             user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
-            # log.debug(f"authenticate - {user.is_admin=}")
 
             # user must exist
             if not user:
@@ -123,9 +125,9 @@ async def authenticate(request: Request, call_next):
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
 
-            # user id must be a valid uuid
-            if not AppUtil.validate_uuid4(_id):
-                log.debug("authenticate - invalid uuid")
+            # admin status must match user status
+            if _admin != user.is_admin:
+                log.debug("authenticate - invalid user")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
@@ -139,22 +141,14 @@ async def authenticate(request: Request, call_next):
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
                 )
 
-            # user id must be the same as the token user id
-            # if not user.is_admin and user.id != UUID(_id):
-            #     log.debug("authenticate - user not found")
-            #
-            #     return JSONResponse(
-            #         status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            #     )
-
             # only a user can access their own user record by id
             if (
                 not user.is_admin
                 and not AppUtil.validate_uuid_path_param(
-                    request_path, "/api/users/", _id
+                    request_path, "/api/users/", str(user.id)
                 )
                 and not AppUtil.validate_uuid_path_param(
-                    request_path, "/api/user-details/", _id
+                    request_path, "/api/user-details/", str(user.id)
                 )
             ):
                 log.debug("authenticate - user cannot access another user record")
