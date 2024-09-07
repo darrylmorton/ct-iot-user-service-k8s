@@ -41,6 +41,7 @@ async def add_test_user(request):
         username=user_request["username"],
         password_hash=password_hash,
         enabled=user_request["enabled"],
+        is_admin=user_request["is_admin"],
     )
 
     async with async_session() as session:

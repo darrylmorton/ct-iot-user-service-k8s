@@ -8,6 +8,7 @@ def create_signup_payload(
     _username="foo@home.com",
     _password="barbarba",
     _enabled=False,
+    _is_admin=False,
     _first_name="Foo",
     _last_name="Bar",
 ):
@@ -15,6 +16,7 @@ def create_signup_payload(
         "username": _username,
         "password": _password,
         "enabled": _enabled,
+        "is_admin": _is_admin,
         "first_name": _first_name,
         "last_name": _last_name,
     }

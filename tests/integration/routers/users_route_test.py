@@ -1,5 +1,3 @@
-from unittest import skip
-
 import pytest
 from jose import jwt
 
@@ -22,26 +20,6 @@ class TestUsersRoute:
         tests_config.JWT_SECRET,
         algorithm="HS256",
     )
-
-    @skip(reason="requires user roles")
-    async def test_get_users(self):
-        response = await RoutesHelper.http_client(app, "/api/admin/users", self.token)
-        actual_result = response.json()
-
-        assert response.status_code == 200
-        assert len(actual_result) == 1
-        assert AppUtil.validate_uuid4(actual_result[0]["id"])
-        assert actual_result[0]["username"] == self.username
-
-    @skip(reason="requires user roles")
-    async def test_get_users_offset(self):
-        response = await RoutesHelper.http_client(
-            app, "/api/admin/users?offset=1", self.token
-        )
-        actual_result = response.json()
-
-        assert response.status_code == 200
-        assert len(actual_result) == 0
 
     @pytest.mark.parametrize(
         "add_test_user",

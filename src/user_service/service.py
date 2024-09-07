@@ -1,5 +1,6 @@
 import contextlib
 from http import HTTPStatus
+from http.cookiejar import request_path
 from uuid import UUID
 
 import requests
@@ -18,7 +19,7 @@ import config
 from database.user_crud import UserCrud
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
-from routers import health, users, user_details, signup, login
+from routers import health, users, user_details, signup, login, admin
 from utils.app_util import AppUtil
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -79,61 +80,96 @@ app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
+    log.debug("**** 00000000")
+
     request_path = request["path"]
     log.info(f"{request_path=}")
+    log.info(f"{request.path_params=}")
 
-    if request_path not in JWT_EXCLUDED_ENDPOINTS:
-        auth_token = request.headers["Authorization"]
+    try:
+        if request_path not in JWT_EXCLUDED_ENDPOINTS:
+            auth_token = request.headers["Authorization"]
 
-        if not auth_token:
-            log.debug("authenticate - missing auth token")
+            if not auth_token:
+                log.debug("authenticate - missing auth token")
 
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            response = requests.get(
+                f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
             )
 
-        response = requests.get(
-            f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
+            if response.status_code != HTTPStatus.OK:
+                log.debug("authenticate - invalid token")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            response_json = response.json()
+
+            _id = response_json["id"]
+            _admin = response_json["admin"]
+
+            # TODO user props should be used instead from here onwards!!!
+            user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
+            # log.debug(f"authenticate - {user.is_admin=}")
+
+            # user must exist
+            if not user:
+                log.debug("authenticate - user not found")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            # user id must be a valid uuid
+            if not AppUtil.validate_uuid4(_id):
+                log.debug("authenticate - invalid uuid")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                )
+
+            # only admins can access admin paths
+            if not user.is_admin and request_path.startswith("/api/admin"):
+                log.debug(f"authenticate - only admins can access admin paths")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+                )
+
+            # user id must be the same as the token user id
+            # if not user.is_admin and user.id != UUID(_id):
+            #     log.debug("authenticate - user not found")
+            #
+            #     return JSONResponse(
+            #         status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+            #     )
+
+            # only a user can access their own user record by id
+            if (
+                not user.is_admin
+                and not AppUtil.validate_uuid_path_param(
+                    request_path, "/api/users/", _id
+                )
+                and not AppUtil.validate_uuid_path_param(
+                    request_path, "/api/user-details/", _id
+                )
+            ):
+                log.debug(f"authenticate - user cannot access another user record")
+
+                return JSONResponse(
+                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+                )
+    except KeyError:
+        log.debug("authenticate - missing token")
+
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
         )
-
-        if response.status_code != HTTPStatus.OK:
-            log.debug("authenticate - invalid token")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
-
-        response_json = response.json()
-
-        _id = response_json["id"]
-        _admin = response_json["admin"]
-
-        if not AppUtil.validate_uuid4(_id):
-            log.debug("authenticate - invalid uuid")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
-
-        if not _admin and request_path.startswith("/api/admin"):
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
-            )
-
-        user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
-
-        # /api/users GET
-        # /api/users/{id} GET POST PATCH DELETE
-
-        # if request_path
-
-        # user must be valid and same as authenticated user
-        if not user or not user.is_admin and user.id != UUID(_id):
-            log.debug("authenticate - user not found")
-
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-            )
 
     return await call_next(request)
 
@@ -144,7 +180,6 @@ app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
 app.include_router(users.router, prefix="/api", tags=["users"])
 app.include_router(user_details.router, prefix="/api", tags=["user-details"])
-# roles need to be implemented to restrict access
-# app.include_router(users.router, prefix="/api", tags=["admin"])
+app.include_router(admin.router, prefix="/api", tags=["admin"])
 
 app = AppUtil.set_openapi_info(app=app)
