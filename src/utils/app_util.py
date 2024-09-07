@@ -69,13 +69,4 @@ class AppUtil:
                     and _id == path_params[3]
                 )
 
-        # if request_path.startswith(path_prefix):
-        #     path_params = request_path.split("/")
-        #
-        #     return (
-        #         len(path_params) == 4
-        #         and AppUtil.validate_uuid4(path_params[3])
-        #         and _id == path_params[3]
-        #     )
-
         return False
