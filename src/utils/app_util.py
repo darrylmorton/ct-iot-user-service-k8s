@@ -58,14 +58,24 @@ class AppUtil:
         return str(val) == uuid_string
 
     @staticmethod
-    def validate_uuid_path_param(request_path: str, path_prefix: str, _id: str) -> bool:
-        if request_path.startswith(path_prefix):
-            path_params = request_path.split("/")
+    def validate_uuid_path_param(request_path: str, _id: str) -> bool:
+        for path_prefix in config.UUID_PATH_PARAMS_ROUTES:
+            if path_prefix in request_path:
+                path_params = request_path.split("/")
 
-            return (
-                len(path_params) == 4
-                and AppUtil.validate_uuid4(path_params[3])
-                and _id == path_params[3]
-            )
+                return (
+                    len(path_params) == 4
+                    and AppUtil.validate_uuid4(path_params[3])
+                    and _id == path_params[3]
+                )
+
+        # if request_path.startswith(path_prefix):
+        #     path_params = request_path.split("/")
+        #
+        #     return (
+        #         len(path_params) == 4
+        #         and AppUtil.validate_uuid4(path_params[3])
+        #         and _id == path_params[3]
+        #     )
 
         return False

@@ -20,41 +20,29 @@ class TestAppUtil:
         assert actual_result == "0.1.0"
 
     def test_validate_uuid_path_param_users_success(self):
-        path_prefix = "/api/users/"
-        request_path = path_prefix + self._id
+        request_path = f"/api/users/{self._id}"
 
-        actual_result = AppUtil.validate_uuid_path_param(
-            request_path, path_prefix, self._id
-        )
+        actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
         assert actual_result is True
 
     def test_validate_uuid_path_param_invalid_users(self):
-        path_prefix = "/api/users/"
-        request_path = path_prefix + "eaf0bb67-288b-4e56-860d-e727b4f57ff"
+        request_path = "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff"
 
-        actual_result = AppUtil.validate_uuid_path_param(
-            request_path, path_prefix, self._id
-        )
+        actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
         assert actual_result is False
 
     def test_validate_uuid_path_param_user_details_success(self):
-        path_prefix = "/api/user-details/"
-        request_path = path_prefix + self._id
+        request_path = f"/api/user-details/{self._id}"
 
-        actual_result = AppUtil.validate_uuid_path_param(
-            request_path, path_prefix, self._id
-        )
+        actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
         assert actual_result is True
 
     def test_validate_uuid_path_param_invalid_user_details(self):
-        path_prefix = "/api/user-details/"
-        request_path = path_prefix + "eaf0bb67-288b-4e56-860d-e727b4f57ff"
+        request_path = f"/api/user-details/eaf0bb67-288b-4e56-860d-e727b4f57ff"
 
-        actual_result = AppUtil.validate_uuid_path_param(
-            request_path, path_prefix, self._id
-        )
+        actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
         assert actual_result is False

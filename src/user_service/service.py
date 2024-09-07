@@ -144,12 +144,10 @@ async def authenticate(request: Request, call_next):
             # only a user can access their own user record by id
             if (
                 not user.is_admin
-                and not AppUtil.validate_uuid_path_param(
-                    request_path, "/api/users/", str(user.id)
-                )
-                and not AppUtil.validate_uuid_path_param(
-                    request_path, "/api/user-details/", str(user.id)
-                )
+                and not AppUtil.validate_uuid_path_param(request_path, str(user.id))
+                # and not AppUtil.validate_uuid_path_param(
+                #     request_path, "/api/user-details/", str(user.id)
+                # )
             ):
                 log.debug("authenticate - user cannot access another user record")
 
