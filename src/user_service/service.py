@@ -32,8 +32,9 @@ async def run_migrations():
         command.upgrade(alembic_cfg, "head")
 
         log.info("Migrations completed successfully")
-    except Exception as error:
-        log.error(f"Database migration error on startup: {error}")
+    except Exception:
+        log.error("Database migration error on startup")
+        raise Exception("Database migration error on startup")
 
 
 @contextlib.asynccontextmanager

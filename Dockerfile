@@ -33,6 +33,6 @@ COPY . .
 
 RUN ls -la
 
-CMD ["uvicorn", "user_service.service:server", "--host", "0.0.0.0"]
+CMD ["uvicorn", "user_service.service:app", "--host", "0.0.0.0"]
 
 EXPOSE 8000

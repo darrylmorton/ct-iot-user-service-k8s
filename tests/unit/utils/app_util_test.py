@@ -41,7 +41,7 @@ class TestAppUtil:
         assert actual_result is True
 
     def test_validate_uuid_path_param_invalid_user_details(self):
-        request_path = f"/api/user-details/eaf0bb67-288b-4e56-860d-e727b4f57ff"
+        request_path = "/api/user-details/eaf0bb67-288b-4e56-860d-e727b4f57ff"
 
         actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
