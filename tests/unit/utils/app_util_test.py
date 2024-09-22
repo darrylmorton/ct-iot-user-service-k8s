@@ -17,7 +17,7 @@ class TestAppUtil:
     async def test_get_app_version(self):
         actual_result = AppUtil.get_app_version()
 
-        assert actual_result == "1.0.0"
+        assert actual_result == "1.0.1"
 
     def test_validate_uuid_path_param_users_success(self):
         request_path = f"/api/users/{self._id}"
