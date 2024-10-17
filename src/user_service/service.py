@@ -80,6 +80,10 @@ app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
+    log.debug(f"{request_path=}")
+
+    log.debug(f"{JWT_EXCLUDED_ENDPOINTS=}")
+    log.debug(f"{request_path not in JWT_EXCLUDED_ENDPOINTS}")
 
     try:
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
@@ -155,8 +159,8 @@ async def authenticate(request: Request, call_next):
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
                 )
-    except KeyError:
-        log.debug("authenticate - missing token")
+    except KeyError as err:
+        log.debug(f"authenticate - missing token {err}")
 
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"

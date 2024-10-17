@@ -43,7 +43,14 @@ DATABASE_URL_SUFFIX = (
 )
 DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"
 
-JWT_EXCLUDED_ENDPOINTS = ["/openapi.json", "/docs", "/healthz", "/api/signup"]
+JWT_EXCLUDED_ENDPOINTS = [
+    "/openapi.json",
+    "/docs",
+    "/healthz",
+    "/api/signup",
+    "/api/login",
+    "/favicon.ico",
+]
 
 UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]
 

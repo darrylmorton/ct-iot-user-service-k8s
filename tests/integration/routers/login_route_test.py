@@ -6,13 +6,13 @@ from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
+# TODO move to TestAuthRoute class
 username = "foo@home.com"
 password = "barbarba"
 first_name = "Foo"
 last_name = "Bar"
 
 
-@pytest.mark.skip
 class TestAuthRoute:
     async def test_post_login_invalid_username(self):
         _username = "foo"

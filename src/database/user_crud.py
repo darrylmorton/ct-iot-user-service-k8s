@@ -16,7 +16,9 @@ class UserCrud(UserCrudInterface):
         self.stmt = UserCrudStmt()
         self.session = async_session()
 
-    async def authorise(self, _username: str, _password: str) -> schemas.User:
+    async def authorise(
+        self, _username: str, _password: str
+    ) -> schemas.UserAuthenticated:
         async with self.session as session:
             async with session.begin():
                 try:
@@ -24,6 +26,7 @@ class UserCrud(UserCrudInterface):
                     result = await session.execute(stmt)
 
                     user = result.scalars().first()
+                    log.info(f"*** {user.__dict__}")
 
                     if user:
                         password = _password.encode("utf-8")
@@ -32,11 +35,13 @@ class UserCrud(UserCrudInterface):
                         password_match = bcrypt.checkpw(password, password_hash)
 
                         if password_match:
-                            return schemas.User(
-                                id=user.id, username=user.username, enabled=user.enabled
+                            return schemas.UserAuthenticated(
+                                id=user.id,
+                                enabled=user.enabled,
+                                is_admin=user.is_admin,
                             )
 
-                    return schemas.User(enabled=False)
+                    return schemas.UserAuthenticated(enabled=False)
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")
