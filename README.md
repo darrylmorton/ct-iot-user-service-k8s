@@ -33,7 +33,7 @@ DB_NAME=
 
 ## Run
 
-### Dev
+### Development
 ```
 docker compose -f docker-compose-local.yml up
 make dev-server-start
