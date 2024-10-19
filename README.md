@@ -32,6 +32,7 @@ DB_NAME=
 ```
 
 ## Run
+Refer to [ct-iot-authentication-service repository README.md](https://github.com/darrylmorton/ct-iot-authentication-service/blob/main/README.md) for building the required dependency docker image.
 
 ### Development
 ```
