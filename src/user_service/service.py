@@ -40,8 +40,10 @@ async def run_migrations():
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
     log.info(f"Starting {SERVICE_NAME}...{app.host}")
+    log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
+    log.info(f"Application {config.ENVIRONMENT} environment")
 
-    if config.ENVIRONMENT == "production":
+    if config.SENTRY_ENVIRONMENT != "local":
         sentry_sdk.init(
             dsn=config.SENTRY_DSN,
             # Set traces_sample_rate to 1.0 to capture 100%
@@ -83,6 +85,8 @@ async def authenticate(request: Request, call_next):
 
     try:
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
+            log.debug("authenticate - included request_path")
+
             auth_token = request.headers["Authorization"]
 
             if not auth_token:
@@ -143,20 +147,16 @@ async def authenticate(request: Request, call_next):
                 )
 
             # only a user can access their own user record by id
-            if (
-                not user.is_admin
-                and not AppUtil.validate_uuid_path_param(request_path, str(user.id))
-                # and not AppUtil.validate_uuid_path_param(
-                #     request_path, "/api/user-details/", str(user.id)
-                # )
+            if not user.is_admin and not AppUtil.validate_uuid_path_param(
+                request_path, str(user.id)
             ):
                 log.debug("authenticate - user cannot access another user record")
 
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
                 )
-    except KeyError:
-        log.debug("authenticate - missing token")
+    except KeyError as err:
+        log.debug(f"authenticate - missing token {err}")
 
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"

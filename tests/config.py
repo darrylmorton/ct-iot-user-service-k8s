@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env.test")
 
+SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT") or "local"
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL")
 SERVICE_NAME = os.environ.get("SERVICE_NAME")

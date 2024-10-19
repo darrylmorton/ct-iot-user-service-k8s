@@ -15,7 +15,7 @@ class TestUsersRoute:
     admin = False
 
     token = jwt.encode(
-        {"id": id, "admin": admin, "exp": create_token_expiry()},
+        {"id": id, "is_admin": admin, "exp": create_token_expiry()},
         tests_config.JWT_SECRET,
         algorithm="HS256",
     )
@@ -33,7 +33,7 @@ class TestUsersRoute:
         actual_result = response.json()
 
         assert response.status_code == 200
-        assert actual_result["username"] == self.username
+        assert actual_result["id"] == self.id
 
     @pytest.mark.parametrize(
         "add_test_user",

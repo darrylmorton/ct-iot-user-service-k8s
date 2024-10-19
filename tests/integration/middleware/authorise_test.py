@@ -13,7 +13,6 @@ from user_service.service import app
 class TestMiddlewareAuthorise:
     _id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     admin = True
-    username = "foo@home.com"
     password = "barbarba"
 
     @pytest.mark.parametrize(
@@ -23,7 +22,7 @@ class TestMiddlewareAuthorise:
     )
     async def test_not_admin_different_id(self, db_cleanup, add_test_user):
         _token = jwt.encode(
-            {"id": self._id, "admin": False, "exp": create_token_expiry()},
+            {"id": self._id, "is_admin": False, "exp": create_token_expiry()},
             JWT_SECRET,
             algorithm="HS256",
         )
@@ -37,7 +36,7 @@ class TestMiddlewareAuthorise:
 
     async def test_not_admin(self):
         _token = jwt.encode(
-            {"id": self._id, "admin": False, "exp": create_token_expiry()},
+            {"id": self._id, "is_admin": False, "exp": create_token_expiry()},
             JWT_SECRET,
             algorithm="HS256",
         )
@@ -57,7 +56,7 @@ class TestMiddlewareAuthorise:
 
     async def test_expired_token(self):
         _token = jwt.encode(
-            {"id": self._id, "admin": self.admin, "exp": create_token_expiry(-3000)},
+            {"id": self._id, "is_admin": self.admin, "exp": create_token_expiry(-3000)},
             JWT_SECRET,
             algorithm="HS256",
         )
@@ -70,7 +69,7 @@ class TestMiddlewareAuthorise:
 
     async def test_invalid_token(self):
         _token = jwt.encode(
-            {"id": self._id, "admin": self.admin, "exp": create_token_expiry()},
+            {"id": self._id, "is_admin": self.admin, "exp": create_token_expiry()},
             "",
             algorithm="HS256",
         )

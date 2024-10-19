@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from pydantic import BaseModel, Field, EmailStr
 
 
@@ -13,8 +14,10 @@ class User(UserBase):
 
 
 class UserAuthenticated(UserBase):
-    is_admin: bool
+    username: EmailStr = Field(None, exclude=True)
+
     enabled: bool
+    is_admin: bool
 
     class ConfigDict:
         from_attributes = True

@@ -6,14 +6,11 @@ from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
-username = "foo@home.com"
-password = "barbarba"
-first_name = "Foo"
-last_name = "Bar"
 
+class TestLoginRoute:
+    id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
+    username = "foo@home.com"
 
-@pytest.mark.skip
-class TestAuthRoute:
     async def test_post_login_invalid_username(self):
         _username = "foo"
         payload = create_signup_payload(_username)
@@ -57,4 +54,4 @@ class TestAuthRoute:
         )
 
         assert response.status_code == 200
-        assert actual_result["username"] == username
+        assert actual_result["id"] == self.id
