@@ -31,19 +31,18 @@ DB_PASSWORD=
 DB_NAME=
 ```
 
-## Dev
-Swagger docs: http://localhost:8000/docs
+## Run
+Refer to [ct-iot-authentication-service repository README.md](https://github.com/darrylmorton/ct-iot-authentication-service/blob/main/README.md) for building the required dependency docker image.
+
+### Development
 ```
+docker compose -f docker-compose-local.yml up
 make dev-server-start
 ```
+Swagger docs: http://localhost:8001/docs
 
-## Prod
+### Test
 ```
-make server-start
-```
-
-## Test
-```
-make test-unit
-make test-integration
+docker compose -f docker-compose-local.yml up
+make test
 ```
