@@ -1,6 +1,6 @@
 ```mermaid
 ---
-title: User Service Flow Chart
+title: Login Flow Chart
 ---
 
 flowchart LR
@@ -13,7 +13,7 @@ flowchart LR
 
 ```mermaid
 ---
-title: User Service Flow Chart
+title: Signup Flow Chart
 ---
 
 flowchart LR
@@ -26,7 +26,7 @@ flowchart LR
 
 ```mermaid
 ---
-title: User Service Flow Chart
+title: User Request Flow Chart
 ---
 
 flowchart LR
@@ -38,7 +38,7 @@ flowchart LR
 
 ```mermaid
 ---
-title: User Service Flow Chart
+title: User Details Request Flow Chart
 ---
 
 flowchart LR
