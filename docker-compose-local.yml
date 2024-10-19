@@ -16,7 +16,7 @@ services:
       timeout : 5s
       retries : 5
 
- authentication-service:
+  authentication-service:
    container_name: authentication-service
    image: ct-iot-authentication-service:latest
    ports:
