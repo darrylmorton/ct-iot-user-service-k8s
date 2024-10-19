@@ -11,6 +11,7 @@ load_dotenv()
 APP_VERSION = AppUtil.get_app_version()
 
 AWS_REGION = os.environ.get("AWS_REGION")
+SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT") or "local"
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
 SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE"))
 SENTRY_PROFILES_SAMPLE_RATE = float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE"))

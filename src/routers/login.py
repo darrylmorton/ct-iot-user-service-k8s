@@ -1,10 +1,8 @@
-from typing import Annotated
-
 import requests
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
 from sqlalchemy.exc import SQLAlchemyError
