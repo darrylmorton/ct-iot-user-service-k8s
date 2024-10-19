@@ -1,7 +1,6 @@
 import pytest
 from jose import jwt
 
-from database.user_crud import UserCrud
 from tests.config import JWT_SECRET
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
@@ -9,6 +8,7 @@ from user_service.service import app
 
 
 class TestLoginRoute:
+    id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     username = "foo@home.com"
 
     async def test_post_login_invalid_username(self):
@@ -44,8 +44,6 @@ class TestLoginRoute:
         indirect=True,
     )
     async def test_post_login_user(self, db_cleanup, add_test_user):
-        user = await UserCrud().find_user_by_username(self.username)
-
         payload = create_signup_payload()
 
         response = await RoutesHelper.http_post_client(app, "/api/login", payload)
@@ -56,4 +54,4 @@ class TestLoginRoute:
         )
 
         assert response.status_code == 200
-        assert actual_result["id"] == str(user.id)
+        assert actual_result["id"] == self.id
