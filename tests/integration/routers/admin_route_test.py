@@ -17,7 +17,7 @@ class TestAdminRoute:
     admin = True
 
     token = jwt.encode(
-        {"id": id, "admin": admin, "exp": create_token_expiry()},
+        {"id": id, "is_admin": admin, "exp": create_token_expiry()},
         tests_config.JWT_SECRET,
         algorithm="HS256",
     )

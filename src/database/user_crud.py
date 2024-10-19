@@ -26,7 +26,7 @@ class UserCrud(UserCrudInterface):
                     result = await session.execute(stmt)
 
                     user = result.scalars().first()
-                    log.info(f"*** {user.__dict__}")
+                    # log.info(f"*** {user.__dict__}")
 
                     if user:
                         password = _password.encode("utf-8")

@@ -80,13 +80,11 @@ app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
-    log.debug(f"{request_path=}")
-
-    log.debug(f"{JWT_EXCLUDED_ENDPOINTS=}")
-    log.debug(f"{request_path not in JWT_EXCLUDED_ENDPOINTS}")
 
     try:
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
+            log.debug(f"authenticate - included request_path")
+
             auth_token = request.headers["Authorization"]
 
             if not auth_token:
@@ -147,12 +145,8 @@ async def authenticate(request: Request, call_next):
                 )
 
             # only a user can access their own user record by id
-            if (
-                not user.is_admin
-                and not AppUtil.validate_uuid_path_param(request_path, str(user.id))
-                # and not AppUtil.validate_uuid_path_param(
-                #     request_path, "/api/user-details/", str(user.id)
-                # )
+            if not user.is_admin and not AppUtil.validate_uuid_path_param(
+                request_path, str(user.id)
             ):
                 log.debug("authenticate - user cannot access another user record")
 
