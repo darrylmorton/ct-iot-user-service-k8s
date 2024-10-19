@@ -31,19 +31,17 @@ DB_PASSWORD=
 DB_NAME=
 ```
 
-## Dev
-Swagger docs: http://localhost:8000/docs
+## Run
+
+### Dev
 ```
+docker compose -f docker-compose-local.yml up
 make dev-server-start
 ```
+Swagger docs: http://localhost:8001/docs
 
-## Prod
+### Test
 ```
-make server-start
-```
-
-## Test
-```
-make test-unit
-make test-integration
+docker compose -f docker-compose-local.yml up
+make test
 ```
