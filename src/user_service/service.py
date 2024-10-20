@@ -87,7 +87,7 @@ async def authenticate(request: Request, call_next):
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
             log.debug("authenticate - included request_path")
 
-            auth_token = request.headers["Authorization"]
+            auth_token = request.headers["auth-token"]
 
             if not auth_token:
                 log.debug("authenticate - missing auth token")
@@ -97,7 +97,7 @@ async def authenticate(request: Request, call_next):
                 )
 
             response = requests.get(
-                f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
+                f"{config.AUTH_SERVICE_URL}/jwt", headers={"auth-token": auth_token}
             )
 
             if response.status_code != HTTPStatus.OK:

@@ -12,7 +12,7 @@ class RoutesHelper:
             transport=ASGITransport(app=app), base_url=RoutesHelper.TEST_URL
         ) as ac:
             if token:
-                ac.headers["Authorization"] = token
+                ac.headers["auth-token"] = token
 
             return await ac.get(path)
 
@@ -22,6 +22,6 @@ class RoutesHelper:
             transport=ASGITransport(app=app), base_url=RoutesHelper.TEST_URL
         ) as ac:
             if token:
-                ac.headers["Authorization"] = token
+                ac.headers["auth-token"] = token
 
             return await ac.post(path, json=payload)
