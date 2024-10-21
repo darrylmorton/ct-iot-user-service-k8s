@@ -19,12 +19,6 @@ router = APIRouter()
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
 async def login(payload: schemas.LoginRequest = Body(embed=False)) -> JSONResponse:
     try:
-        # payload = await req.json()
-        # schemas.LoginRequest.model_validate(payload)
-
-        # username = payload.username
-        # password = payload.password
-
         authorised_user = await UserCrud().authorise(
             _username=payload.username, _password=payload.password
         )

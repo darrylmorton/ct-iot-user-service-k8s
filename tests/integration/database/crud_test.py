@@ -54,6 +54,6 @@ class TestCrud:
             _last_name=self.last_name,
         )
 
-        assert actual_result.user_id == expected_result.id
+        assert actual_result.user_id == str(expected_result.id)
         assert actual_result.first_name == self.first_name
         assert actual_result.last_name == self.last_name

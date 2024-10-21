@@ -81,14 +81,6 @@ async def lifespan_wrapper(app: FastAPI):
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
-# @app.exception_handler(RequestValidationError)
-# async def validation_exception_handler(_: Request, exc: RequestValidationError):
-#     return JSONResponse(
-#         status_code=HTTPStatus.BAD_REQUEST,
-#         content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
-#     )
-
-
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]

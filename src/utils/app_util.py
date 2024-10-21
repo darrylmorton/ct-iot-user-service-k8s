@@ -75,11 +75,8 @@ class AppUtil:
 
     @staticmethod
     def validate_email(email: str) -> bool:
-        log.info(f"******* VALIDATE CALLED {email=}")
-
         try:
-            result = validate_email(email)
-            log.info(f"******* VALIDATE RESULT {result=}")
+            validate_email(email)
 
             return True
         except EmailSyntaxError:

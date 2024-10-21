@@ -21,9 +21,6 @@ router = APIRouter()
 async def signup(
     payload: schemas.SignupRequest = Body(embed=False),
 ) -> JSONResponse:
-    # validation_status_code = HTTPStatus.BAD_REQUEST
-    # validation_message = "Invalid username or password"
-
     try:
         username_exists = await UserCrud().find_user_by_username(payload.username)
 
@@ -40,7 +37,7 @@ async def signup(
         # validation_message = "Invalid first or last name"
 
         user_details = await UserDetailsCrud().add_user_details(
-            _user_id=str(user.id),
+            _user_id=user.id,
             _first_name=payload.first_name,
             _last_name=payload.last_name,
         )
