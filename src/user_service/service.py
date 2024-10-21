@@ -7,6 +7,8 @@ import sentry_sdk
 from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
@@ -79,6 +81,14 @@ async def lifespan_wrapper(app: FastAPI):
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
 
+# @app.exception_handler(RequestValidationError)
+# async def validation_exception_handler(_: Request, exc: RequestValidationError):
+#     return JSONResponse(
+#         status_code=HTTPStatus.BAD_REQUEST,
+#         content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+#     )
+
+
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
     request_path = request["path"]
@@ -102,6 +112,7 @@ async def authenticate(request: Request, call_next):
 
             if response.status_code != HTTPStatus.OK:
                 log.debug("authenticate - invalid token")
+                log.debug(f"authenticate - {response.status_code =}")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
@@ -150,7 +161,7 @@ async def authenticate(request: Request, call_next):
             if not user.is_admin and not AppUtil.validate_uuid_path_param(
                 request_path, str(user.id)
             ):
-                log.debug("authenticate - user cannot access another user record")
+                log.info("authenticate - user cannot access another user record")
 
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
@@ -168,6 +179,8 @@ async def authenticate(request: Request, call_next):
 app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
+
+# @app.add_exception_handler(400)
 app.include_router(login.router, prefix="/api", tags=["login"])
 app.include_router(users.router, prefix="/api", tags=["users"])
 app.include_router(user_details.router, prefix="/api", tags=["user-details"])

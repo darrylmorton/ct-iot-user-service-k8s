@@ -11,7 +11,7 @@ keywords = ["ct", "iot", "user", "service"]
 
 [tool.poetry.dependencies]
 python = "^3.11.9"
-fastapi = "^0.111.1"
+fastapi = {version = "^0.115.2", extras = ["standard"]}
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
 python-dotenv = "^1.0.0"
 sqlalchemy = "^2.0.22"
@@ -106,7 +106,7 @@ line-ending = "auto"
 [tool.pytest.ini_options]
 pythonpath = [ "src/" ]
 asyncio_mode = "auto"
-log_cli = false
+log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

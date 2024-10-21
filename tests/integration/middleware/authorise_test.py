@@ -1,6 +1,7 @@
 import pytest
 from jose import jwt
 
+from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.config import JWT_SECRET
 from tests.helper.auth_helper import create_token_expiry
@@ -30,6 +31,7 @@ class TestMiddlewareAuthorise:
             app, "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff9", _token
         )
         actual_result = response.json()
+        log.info(f"{actual_result=}")
 
         assert response.status_code == 403
         assert actual_result == "Forbidden error"
