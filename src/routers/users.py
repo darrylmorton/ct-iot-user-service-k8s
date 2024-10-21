@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
@@ -12,7 +12,9 @@ router = APIRouter()
 
 
 @router.get("/users/{id}", response_model=schemas.User)
-async def get_user_by_id(id: str) -> schemas.User | JSONResponse:
+async def get_user_by_id(id: str, _: schemas.JwtAuthToken = Header(
+        alias="auth-token", validation_alias="auth_token", convert_underscores=True
+    )) -> schemas.User | JSONResponse:
     try:
         return await UserCrud().find_user_by_id(_id=id)
     except SQLAlchemyError as error:

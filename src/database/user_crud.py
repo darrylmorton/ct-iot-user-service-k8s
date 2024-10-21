@@ -25,22 +25,27 @@ class UserCrud(UserCrudInterface):
                     stmt = self.stmt.find_user_by_username_stmt(username=_username)
                     result = await session.execute(stmt)
 
+                    log.error(f"authorise BEFORE {result=}")
                     user = result.scalars().first()
+                    log.error(f"authorise AFTER {user=}")
 
                     if user:
                         password = _password.encode("utf-8")
                         password_hash = user.password_hash.encode("utf-8")
 
                         password_match = bcrypt.checkpw(password, password_hash)
+                        log.info(f"authorise {password_match=}")
 
                         if password_match:
                             return schemas.UserAuthenticated(
-                                id=user.id,
+                                id=str(user.id),
                                 enabled=user.enabled,
                                 is_admin=user.is_admin,
                             )
 
-                    return schemas.UserAuthenticated(enabled=False)
+                    log.info(f"authorise END")
+
+                    return schemas.UserAuthenticated(id="", enabled=False, is_admin=False)
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")

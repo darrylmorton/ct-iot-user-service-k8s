@@ -5,76 +5,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
-from utils.app_util import AppUtil
-
-
-def validate_id(v: str, info: ValidationInfo):
-    if info.field_name == "id" and not AppUtil.validate_uuid4(v):
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid id")
-
-    return v
-
-
-def validate_user_id(v: str, info: ValidationInfo):
-    if info.field_name == "user_id" and not AppUtil.validate_uuid4(v):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail="Invalid user id"
-        )
-
-    return v
-
-
-def validate_username(v: str, info: ValidationInfo, status_code, message: str):
-    if info.field_name == "username" and not AppUtil.validate_email(v):
-        raise HTTPException(
-            status_code=status_code,
-            detail=message,
-        )
-
-    return v
-
-
-def validate_password(v: str, info: ValidationInfo, status_code, message: str):
-    if (
-        info.field_name == "password"
-        and not isinstance(v, str)
-        or len(v) < 8
-        or len(v) > 16
-    ):
-        raise HTTPException(
-            status_code=status_code,
-            detail=message,
-        )
-
-    return v
-
-
-def validate_first_name(v: str, info: ValidationInfo):
-    if (
-        info.field_name == "first_name"
-        and not isinstance(v, str)
-        or len(v) < 2
-        or len(v) > 30
-    ):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail="1 Invalid first_name"
-        )
-
-    return v
-
-
-def validate_last_name(v: str, info: ValidationInfo):
-    if (
-        info.field_name == "last_name"
-        and not isinstance(v, str)
-        or len(v) < 2
-        or len(v) > 30
-    ):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail="1 Invalid last_name"
-        )
-
-    return v
+from utils.validator_util import ValidatorUtil
 
 
 class UserBase(BaseModel):
@@ -87,9 +18,8 @@ class User(UserBase):
         from_attributes = True
 
 
-class UserAuthenticated(UserBase):
-    username: str = Field(None, exclude=True)
-
+class UserAuthenticated(BaseModel):
+    id: str
     enabled: bool
     is_admin: bool
 
@@ -111,22 +41,22 @@ class UserDetailsBase(BaseModel):
     @field_validator("id")
     @classmethod
     def validate_id(cls, v: str, info: ValidationInfo):
-        return validate_id(str(v), info)
+        return ValidatorUtil.validate_id(str(v), info)
 
     @field_validator("user_id")
     @classmethod
     def validate_user_id(cls, v: str, info: ValidationInfo):
-        return validate_user_id(str(v), info)
+        return ValidatorUtil.validate_user_id(str(v), info)
 
     @field_validator("first_name")
     @classmethod
     def validate_first_name(cls, v: str, info: ValidationInfo):
-        return validate_first_name(v, info)
+        return ValidatorUtil.validate_first_name(v, info)
 
     @field_validator("last_name")
     @classmethod
     def validate_last_name(cls, v: str, info: ValidationInfo):
-        return validate_last_name(v, info)
+        return ValidatorUtil.validate_last_name(v, info)
 
 
 class UserDetails(UserDetailsBase):
@@ -149,36 +79,36 @@ class SignupBase(BaseModel):
     @field_validator("id")
     @classmethod
     def validate_id(cls, v: str, info: ValidationInfo):
-        return validate_id(v, info)
+        return ValidatorUtil.validate_id(v, info)
 
     @field_validator("user_id")
     @classmethod
     def validate_user_id(cls, v: str, info: ValidationInfo):
-        return validate_user_id(v, info)
+        return ValidatorUtil.validate_user_id(v, info)
 
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str, info: ValidationInfo):
-        return validate_username(
+        return ValidatorUtil.validate_username(
             v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
         )
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: str, info: ValidationInfo):
-        return validate_password(
+        return ValidatorUtil.validate_password(
             v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
         )
 
     @field_validator("first_name")
     @classmethod
     def validate_first_name(cls, v: str, info: ValidationInfo):
-        return validate_first_name(v, info)
+        return ValidatorUtil.validate_first_name(v, info)
 
     @field_validator("last_name")
     @classmethod
     def validate_last_name(cls, v: str, info: ValidationInfo):
-        return validate_last_name(v, info)
+        return ValidatorUtil.validate_last_name(v, info)
 
 
 class SignupRequest(SignupBase):
@@ -206,21 +136,53 @@ class LoginBase(BaseModel):
     @field_validator("id")
     @classmethod
     def validate_id(cls, v: str, info: ValidationInfo):
-        return validate_id(v, info)
+        return ValidatorUtil.validate_id(v, info)
 
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str, info: ValidationInfo):
-        return validate_username(v, info, HTTPStatus.UNAUTHORIZED, "Invalid login")
+        return ValidatorUtil.validate_username(
+            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
+        )
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: str, info: ValidationInfo):
-        return validate_password(v, info, HTTPStatus.UNAUTHORIZED, "Invalid login")
+        return ValidatorUtil.validate_password(
+            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
+        )
 
 
 class LoginRequest(LoginBase):
     id: str = Field(None, exclude=True)
+
+    class ConfigDict:
+        from_attributes = True
+
+
+class JwtAuthTokenBase(BaseModel):
+    auth_token: str = Field(alias="auth-token", validation_alias="auth_token")
+
+
+class JwtAuthToken(JwtAuthTokenBase):
+    @field_validator("auth_token")
+    @classmethod
+    def validate_auth_token_header(cls, v: str, info: ValidationInfo):
+        if info.field_name == "auth_token" and not isinstance(v, str):
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid request header"
+            )
+
+        # try:
+        #     payload = AuthUtil.decode_token(v)
+        #
+        #     JwtPayload.model_validate(payload)
+        # except KeyError:
+        #     raise HTTPException(
+        #         status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid JWT payload"
+        #     )
+
+        return v
 
     class ConfigDict:
         from_attributes = True

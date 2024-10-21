@@ -2,12 +2,10 @@ import uuid
 from pathlib import Path
 
 import toml
-from email_validator import validate_email, EmailSyntaxError
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 import config
-from logger import log
 
 
 class AppUtil:
@@ -72,14 +70,3 @@ class AppUtil:
                 )
 
         return False
-
-    @staticmethod
-    def validate_email(email: str) -> bool:
-        try:
-            validate_email(email)
-
-            return True
-        except EmailSyntaxError:
-            log.debug(f"Invalid email: {email}")
-
-            return False

@@ -3,7 +3,6 @@ import requests
 from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException, Body
-from pydantic import ValidationError
 
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
@@ -18,22 +17,26 @@ router = APIRouter()
 
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
 async def login(payload: schemas.LoginRequest = Body(embed=False)) -> JSONResponse:
+    log.info(f"login called...{payload=}")
+
     try:
         authorised_user = await UserCrud().authorise(
             _username=payload.username, _password=payload.password
         )
+        log.info(f"login {authorised_user=}")
 
-        if not authorised_user.enabled:
+        if not authorised_user.id:
+            log.error("Invalid login")
+
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Invalid login credentials"
+            )
+        elif not authorised_user.enabled:
             log.error("Account not enabled")
 
-            # raise HTTPException(
-            #     status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
-            # )
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN,
-                content={"message": "Account suspended"},
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
             )
-
         else:
             response = requests.post(
                 f"{config.AUTH_SERVICE_URL}/jwt",
@@ -52,13 +55,6 @@ async def login(payload: schemas.LoginRequest = Body(embed=False)) -> JSONRespon
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Invalid username or password",
                 )
-    except ValidationError as error:
-        log.debug(f"**** login - validation error HELLO {error}")
-        log.debug(f"login - validation error {error}")
-
-        return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-        )
     except SQLAlchemyError as error:
         log.error(f"Cannot login {error}")
 
