@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
@@ -155,34 +154,6 @@ class LoginBase(BaseModel):
 
 class LoginRequest(LoginBase):
     id: str = Field(None, exclude=True)
-
-    class ConfigDict:
-        from_attributes = True
-
-
-class JwtAuthTokenBase(BaseModel):
-    auth_token: str = Field(alias="auth-token", validation_alias="auth_token")
-
-
-class JwtAuthToken(JwtAuthTokenBase):
-    @field_validator("auth_token")
-    @classmethod
-    def validate_auth_token_header(cls, v: str, info: ValidationInfo):
-        if info.field_name == "auth_token" and not isinstance(v, str):
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid request header"
-            )
-
-        # try:
-        #     payload = AuthUtil.decode_token(v)
-        #
-        #     JwtPayload.model_validate(payload)
-        # except KeyError:
-        #     raise HTTPException(
-        #         status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid JWT payload"
-        #     )
-
-        return v
 
     class ConfigDict:
         from_attributes = True

@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from fastapi import APIRouter, HTTPException, Body
 from sqlalchemy.exc import SQLAlchemyError
-from starlette.responses import JSONResponse
 
 import config
 import schemas

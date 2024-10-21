@@ -1,11 +1,9 @@
-import uuid
 from http import HTTPStatus
 
 from email_validator import validate_email, EmailSyntaxError
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from pydantic_core.core_schema import ValidationInfo
 
-import config
 from logger import log
 from utils.app_util import AppUtil
 
