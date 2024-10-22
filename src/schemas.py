@@ -111,6 +111,19 @@ class SignupBase(BaseModel):
 
 
 class SignupRequest(SignupBase):
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "foo@bar.com",
+                    "password": "barbarba",
+                    "first_name": "Foo",
+                    "last_name": "Bar",
+                }
+            ]
+        }
+    }
+
     id: str = Field(None, exclude=True)
     user_id: str = Field(None, exclude=True)
 
@@ -153,6 +166,17 @@ class LoginBase(BaseModel):
 
 
 class LoginRequest(LoginBase):
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "foo@bar.com",
+                    "password": "barbarba",
+                }
+            ]
+        }
+    }
+
     id: str = Field(None, exclude=True)
 
     class ConfigDict:

@@ -14,9 +14,13 @@ from logger import log
 
 router = APIRouter()
 
+login_examples = [schemas.LoginRequest(username="foo@bar.com", password="barbarba")]
+
 
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
-async def login(payload: schemas.LoginRequest = Body(embed=False)) -> JSONResponse:
+async def login(
+    payload: schemas.LoginRequest = Body(embed=False, examples=login_examples),
+) -> JSONResponse:
     try:
         authorised_user = await UserCrud().authorise(
             _username=payload.username, _password=payload.password
@@ -32,7 +36,7 @@ async def login(payload: schemas.LoginRequest = Body(embed=False)) -> JSONRespon
             log.error("Account not enabled")
 
             raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
+                status_code=HTTPStatus.FORBIDDEN, detail="Account not enabled"
             )
         else:
             response = requests.post(
