@@ -131,15 +131,6 @@ class SignupRequest(SignupBase):
         from_attributes = True
 
 
-class SignupResponse(SignupBase):
-    id: str = Field(None, exclude=True)
-    user_id: str = Field(None, exclude=True)
-    password: str = Field(None, exclude=True)
-
-    class ConfigDict:
-        from_attributes = True
-
-
 class LoginBase(BaseModel):
     id: str
     username: str
