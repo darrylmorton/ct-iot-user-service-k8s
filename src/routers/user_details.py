@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
