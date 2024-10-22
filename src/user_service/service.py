@@ -87,15 +87,14 @@ async def authenticate(request: Request, call_next):
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
             auth_token = request.headers["authorization"]
 
-            if auth_token:
-                auth_token = auth_token.replace("Bearer ", "")
-
             if not auth_token:
                 log.debug("authenticate - missing auth token")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
+
+            auth_token = auth_token.replace("Bearer ", "")
 
             response = requests.get(
                 f"{config.AUTH_SERVICE_URL}/jwt", headers={"auth-token": auth_token}
@@ -151,7 +150,7 @@ async def authenticate(request: Request, call_next):
             if not user.is_admin and not AppUtil.validate_uuid_path_param(
                 request_path, str(user.id)
             ):
-                log.info("authenticate - user cannot access another user record")
+                log.debug("authenticate - user cannot access another user record")
 
                 return JSONResponse(
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"

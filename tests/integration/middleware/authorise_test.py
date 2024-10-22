@@ -1,9 +1,7 @@
 import pytest
-from jose import jwt
 
 from tests.helper.user_helper import create_signup_payload
-from tests.config import JWT_SECRET
-from tests.helper.auth_helper import create_token_expiry
+from tests.helper.auth_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
@@ -21,11 +19,8 @@ class TestMiddlewareAuthorise:
         indirect=True,
     )
     async def test_not_admin_different_id(self, db_cleanup, add_test_user):
-        _token = jwt.encode(
-            {"id": self._id, "is_admin": False, "exp": create_token_expiry()},
-            JWT_SECRET,
-            algorithm="HS256",
-        )
+        _token = create_token({"id": self._id, "is_admin": False})
+
         response = await RoutesHelper.http_client(
             app, "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff9", _token
         )
@@ -34,12 +29,14 @@ class TestMiddlewareAuthorise:
         assert response.status_code == 403
         assert actual_result == "Forbidden error"
 
-    async def test_not_admin(self):
-        _token = jwt.encode(
-            {"id": self._id, "is_admin": False, "exp": create_token_expiry()},
-            JWT_SECRET,
-            algorithm="HS256",
-        )
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_enabled=True)]],
+        indirect=True,
+    )
+    async def test_not_admin(self, db_cleanup, add_test_user):
+        _token = create_token({"id": self._id, "is_admin": False})
+
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)
         actual_result = response.json()
 
@@ -54,11 +51,15 @@ class TestMiddlewareAuthorise:
         assert response.status_code == 401
         assert actual_result == "Unauthorised error"
 
-    async def test_expired_token(self):
-        _token = jwt.encode(
-            {"id": self._id, "is_admin": self.admin, "exp": create_token_expiry(-3000)},
-            JWT_SECRET,
-            algorithm="HS256",
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_enabled=True)]],
+        indirect=True,
+    )
+    async def test_expired_token(self, db_cleanup, add_test_user):
+        _token = create_token(
+            data={"id": self._id, "is_admin": self.admin},
+            token_expiry=create_token_expiry(-3000),
         )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)
@@ -68,10 +69,8 @@ class TestMiddlewareAuthorise:
         assert actual_result == "Unauthorised error"
 
     async def test_invalid_token(self):
-        _token = jwt.encode(
-            {"id": self._id, "is_admin": self.admin, "exp": create_token_expiry()},
-            "",
-            algorithm="HS256",
+        _token = create_token(
+            data={"id": self._id, "is_admin": self.admin},
         )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)

@@ -1,9 +1,7 @@
 import pytest
-from jose import jwt
 
 from tests.helper.user_helper import create_signup_payload
-import tests.config as tests_config
-from tests.helper.auth_helper import create_token_expiry
+from tests.helper.auth_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
@@ -13,12 +11,7 @@ class TestUsersRoute:
     username = "foo@home.com"
     password = "barbarba"
     admin = False
-
-    token = jwt.encode(
-        {"id": id, "is_admin": admin, "exp": create_token_expiry()},
-        tests_config.JWT_SECRET,
-        algorithm="HS256",
-    )
+    token = create_token(data={"id": id, "is_admin": admin})
 
     @pytest.mark.parametrize(
         "add_test_user",
