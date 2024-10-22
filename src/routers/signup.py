@@ -1,11 +1,6 @@
 from http import HTTPStatus
-from typing import Annotated
-
 from fastapi import APIRouter, HTTPException, Body
-
-from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
-from starlette.responses import JSONResponse
 
 import config
 import schemas
@@ -17,19 +12,12 @@ logger = config.get_logger()
 router = APIRouter()
 
 
-@router.post(
-    "/signup", response_model=schemas.SignupResponse, status_code=HTTPStatus.CREATED
-)
+@router.post("/signup", status_code=HTTPStatus.CREATED)
 async def signup(
-    signup_request: Annotated[schemas.SignupRequest, Body(embed=False)],
-) -> JSONResponse | schemas.SignupResponse:
-    validation_status_code = HTTPStatus.UNAUTHORIZED
-    validation_message = "Invalid username or password"
-
+    payload: schemas.SignupRequest = Body(embed=False),
+) -> schemas.SignupResponse:
     try:
-        username_exists = await UserCrud().find_user_by_username(
-            signup_request.username
-        )
+        username_exists = await UserCrud().find_user_by_username(payload.username)
 
         if username_exists:
             raise HTTPException(
@@ -37,16 +25,13 @@ async def signup(
             )
 
         user = await UserCrud().add_user(
-            _username=signup_request.username, _password=signup_request.password
+            _username=payload.username, _password=payload.password
         )
-
-        validation_status_code = HTTPStatus.BAD_REQUEST
-        validation_message = "Invalid first or last name"
 
         user_details = await UserDetailsCrud().add_user_details(
             _user_id=user.id,
-            _first_name=signup_request.first_name,
-            _last_name=signup_request.last_name,
+            _first_name=payload.first_name,
+            _last_name=payload.last_name,
         )
 
         return schemas.SignupResponse(
@@ -54,12 +39,6 @@ async def signup(
             first_name=user_details.first_name,
             last_name=user_details.last_name,
         )
-    except ValidationError as error:
-        logger.debug("signup validation error")
-
-        raise HTTPException(
-            status_code=validation_status_code, detail=validation_message
-        ) from error
     except SQLAlchemyError as error:
         logger.error(f"Cannot signup {error}")
 

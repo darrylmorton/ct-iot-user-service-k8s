@@ -7,7 +7,8 @@ import sentry_sdk
 from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.params import Depends
+from fastapi.security import HTTPBearer
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
 from starlette.requests import Request
@@ -19,9 +20,6 @@ from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login, admin
 from utils.app_util import AppUtil
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-oauth2_scheme.auto_error = False
 
 
 async def run_migrations():
@@ -78,6 +76,8 @@ async def lifespan_wrapper(app: FastAPI):
 
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
 
+http_bearer_security = HTTPBearer()
+
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
@@ -85,9 +85,7 @@ async def authenticate(request: Request, call_next):
 
     try:
         if request_path not in JWT_EXCLUDED_ENDPOINTS:
-            log.debug("authenticate - included request_path")
-
-            auth_token = request.headers["Authorization"]
+            auth_token = request.headers["authorization"]
 
             if not auth_token:
                 log.debug("authenticate - missing auth token")
@@ -96,8 +94,10 @@ async def authenticate(request: Request, call_next):
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
 
+            auth_token = auth_token.replace("Bearer ", "")
+
             response = requests.get(
-                f"{config.AUTH_SERVICE_URL}/jwt", headers={"Authorization": auth_token}
+                f"{config.AUTH_SERVICE_URL}/jwt", headers={"auth-token": auth_token}
             )
 
             if response.status_code != HTTPStatus.OK:
@@ -169,8 +169,24 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
-app.include_router(users.router, prefix="/api", tags=["users"])
-app.include_router(user_details.router, prefix="/api", tags=["user-details"])
-app.include_router(admin.router, prefix="/api", tags=["admin"])
+
+app.include_router(
+    users.router,
+    prefix="/api",
+    tags=["users"],
+    dependencies=[Depends(http_bearer_security)],
+)
+app.include_router(
+    user_details.router,
+    prefix="/api",
+    tags=["user-details"],
+    dependencies=[Depends(http_bearer_security)],
+)
+app.include_router(
+    admin.router,
+    prefix="/api",
+    tags=["admin"],
+    dependencies=[Depends(http_bearer_security)],
+)
 
 app = AppUtil.set_openapi_info(app=app)

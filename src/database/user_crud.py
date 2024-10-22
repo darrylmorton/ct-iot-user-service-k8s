@@ -35,12 +35,14 @@ class UserCrud(UserCrudInterface):
 
                         if password_match:
                             return schemas.UserAuthenticated(
-                                id=user.id,
+                                id=str(user.id),
                                 enabled=user.enabled,
                                 is_admin=user.is_admin,
                             )
 
-                    return schemas.UserAuthenticated(enabled=False)
+                    return schemas.UserAuthenticated(
+                        id="", enabled=False, is_admin=False
+                    )
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")

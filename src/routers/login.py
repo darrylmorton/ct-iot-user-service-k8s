@@ -2,11 +2,9 @@ import requests
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException
-from pydantic import ValidationError
+from fastapi import APIRouter, HTTPException, Body
 
 from sqlalchemy.exc import SQLAlchemyError
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
@@ -16,25 +14,29 @@ from logger import log
 
 router = APIRouter()
 
+login_examples = [schemas.LoginRequest(username="foo@bar.com", password="barbarba")]
 
-@router.post("/login", response_model=schemas.User, status_code=200)
-async def login(req: Request) -> JSONResponse:
+
+@router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
+async def login(
+    payload: schemas.LoginRequest = Body(embed=False, examples=login_examples),
+) -> JSONResponse:
     try:
-        payload = await req.json()
-        schemas.LoginRequest.model_validate(payload)
-
-        username = payload["username"]
-        password = payload["password"]
-
         authorised_user = await UserCrud().authorise(
-            _username=username, _password=password
+            _username=payload.username, _password=payload.password
         )
 
-        if not authorised_user.enabled:
+        if not authorised_user.id:
+            log.error("Invalid login")
+
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Invalid login credentials"
+            )
+        elif not authorised_user.enabled:
             log.error("Account not enabled")
 
             raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
+                status_code=HTTPStatus.FORBIDDEN, detail="Account not enabled"
             )
         else:
             response = requests.post(
@@ -54,12 +56,6 @@ async def login(req: Request) -> JSONResponse:
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Invalid username or password",
                 )
-    except ValidationError as error:
-        log.debug(f"login - validation error {error}")
-
-        return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-        )
     except SQLAlchemyError as error:
         log.error(f"Cannot login {error}")
 

@@ -10,14 +10,14 @@ class TestSignupRoute:
 
         response = await RoutesHelper.http_post_client(app, "/api/signup", payload)
 
-        assert response.status_code == 422
+        assert response.status_code == 400
 
     async def test_post_signup_invalid_password(self):
         payload = create_signup_payload(_password="barbarb")
 
         response = await RoutesHelper.http_post_client(app, "/api/signup", payload)
 
-        assert response.status_code == 422
+        assert response.status_code == 400
 
     async def test_post_signup(self, db_cleanup):
         payload = create_signup_payload()

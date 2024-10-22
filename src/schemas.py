@@ -1,11 +1,15 @@
+from http import HTTPStatus
 from uuid import UUID
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, field_validator
+from pydantic_core.core_schema import ValidationInfo
+
+from utils.validator_util import ValidatorUtil
 
 
 class UserBase(BaseModel):
     id: UUID
-    username: EmailStr
+    username: str
 
 
 class User(UserBase):
@@ -13,9 +17,8 @@ class User(UserBase):
         from_attributes = True
 
 
-class UserAuthenticated(UserBase):
-    username: EmailStr = Field(None, exclude=True)
-
+class UserAuthenticated(BaseModel):
+    id: str
     enabled: bool
     is_admin: bool
 
@@ -24,15 +27,35 @@ class UserAuthenticated(UserBase):
 
 
 class UserRequest(UserBase):
-    id: UUID = Field(None, exclude=True)
-    password: str = Field(min_length=8, max_length=16)
+    id: str = Field(None, exclude=True)
+    password: str
 
 
 class UserDetailsBase(BaseModel):
     id: UUID
     user_id: UUID
-    first_name: str = Field(min_length=2, max_length=30)
-    last_name: str = Field(min_length=2, max_length=30)
+    first_name: str
+    last_name: str
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_id(str(v), info)
+
+    @field_validator("user_id")
+    @classmethod
+    def validate_user_id(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_user_id(str(v), info)
+
+    @field_validator("first_name")
+    @classmethod
+    def validate_first_name(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_first_name(v, info)
+
+    @field_validator("last_name")
+    @classmethod
+    def validate_last_name(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_last_name(v, info)
 
 
 class UserDetails(UserDetailsBase):
@@ -41,29 +64,76 @@ class UserDetails(UserDetailsBase):
 
 
 class UserDetailsRequest(UserDetailsBase):
-    id: UUID = Field(None, exclude=True)
+    id: str = Field(None, exclude=True)
 
 
 class SignupBase(BaseModel):
-    id: UUID
-    user_id: UUID
-    username: EmailStr
-    password: str = Field(min_length=8, max_length=16)
-    first_name: str = Field(min_length=2, max_length=30)
-    last_name: str = Field(min_length=2, max_length=30)
+    id: str
+    user_id: str
+    username: str
+    password: str
+    first_name: str
+    last_name: str
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_id(v, info)
+
+    @field_validator("user_id")
+    @classmethod
+    def validate_user_id(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_user_id(v, info)
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_username(
+            v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
+        )
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_password(
+            v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
+        )
+
+    @field_validator("first_name")
+    @classmethod
+    def validate_first_name(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_first_name(v, info)
+
+    @field_validator("last_name")
+    @classmethod
+    def validate_last_name(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_last_name(v, info)
 
 
 class SignupRequest(SignupBase):
-    id: UUID = Field(None, exclude=True)
-    user_id: UUID = Field(None, exclude=True)
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "foo@bar.com",
+                    "password": "barbarba",
+                    "first_name": "Foo",
+                    "last_name": "Bar",
+                }
+            ]
+        }
+    }
+
+    id: str = Field(None, exclude=True)
+    user_id: str = Field(None, exclude=True)
 
     class ConfigDict:
         from_attributes = True
 
 
 class SignupResponse(SignupBase):
-    id: UUID = Field(None, exclude=True)
-    user_id: UUID = Field(None, exclude=True)
+    id: str = Field(None, exclude=True)
+    user_id: str = Field(None, exclude=True)
     password: str = Field(None, exclude=True)
 
     class ConfigDict:
@@ -71,13 +141,43 @@ class SignupResponse(SignupBase):
 
 
 class LoginBase(BaseModel):
-    id: UUID
-    username: EmailStr
-    password: str = Field(min_length=8, max_length=16)
+    id: str
+    username: str
+    password: str
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_id(v, info)
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_username(
+            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
+        )
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str, info: ValidationInfo):
+        return ValidatorUtil.validate_password(
+            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
+        )
 
 
 class LoginRequest(LoginBase):
-    id: UUID = Field(None, exclude=True)
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "foo@bar.com",
+                    "password": "barbarba",
+                }
+            ]
+        }
+    }
+
+    id: str = Field(None, exclude=True)
 
     class ConfigDict:
         from_attributes = True
