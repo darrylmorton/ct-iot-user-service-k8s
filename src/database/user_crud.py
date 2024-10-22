@@ -111,7 +111,7 @@ class UserCrud(UserCrudInterface):
 
                 await session.refresh(user)
                 return schemas.User(id=user.id, username=user.username)
-        except SQLAlchemyError as error:
+        except Exception as error:
             log.error(f"add_user {error}")
             raise SQLAlchemyError("Cannot add user")
         finally:

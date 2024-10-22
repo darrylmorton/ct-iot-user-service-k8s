@@ -1,5 +1,4 @@
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     create_async_engine,
     async_sessionmaker,
 )
@@ -13,6 +12,6 @@ Base = declarative_base()
 
 
 # TODO try to use this or remove
-async def get_db() -> AsyncSession:
-    async with async_session() as session:
-        yield session
+# async def get_db() -> AsyncSession:
+#     async with async_session() as session:
+#         yield session

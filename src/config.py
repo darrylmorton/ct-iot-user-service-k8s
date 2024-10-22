@@ -1,4 +1,3 @@
-import logging
 import os
 from urllib.parse import quote
 
@@ -54,10 +53,3 @@ JWT_EXCLUDED_ENDPOINTS = [
 ]
 
 UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]
-
-
-def get_logger() -> logging.Logger:
-    logger = logging.getLogger("uvicorn")
-    logger.setLevel(logging.getLevelName(LOG_LEVEL))
-
-    return logger
