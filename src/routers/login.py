@@ -1,10 +1,7 @@
 import requests
 
 from http import HTTPStatus
-
-from fastapi import APIRouter, HTTPException, Body
-
-from sqlalchemy.exc import SQLAlchemyError
+from fastapi import APIRouter, Body
 from starlette.responses import JSONResponse
 
 import config
@@ -14,12 +11,10 @@ from logger import log
 
 router = APIRouter()
 
-login_examples = [schemas.LoginRequest(username="foo@bar.com", password="barbarba")]
-
 
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
 async def login(
-    payload: schemas.LoginRequest = Body(embed=False, examples=login_examples),
+    payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
         authorised_user = await UserCrud().authorise(
@@ -27,16 +22,16 @@ async def login(
         )
 
         if not authorised_user.id:
-            log.error("Invalid login")
+            log.debug("Login - Invalid login")
 
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Invalid login credentials"
+            return JSONResponse(
+                status_code=HTTPStatus.FORBIDDEN, content="Invalid login credentials"
             )
         elif not authorised_user.enabled:
-            log.error("Account not enabled")
+            log.debug("Login - account not enabled")
 
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Account not enabled"
+            return JSONResponse(
+                status_code=HTTPStatus.FORBIDDEN, content="Account not enabled"
             )
         else:
             response = requests.post(
@@ -50,15 +45,15 @@ async def login(
             if response.status_code == HTTPStatus.CREATED:
                 return JSONResponse(status_code=HTTPStatus.OK, content=response.json())
             else:
-                log.error("Cannot login")
+                log.debug("Login - invalid username or password")
 
-                raise HTTPException(
+                return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="Invalid username or password",
+                    content="Invalid username or password",
                 )
-    except SQLAlchemyError as error:
-        log.error(f"Cannot login {error}")
+    except Exception as error:
+        log.error(f"Login error {error}")
 
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot login"
-        ) from error
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Login error"
+        )

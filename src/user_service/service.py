@@ -2,7 +2,6 @@ import contextlib
 from http import HTTPStatus
 
 import requests
-
 import sentry_sdk
 from alembic import command
 from alembic.config import Config
@@ -16,6 +15,7 @@ from starlette.responses import JSONResponse
 
 import config
 from database.user_crud import UserCrud
+
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login, admin
@@ -156,10 +156,16 @@ async def authenticate(request: Request, call_next):
                     status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
                 )
     except KeyError as err:
-        log.debug(f"authenticate - missing token {err}")
+        log.error(f"authenticate - missing token {err}")
 
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+        )
+    except Exception as err:
+        log.error(f"authenticate - server error {err}")
+
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Server error"
         )
 
     return await call_next(request)

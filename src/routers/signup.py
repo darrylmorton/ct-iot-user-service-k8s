@@ -1,13 +1,11 @@
 from http import HTTPStatus
-from fastapi import APIRouter, HTTPException, Body
-from sqlalchemy.exc import SQLAlchemyError
+from fastapi import APIRouter, Body
+from starlette.responses import JSONResponse
 
-import config
 import schemas
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
-
-logger = config.get_logger()
+from logger import log
 
 router = APIRouter()
 
@@ -15,13 +13,15 @@ router = APIRouter()
 @router.post("/signup", status_code=HTTPStatus.CREATED)
 async def signup(
     payload: schemas.SignupRequest = Body(embed=False),
-) -> schemas.SignupResponse:
+) -> JSONResponse:
     try:
         username_exists = await UserCrud().find_user_by_username(payload.username)
 
         if username_exists:
-            raise HTTPException(
-                status_code=HTTPStatus.CONFLICT, detail="Username exists"
+            log.debug("Signup - username exists")
+
+            return JSONResponse(
+                status_code=HTTPStatus.CONFLICT, content="Username exists"
             )
 
         user = await UserCrud().add_user(
@@ -34,14 +34,17 @@ async def signup(
             _last_name=payload.last_name,
         )
 
-        return schemas.SignupResponse(
-            username=user.username,
-            first_name=user_details.first_name,
-            last_name=user_details.last_name,
+        return JSONResponse(
+            status_code=HTTPStatus.CREATED,
+            content={
+                "username": user.username,
+                "first_name": user_details.first_name,
+                "last_name": user_details.last_name,
+            },
         )
-    except SQLAlchemyError as error:
-        logger.error(f"Cannot signup {error}")
+    except Exception as error:
+        log.error(f"Signup error {error}")
 
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Cannot signup"
-        ) from error
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Signup error"
+        )

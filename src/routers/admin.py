@@ -1,13 +1,12 @@
+from http import HTTPStatus
+
 from fastapi import APIRouter
-from sqlalchemy.exc import SQLAlchemyError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-import config
 import schemas
 from database.admin_crud import AdminCrud
-
-logger = config.get_logger()
+from logger import log
 
 router = APIRouter()
 
@@ -23,7 +22,9 @@ async def get_users(req: Request) -> list[schemas.User] | JSONResponse:
 
     try:
         return await AdminCrud().find_users(offset)
-    except SQLAlchemyError as error:
-        logger.error(f"get_users {error}")
+    except Exception as error:
+        log.error(f"get_users {error}")
 
-        return JSONResponse(status_code=500, content="Cannot get users")
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Cannot get users"
+        )

@@ -1,12 +1,12 @@
+from http import HTTPStatus
+
 from fastapi import APIRouter
-from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import JSONResponse
 
-import config
 import schemas
 from database.user_details_crud import UserDetailsCrud
+from logger import log
 
-logger = config.get_logger()
 
 router = APIRouter()
 
@@ -17,9 +17,10 @@ async def get_user_details_by_user_id(
 ) -> schemas.UserDetails | JSONResponse:
     try:
         return await UserDetailsCrud().find_user_details_by_user_id(user_id)
-    except SQLAlchemyError as error:
-        logger.error(f"get_user_details_by_user_id {error}")
+    except Exception as error:
+        log.error(f"get_user_details_by_user_id {error}")
 
         return JSONResponse(
-            status_code=500, content="Cannot get user details by user id"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content="Cannot get user details by user id",
         )

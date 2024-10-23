@@ -1,4 +1,3 @@
-import logging
 import os
 from urllib.parse import quote
 
@@ -36,12 +35,3 @@ DATABASE_URL_SUFFIX = (
     )
 )
 DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"
-
-JWT_EXCLUDED_ENDPOINTS = ["/healthz", "/api/signup"]
-
-
-def get_logger() -> logging.Logger:
-    logger = logging.getLogger("uvicorn")
-    logger.setLevel(logging.getLevelName(LOG_LEVEL))
-
-    return logger
