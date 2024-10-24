@@ -1,7 +1,8 @@
 import os
-from urllib.parse import quote
 
 from dotenv import load_dotenv
+
+from utils.app_util import AppUtil
 
 load_dotenv(dotenv_path=".env.test")
 
@@ -19,19 +20,10 @@ AUTH_SERVICE_URL = f"{AUTH_SERVICE_ENDPOINT}/api"
 
 DB_USERNAME = os.environ.get("DB_USERNAME")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_PASSWORD_PARSED = quote(DB_PASSWORD).replace("%", "%%")
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_NAME = os.environ.get("DB_NAME")
 
 DATABASE_URL_PREFIX = "postgresql+asyncpg"
-DATABASE_URL_SUFFIX = (
-    "{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}".format(
-        DB_USERNAME=DB_USERNAME,
-        DB_PASSWORD=DB_PASSWORD_PARSED,
-        DB_HOST=DB_HOST,
-        DB_PORT=DB_PORT,
-        DB_NAME=DB_NAME,
-    )
-)
+DATABASE_URL_SUFFIX = AppUtil.create_db_url_suffix(DB_PASSWORD)
 DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"

@@ -70,3 +70,13 @@ class AppUtil:
                 )
 
         return False
+
+    @staticmethod
+    def create_db_url_suffix(password: str) -> str:
+        return "{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}".format(
+            DB_USERNAME=config.DB_USERNAME,
+            DB_PASSWORD=password,
+            DB_HOST=config.DB_HOST,
+            DB_PORT=config.DB_PORT,
+            DB_NAME=config.DB_NAME,
+        )
