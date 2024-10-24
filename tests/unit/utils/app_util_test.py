@@ -1,3 +1,5 @@
+from unittest import skip
+
 from utils.app_util import AppUtil
 
 
@@ -17,7 +19,7 @@ class TestAppUtil:
     async def test_get_app_version(self):
         actual_result = AppUtil.get_app_version()
 
-        assert actual_result == "1.0.1"
+        assert actual_result == "1.0.2"
 
     def test_validate_uuid_path_param_users_success(self):
         request_path = f"/api/users/{self._id}"
@@ -46,3 +48,7 @@ class TestAppUtil:
         actual_result = AppUtil.validate_uuid_path_param(request_path, self._id)
 
         assert actual_result is False
+
+    @skip
+    def test_create_db_url_suffix(self):
+        pass
