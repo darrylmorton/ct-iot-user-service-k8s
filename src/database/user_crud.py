@@ -64,20 +64,6 @@ class UserCrud(UserCrudInterface):
                 finally:
                     await session.close()
 
-    # async def find_user_by_id_and_enabled(self, _id: str) -> schemas.UserAuthenticated:
-    #     async with self.session as session:
-    #         async with session.begin():
-    #             try:
-    #                 stmt = self.stmt.find_user_by_id_and_enabled_stmt(_id=_id)
-    #                 result = await session.execute(stmt)
-    #
-    #                 return result.scalars().first()
-    #             except SQLAlchemyError as error:
-    #                 log.error(f"find_user_by_id_and_enabled {error}")
-    #                 raise SQLAlchemyError("Cannot find enabled user by id")
-    #             finally:
-    #                 await session.close()
-
     async def find_user_by_username(self, username: str) -> schemas.User:
         async with self.session as session:
             async with session.begin():

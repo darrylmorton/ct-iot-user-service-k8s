@@ -24,7 +24,7 @@ class TestAdminRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True, _is_admin=True)]],
+        [[create_signup_payload(_confirmed=True, _is_admin=True)]],
         indirect=True,
     )
     async def test_get_users(self, db_cleanup, add_test_user):

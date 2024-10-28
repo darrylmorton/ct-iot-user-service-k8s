@@ -10,6 +10,7 @@ from fastapi.params import Depends
 from fastapi.security import HTTPBearer
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -91,8 +92,8 @@ async def authenticate(request: Request, call_next):
             if not auth_token:
                 log.debug("authenticate - missing auth token")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
             auth_token = auth_token.replace("Bearer ", "")
@@ -104,8 +105,8 @@ async def authenticate(request: Request, call_next):
             if response.status_code != HTTPStatus.OK:
                 log.debug("authenticate - invalid token")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
             response_json = response.json()
@@ -117,8 +118,8 @@ async def authenticate(request: Request, call_next):
             if not ValidatorUtil.validate_uuid4(_id):
                 log.debug("authenticate - invalid uuid")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
             user = await UserCrud().find_user_by_id(_id=_id)
@@ -127,26 +128,41 @@ async def authenticate(request: Request, call_next):
             if not user:
                 log.debug("authenticate - user not found")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
-            else:
-                ValidatorUtil.is_user_valid(
-                    _confirmed=user.confirmed,
-                    _enabled=user.enabled,
-                    _status_code=HTTPStatus.FORBIDDEN,
+            elif not user.confirmed:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED,
+                    detail="User account unconfirmed",
+                )
+            elif not user.enabled:
+                log.debug("authenticate - 0 hello")
+
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN, detail="User account suspended"
                 )
 
             # admin status must be valid
             if _admin != user.is_admin:
                 log.debug("authenticate - invalid admin status")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
-            else:
-                ValidatorUtil.is_admin_valid(
-                    _id=str(user.id), _admin=_admin, _request_path=request_path
+            if not _admin and request_path.startswith("/api/admin"):
+                log.debug("authenticate - only admins can access admin paths")
+
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
+                )
+            if not _admin and not ValidatorUtil.validate_uuid_path_param(
+                request_path, str(_id)
+            ):
+                log.debug("authenticate - user cannot access another user record")
+
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
                 )
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
@@ -154,6 +170,10 @@ async def authenticate(request: Request, call_next):
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
         )
+    except HTTPException as error:
+        log.error(f"authenticate - http error {error}")
+
+        return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as err:
         log.error(f"authenticate - server error {err}")
 

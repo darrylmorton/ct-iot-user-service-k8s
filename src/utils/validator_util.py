@@ -145,63 +145,56 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def is_user_valid(
-        _confirmed: bool, _enabled: bool, _status_code: int
-    ) -> JSONResponse | bool:
-        return ValidatorUtil.is_user_confirmed(
-            _confirmed, _status_code
-        ) and ValidatorUtil.is_user_enabled(_enabled, _status_code)
-
-    @staticmethod
-    def is_user_confirmed(_confirmed: bool, status_code: int) -> JSONResponse | bool:
+    def is_user_valid(_confirmed: bool, _enabled: bool) -> JSONResponse | bool:
         if not _confirmed:
-            log.debug("Login - account unconfirmed")
+            log.debug("authenticate - user account unconfirmed")
 
-            return JSONResponse(status_code=status_code, content="Account unconfirmed")
-
-        return True
-
-    @staticmethod
-    def is_user_enabled(_enabled: bool, status_code: int) -> JSONResponse | bool:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Account unconfirmed"
+            )
         if not _enabled:
-            log.debug("Login - account not enabled")
+            log.debug("authenticate - user account suspended")
 
-            return JSONResponse(status_code=status_code, content="Account not enabled")
-
-        return True
-
-    @staticmethod
-    def is_admin_valid(
-        _id: str, _admin: bool, _request_path: str
-    ) -> JSONResponse | bool:
-        return ValidatorUtil.is_admin_access_valid(
-            _admin=_admin, _request_path=_request_path
-        ) and ValidatorUtil.is_user_access_valid(
-            id=_id, _admin=_admin, _request_path=_request_path
-        )
-
-    @staticmethod
-    def is_admin_access_valid(_admin: bool, _request_path: str) -> JSONResponse | bool:
-        if not _admin and _request_path.startswith("/api/admin"):
-            log.debug("authenticate - only admins can access admin paths")
-
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
             )
 
         return True
 
     @staticmethod
-    def is_user_access_valid(
-        _id: str, _admin: bool, _request_path: str
-    ) -> JSONResponse | bool:
+    def is_admin_valid(_id: str, _admin: bool, _request_path: str):
+        if not _admin and _request_path.startswith("/api/admin"):
+            log.debug("authenticate - only admins can access admin paths")
+
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
+            )
+
         if not _admin and not ValidatorUtil.validate_uuid_path_param(
             _request_path, str(_id)
         ):
             log.debug("authenticate - user cannot access another user record")
 
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
             )
 
-        return True
+    @staticmethod
+    def is_admin_access_valid(_admin: bool, _request_path: str):
+        if not _admin and _request_path.startswith("/api/admin"):
+            log.debug("authenticate - only admins can access admin paths")
+
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
+            )
+
+    @staticmethod
+    def is_user_access_valid(_id: str, _admin: bool, _request_path: str):
+        if not _admin and not ValidatorUtil.validate_uuid_path_param(
+            _request_path, str(_id)
+        ):
+            log.debug("authenticate - user cannot access another user record")
+
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
+            )

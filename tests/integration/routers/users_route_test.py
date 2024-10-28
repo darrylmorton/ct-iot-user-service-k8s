@@ -15,7 +15,7 @@ class TestUsersRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True)]],
+        [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
     async def test_get_by_user_id_valid_token(self, db_cleanup, add_test_user):
@@ -30,7 +30,7 @@ class TestUsersRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=False)]],
+        [[create_signup_payload(_confirmed=True, _enabled=False)]],
         indirect=True,
     )
     async def test_get_by_user_id_valid_token_user_not_enabled(
@@ -40,4 +40,4 @@ class TestUsersRoute:
             app, f"/api/users/{self.id}", self.token
         )
 
-        assert response.status_code == 401
+        assert response.status_code == 403

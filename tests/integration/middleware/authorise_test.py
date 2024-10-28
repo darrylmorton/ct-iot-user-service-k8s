@@ -15,7 +15,7 @@ class TestMiddlewareAuthorise:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True)]],
+        [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
     async def test_not_admin_different_id(self, db_cleanup, add_test_user):
@@ -31,7 +31,7 @@ class TestMiddlewareAuthorise:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True)]],
+        [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
     async def test_not_admin(self, db_cleanup, add_test_user):
@@ -53,7 +53,7 @@ class TestMiddlewareAuthorise:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True)]],
+        [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
     async def test_expired_token(self, db_cleanup, add_test_user):
