@@ -14,10 +14,10 @@ python-jose[cryptography]==3.3.0
 cryptography==42.0.4
 structlog==24.1.0
 toml==0.10.2
-sentry-sdk[fastapi]==2.7.1
+sentry-sdk[fastapi]==2.11.0
 requests==2.32.3
 
-starlette~=0.37.2
+starlette~=0.40.0
 pydantic~=2.8.2
 dnspython~=2.6.1
 trio~=0.22.2

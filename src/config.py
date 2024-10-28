@@ -2,12 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from utils.app_util import AppUtil
-
-
 load_dotenv()
-
-APP_VERSION = AppUtil.get_app_version()
 
 AWS_REGION = os.environ.get("AWS_REGION")
 SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT") or "local"
@@ -29,10 +24,6 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_NAME = os.environ.get("DB_NAME")
-
-DATABASE_URL_PREFIX = "postgresql+asyncpg"
-DATABASE_URL_SUFFIX = AppUtil.create_db_url_suffix(DB_PASSWORD)
-DATABASE_URL = f"{DATABASE_URL_PREFIX}://{DATABASE_URL_SUFFIX}"
 
 JWT_EXCLUDED_ENDPOINTS = [
     "/openapi.json",

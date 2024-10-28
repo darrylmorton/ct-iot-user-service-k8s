@@ -19,6 +19,7 @@ class User(UserBase):
 
 class UserAuthenticated(BaseModel):
     id: str
+    confirmed: bool
     enabled: bool
     is_admin: bool
 

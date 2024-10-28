@@ -8,6 +8,8 @@ import config
 import schemas
 from database.user_crud import UserCrud
 from logger import log
+from utils.app_util import AppUtil
+from utils.auth_util import AuthUtil
 
 router = APIRouter()
 
@@ -21,19 +23,12 @@ async def login(
             _username=payload.username, _password=payload.password
         )
 
-        if not authorised_user.id:
-            log.debug("Login - Invalid login")
+        valid_user = AppUtil.is_user_valid(
+            _user=authorised_user, _status_code=HTTPStatus.FORBIDDEN
+        )
+        log.debug(f"{valid_user=}")
 
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Invalid login credentials"
-            )
-        elif not authorised_user.enabled:
-            log.debug("Login - account not enabled")
-
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Account not enabled"
-            )
-        else:
+        if valid_user:
             response = requests.post(
                 f"{config.AUTH_SERVICE_URL}/jwt",
                 json={

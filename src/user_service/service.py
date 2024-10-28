@@ -20,6 +20,7 @@ from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login, admin
 from utils.app_util import AppUtil
+from utils.validator_util import ValidatorUtil
 
 
 async def run_migrations():
@@ -113,47 +114,39 @@ async def authenticate(request: Request, call_next):
             _admin = response_json["admin"]
 
             # token user id must be a valid uuid
-            if not AppUtil.validate_uuid4(_id):
+            if not ValidatorUtil.validate_uuid4(_id):
                 log.debug("authenticate - invalid uuid")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
 
-            user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
+            user = await UserCrud().find_user_by_id(_id=_id)
 
-            # user must exist
+            # user must be valid:
             if not user:
                 log.debug("authenticate - user not found")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
+            else:
+                ValidatorUtil.is_user_valid(
+                    _confirmed=user.confirmed,
+                    _enabled=user.enabled,
+                    _status_code=HTTPStatus.FORBIDDEN,
+                )
 
-            # admin status must match user status
+            # admin status must be valid
             if _admin != user.is_admin:
-                log.debug("authenticate - invalid user")
+                log.debug("authenticate - invalid admin status")
 
                 return JSONResponse(
                     status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
                 )
-
-            # only admins can access admin paths
-            if not user.is_admin and request_path.startswith("/api/admin"):
-                log.debug("authenticate - only admins can access admin paths")
-
-                return JSONResponse(
-                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
-                )
-
-            # only a user can access their own user record by id
-            if not user.is_admin and not AppUtil.validate_uuid_path_param(
-                request_path, str(user.id)
-            ):
-                log.debug("authenticate - user cannot access another user record")
-
-                return JSONResponse(
-                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
+            else:
+                ValidatorUtil.is_admin_valid(
+                    _id=str(user.id), _admin=_admin, _request_path=request_path
                 )
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")

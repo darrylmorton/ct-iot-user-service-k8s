@@ -10,9 +10,9 @@ class UserCrudStmtInterface(metaclass=abc.ABCMeta):
     def find_user_by_id_stmt(self, _id: str):
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def find_user_by_id_and_enabled_stmt(self, _id: str):
-        raise NotImplementedError
+    # @abc.abstractmethod
+    # def find_user_by_id_and_enabled_stmt(self, _id: str):
+    #     raise NotImplementedError
 
     @abc.abstractmethod
     def find_user_by_username_stmt(self, username: str):

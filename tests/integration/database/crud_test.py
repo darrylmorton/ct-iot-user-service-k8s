@@ -21,10 +21,10 @@ class TestCrud:
 
         assert not result
 
-    async def test_find_user_by_id_and_enabled(self, db_cleanup):
-        result = await UserCrud().find_user_by_id_and_enabled(self.id)
-
-        assert not result
+    # async def test_find_user_by_id_and_enabled(self, db_cleanup):
+    #     result = await UserCrud().find_user_by_id_and_enabled(self.id)
+    #
+    #     assert not result
 
     async def test_find_user_by_username(self, db_cleanup):
         result = await UserCrud().find_user_by_username(self.username)

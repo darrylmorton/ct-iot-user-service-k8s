@@ -7,6 +7,7 @@ from tests.database import async_session
 def create_signup_payload(
     _username="foo@home.com",
     _password="barbarba",
+    _confirmed=False,
     _enabled=False,
     _is_admin=False,
     _first_name="Foo",
@@ -15,6 +16,7 @@ def create_signup_payload(
     return {
         "username": _username,
         "password": _password,
+        "confirmed": _confirmed,
         "enabled": _enabled,
         "is_admin": _is_admin,
         "first_name": _first_name,

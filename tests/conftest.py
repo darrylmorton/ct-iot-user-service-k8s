@@ -40,6 +40,7 @@ async def add_test_user(request):
         id=UUID("848a3cdd-cafd-4ec6-a921-afb0bcc841dd"),
         username=user_request["username"],
         password_hash=password_hash,
+        confirmed=user_request["confirmed"],
         enabled=user_request["enabled"],
         is_admin=user_request["is_admin"],
     )
@@ -55,6 +56,7 @@ async def add_test_user(request):
     return {
         "id": user.id,
         "username": user.username,
+        "confirmed": user.confirmed,
         "enabled": user.enabled,
         "first_name": user_request["first_name"],
         "last_name": user_request["last_name"],

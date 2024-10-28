@@ -28,6 +28,18 @@ class TestLoginRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
+        [[create_signup_payload(_enabled=True)]],
+        indirect=True,
+    )
+    async def test_post_login_user_not_confirmed(self, db_cleanup, add_test_user):
+        payload = create_signup_payload()
+
+        response = await RoutesHelper.http_post_client(app, "/api/login", payload)
+
+        assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "add_test_user",
         [[create_signup_payload()]],
         indirect=True,
     )
@@ -40,7 +52,7 @@ class TestLoginRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True)]],
+        [[create_signup_payload(_confirmed=True, _enabled=True)]],
         indirect=True,
     )
     async def test_post_login_user(self, db_cleanup, add_test_user):
