@@ -4,7 +4,6 @@ from http import HTTPStatus
 from email_validator import validate_email, EmailSyntaxError
 from fastapi import HTTPException
 from pydantic_core.core_schema import ValidationInfo
-from starlette.responses import JSONResponse
 
 import config
 from logger import log
@@ -145,7 +144,7 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def is_user_valid(_confirmed: bool, _enabled: bool) -> JSONResponse | bool:
+    def is_user_valid(_confirmed: bool, _enabled: bool):
         if not _confirmed:
             log.debug("authenticate - user account unconfirmed")
 
@@ -159,19 +158,22 @@ class ValidatorUtil:
                 status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
             )
 
-        return True
-
     @staticmethod
-    def is_admin_valid(_id: str, _admin: bool, _request_path: str):
+    def is_admin_valid(_id: str, _is_admin: bool, _admin: bool, _request_path: str):
+        if _admin != _is_admin:
+            log.debug("authenticate - invalid admin status")
+
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
+            )
         if not _admin and _request_path.startswith("/api/admin"):
             log.debug("authenticate - only admins can access admin paths")
 
             raise HTTPException(
                 status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
             )
-
         if not _admin and not ValidatorUtil.validate_uuid_path_param(
-            _request_path, str(_id)
+            _request_path, _id
         ):
             log.debug("authenticate - user cannot access another user record")
 

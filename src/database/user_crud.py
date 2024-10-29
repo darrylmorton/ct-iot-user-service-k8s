@@ -18,7 +18,7 @@ class UserCrud(UserCrudInterface):
 
     async def authorise(
         self, _username: str, _password: str
-    ) -> schemas.UserAuthenticated:
+    ) -> schemas.UserAuthenticated | None:
         async with self.session as session:
             async with session.begin():
                 try:
@@ -41,9 +41,7 @@ class UserCrud(UserCrudInterface):
                                 is_admin=user.is_admin,
                             )
 
-                    return schemas.UserAuthenticated(
-                        id="", confirmed=False, enabled=False, is_admin=False
-                    )
+                    return None
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")

@@ -30,10 +30,24 @@ class TestUsersRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
+        [[create_signup_payload(_confirmed=False)]],
+        indirect=True,
+    )
+    async def test_get_by_user_id_valid_token_user_unconfirmed(
+        self, db_cleanup, add_test_user
+    ):
+        response = await RoutesHelper.http_client(
+            app, f"/api/users/{self.id}", self.token
+        )
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize(
+        "add_test_user",
         [[create_signup_payload(_confirmed=True, _enabled=False)]],
         indirect=True,
     )
-    async def test_get_by_user_id_valid_token_user_not_enabled(
+    async def test_get_by_user_id_valid_token_user_suspended(
         self, db_cleanup, add_test_user
     ):
         response = await RoutesHelper.http_client(
@@ -41,3 +55,19 @@ class TestUsersRoute:
         )
 
         assert response.status_code == 403
+
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_confirmed=True, _enabled=False)]],
+        indirect=True,
+    )
+    async def test_get_by_user_id_valid_token_user_does_not_exist(
+        self, db_cleanup, add_test_user
+    ):
+        token = create_token(
+            data={"id": "848a3cdd-cafd-4ec6-a921-afb0bcc841de", "is_admin": self.admin}
+        )
+
+        response = await RoutesHelper.http_client(app, f"/api/users/{self.id}", token)
+
+        assert response.status_code == 401

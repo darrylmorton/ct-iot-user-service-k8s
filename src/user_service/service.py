@@ -124,46 +124,26 @@ async def authenticate(request: Request, call_next):
 
             user = await UserCrud().find_user_by_id(_id=_id)
 
-            # user must be valid:
             if not user:
                 log.debug("authenticate - user not found")
 
                 raise HTTPException(
                     status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
-            elif not user.confirmed:
-                raise HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    detail="User account unconfirmed",
-                )
-            elif not user.enabled:
-                log.debug("authenticate - 0 hello")
 
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN, detail="User account suspended"
-                )
+            # user must be valid:
+            ValidatorUtil.is_user_valid(
+                _confirmed=user.confirmed,
+                _enabled=user.enabled,
+            )
 
             # admin status must be valid
-            if _admin != user.is_admin:
-                log.debug("authenticate - invalid admin status")
-
-                raise HTTPException(
-                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
-                )
-            if not _admin and request_path.startswith("/api/admin"):
-                log.debug("authenticate - only admins can access admin paths")
-
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-                )
-            if not _admin and not ValidatorUtil.validate_uuid_path_param(
-                request_path, str(_id)
-            ):
-                log.debug("authenticate - user cannot access another user record")
-
-                raise HTTPException(
-                    status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-                )
+            ValidatorUtil.is_admin_valid(
+                _id=str(user.id),
+                _is_admin=user.is_admin,
+                _admin=_admin,
+                _request_path=request_path,
+            )
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
 

@@ -9,6 +9,7 @@ import config
 import schemas
 from database.user_crud import UserCrud
 from logger import log
+from utils.validator_util import ValidatorUtil
 
 router = APIRouter()
 
@@ -28,18 +29,12 @@ async def login(
             raise HTTPException(
                 status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid login"
             )
-        if not _user.confirmed:
-            log.debug("Login - user account unconfirmed")
 
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="User account unconfirmed"
-            )
-        if not _user.enabled:
-            log.debug("Login - user account suspended")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="User account suspended"
-            )
+        # user must be valid:
+        ValidatorUtil.is_user_valid(
+            _confirmed=_user.confirmed,
+            _enabled=_user.enabled,
+        )
 
         response = requests.post(
             f"{config.AUTH_SERVICE_URL}/jwt",
@@ -61,11 +56,11 @@ async def login(
                 detail="Login error",
             )
     except HTTPException as error:
-        log.error(f"Login error {error}")
+        log.error(f"Login http error {error}")
 
         return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as error:
-        log.error(f"Login error {error}")
+        log.error(f"Login server error {error}")
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Login error"

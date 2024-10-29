@@ -1,5 +1,6 @@
 import pytest
 
+from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.auth_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -24,6 +25,8 @@ class TestMiddlewareAuthorise:
         response = await RoutesHelper.http_client(
             app, "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff9", _token
         )
+        # log.debug(f"{response=}")
+
         actual_result = response.json()
 
         assert response.status_code == 403
@@ -35,7 +38,7 @@ class TestMiddlewareAuthorise:
         indirect=True,
     )
     async def test_not_admin(self, db_cleanup, add_test_user):
-        _token = create_token({"id": self._id, "is_admin": False})
+        _token = create_token(data={"id": self._id, "is_admin": False})
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)
         actual_result = response.json()

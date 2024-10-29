@@ -55,8 +55,20 @@ class TestLoginRoute:
         [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
+    async def test_post_login_user_does_not_exist(self, db_cleanup, add_test_user):
+        payload = create_signup_payload(_username="bar@home.com", _confirmed=True)
+
+        response = await RoutesHelper.http_post_client(app, "/api/login", payload)
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[create_signup_payload(_confirmed=True)]],
+        indirect=True,
+    )
     async def test_post_login_user(self, db_cleanup, add_test_user):
-        payload = create_signup_payload()
+        payload = create_signup_payload(_confirmed=True)
 
         response = await RoutesHelper.http_post_client(app, "/api/login", payload)
         response_json = response.json()
