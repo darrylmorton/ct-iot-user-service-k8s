@@ -5,7 +5,6 @@ from email_validator import validate_email, EmailSyntaxError
 from fastapi import HTTPException
 from pydantic_core.core_schema import ValidationInfo
 
-import config
 from logger import log
 
 
@@ -36,20 +35,6 @@ class ValidatorUtil:
         # valid uuid4. This is bad for validation purposes.
 
         return str(val) == uuid_string
-
-    @staticmethod
-    def validate_uuid_path_param(request_path: str, _id: str) -> bool:
-        for path_prefix in config.UUID_PATH_PARAMS_ROUTES:
-            if path_prefix in request_path:
-                path_params = request_path.split("/")
-
-                return (
-                    len(path_params) == 4
-                    and ValidatorUtil.validate_uuid4(path_params[3])
-                    and _id == path_params[3]
-                )
-
-        return False
 
     @staticmethod
     def validate_email(email: str) -> bool:
@@ -142,61 +127,3 @@ class ValidatorUtil:
             )
 
         return v
-
-    @staticmethod
-    def is_user_valid(_confirmed: bool, _enabled: bool):
-        if not _confirmed:
-            log.debug("authenticate - user account unconfirmed")
-
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Account unconfirmed"
-            )
-        if not _enabled:
-            log.debug("authenticate - user account suspended")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Account suspended"
-            )
-
-    @staticmethod
-    def is_admin_valid(_id: str, _is_admin: bool, _admin: bool, _request_path: str):
-        if _admin != _is_admin:
-            log.debug("authenticate - invalid admin status")
-
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
-            )
-        if not _admin and _request_path.startswith("/api/admin"):
-            log.debug("authenticate - only admins can access admin paths")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-            )
-        if not _admin and not ValidatorUtil.validate_uuid_path_param(
-            _request_path, _id
-        ):
-            log.debug("authenticate - user cannot access another user record")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-            )
-
-    @staticmethod
-    def is_admin_access_valid(_admin: bool, _request_path: str):
-        if not _admin and _request_path.startswith("/api/admin"):
-            log.debug("authenticate - only admins can access admin paths")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-            )
-
-    @staticmethod
-    def is_user_access_valid(_id: str, _admin: bool, _request_path: str):
-        if not _admin and not ValidatorUtil.validate_uuid_path_param(
-            _request_path, str(_id)
-        ):
-            log.debug("authenticate - user cannot access another user record")
-
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Forbidden error"
-            )

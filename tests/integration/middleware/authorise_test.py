@@ -25,7 +25,6 @@ class TestMiddlewareAuthorise:
         response = await RoutesHelper.http_client(
             app, "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff9", _token
         )
-        # log.debug(f"{response=}")
 
         actual_result = response.json()
 

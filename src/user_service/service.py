@@ -21,6 +21,7 @@ from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
 from routers import health, users, user_details, signup, login, admin
 from utils.app_util import AppUtil
+from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
 
 
@@ -132,13 +133,13 @@ async def authenticate(request: Request, call_next):
                 )
 
             # user must be valid:
-            ValidatorUtil.is_user_valid(
+            AuthUtil.is_user_valid(
                 _confirmed=user.confirmed,
                 _enabled=user.enabled,
             )
 
             # admin status must be valid
-            ValidatorUtil.is_admin_valid(
+            AuthUtil.is_admin_valid(
                 _id=str(user.id),
                 _is_admin=user.is_admin,
                 _admin=_admin,

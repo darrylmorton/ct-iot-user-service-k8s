@@ -9,7 +9,7 @@ import config
 import schemas
 from database.user_crud import UserCrud
 from logger import log
-from utils.validator_util import ValidatorUtil
+from utils.auth_util import AuthUtil
 
 router = APIRouter()
 
@@ -31,7 +31,7 @@ async def login(
             )
 
         # user must be valid:
-        ValidatorUtil.is_user_valid(
+        AuthUtil.is_user_valid(
             _confirmed=_user.confirmed,
             _enabled=_user.enabled,
         )

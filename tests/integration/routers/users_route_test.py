@@ -30,6 +30,18 @@ class TestUsersRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
+        [[create_signup_payload(_confirmed=True)]],
+        indirect=True,
+    )
+    async def test_get_by_user_id_invalid_uuid(self, db_cleanup, add_test_user):
+        response = await RoutesHelper.http_client(
+            app, "/api/users/848a3cdd-cafd-4ec6-a921-afb0bcc841d", self.token
+        )
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize(
+        "add_test_user",
         [[create_signup_payload(_confirmed=False)]],
         indirect=True,
     )
