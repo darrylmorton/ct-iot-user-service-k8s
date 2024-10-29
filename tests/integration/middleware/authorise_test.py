@@ -1,6 +1,5 @@
 import pytest
 
-from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.auth_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper

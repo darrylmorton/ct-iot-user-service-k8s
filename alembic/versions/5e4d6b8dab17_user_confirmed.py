@@ -10,7 +10,6 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from pygments.lexer import default
 
 # revision identifiers, used by Alembic.
 revision: str = "5e4d6b8dab17"

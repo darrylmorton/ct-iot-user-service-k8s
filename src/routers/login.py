@@ -48,7 +48,7 @@ async def login(
             return JSONResponse(status_code=HTTPStatus.OK, content=response.json())
         else:
             log.debug(
-                f"Login - jwt generation failed: {response.status_code}, {response.text}"
+                f"Login - jwt create failed: {response.status_code}, {response.text}"
             )
 
             raise HTTPException(
