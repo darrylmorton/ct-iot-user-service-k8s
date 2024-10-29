@@ -1,7 +1,7 @@
 import uuid
 from http import HTTPStatus
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter
 from starlette.responses import JSONResponse
 
 import schemas
