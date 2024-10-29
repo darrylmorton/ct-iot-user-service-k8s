@@ -34,6 +34,8 @@ async def signup(
             _last_name=payload.last_name,
         )
 
+        # TODO send email confirmation...
+
         return JSONResponse(
             status_code=HTTPStatus.CREATED,
             content={

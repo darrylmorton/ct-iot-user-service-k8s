@@ -1,3 +1,5 @@
+from unittest import skip
+
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
@@ -34,3 +36,8 @@ class TestSignupRoute:
         response = await RoutesHelper.http_post_client(app, "/api/signup", payload)
 
         assert response.status_code == 409
+
+    @skip
+    async def test_post_signup_email_confirmation(self, db_cleanup):
+        pass
+    
