@@ -28,11 +28,9 @@ class TestSignupRoute:
         )
 
         payload = create_signup_payload()
-        print(f"{payload=}")
 
         response = await RoutesHelper.http_post_client(app, "/api/signup", payload)
         actual_result = response.json()
-        print(f"{actual_result=}")
 
         assert response.status_code == 201
         assert actual_result["username"] == test_config.SES_TARGET

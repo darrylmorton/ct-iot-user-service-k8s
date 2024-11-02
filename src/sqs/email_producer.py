@@ -19,21 +19,19 @@ class EmailProducer:
         self.email_dlq = self.sqs.Queue(f"{config.SQS_EMAIL_DLQ_NAME}.fifo")
 
     async def produce(self, email_type: str, username: str):
-        log.debug("Sending email message...")
-
         message = SqsUtil.create_sqs_email_message(
             message_id=str(uuid.uuid4()),
             username=username,
             email_type=email_type,
             timestamp=datetime.now(tz=timezone.utc).isoformat(),
         )
-        log.debug(f"Sending email message...{message=}")
+        log.debug(f"produce - sqs message {message=}")
 
         try:
             if email_type and username:
                 self.email_queue.send_messages(Entries=[message])
 
-                log.debug(f"Sending email message...{message=}")
+                log.debug("produce - message sent")
 
             return message
         except ClientError as error:
