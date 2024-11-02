@@ -1,6 +1,7 @@
 import pytest
 from jose import jwt
 
+import tests.config
 from tests.config import JWT_SECRET
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
@@ -9,7 +10,7 @@ from user_service.service import app
 
 class TestLoginRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = "foo@home.com"
+    username = tests.config.SES_TARGET
 
     async def test_post_login_invalid_username(self):
         _username = "foo"

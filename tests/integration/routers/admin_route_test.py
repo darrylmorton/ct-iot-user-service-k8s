@@ -12,7 +12,7 @@ from user_service.service import app
 
 class TestAdminRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = "foo@home.com"
+    username = tests_config.SES_TARGET
     password = "barbarba"
     admin = True
 

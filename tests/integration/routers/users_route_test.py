@@ -1,5 +1,6 @@
 import pytest
 
+import tests.config
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.auth_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -8,7 +9,7 @@ from user_service.service import app
 
 class TestUsersRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = "foo@home.com"
+    username = tests.config.SES_TARGET
     password = "barbarba"
     admin = False
     token = create_token(data={"id": id, "is_admin": admin})

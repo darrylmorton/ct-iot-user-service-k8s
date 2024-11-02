@@ -23,3 +23,7 @@ class UserCrudInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def find_user_by_id(self, _id: uuid) -> schemas.User:
         raise NotImplementedError
+
+    @abc.abstractmethod
+    async def update_confirmed(self, _id: uuid.UUID, _confirmed: bool) -> schemas.User:
+        raise NotImplementedError

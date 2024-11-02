@@ -2,10 +2,12 @@ from http import HTTPStatus
 from fastapi import APIRouter, Body
 from starlette.responses import JSONResponse
 
+import config
 import schemas
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
+from sqs.email_producer import EmailProducer
 
 router = APIRouter()
 
@@ -34,7 +36,10 @@ async def signup(
             _last_name=payload.last_name,
         )
 
-        # TODO send email confirmation...
+        await EmailProducer().produce(
+            email_type=config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE,
+            username=user.username,
+        )
 
         return JSONResponse(
             status_code=HTTPStatus.CREATED,

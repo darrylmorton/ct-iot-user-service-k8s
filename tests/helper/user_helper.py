@@ -1,11 +1,12 @@
 import uuid
 
+import tests.config as test_config
 from database.models import UserDetailsModel
 from tests.database import async_session
 
 
 def create_signup_payload(
-    _username="foo@home.com",
+    _username=test_config.SES_TARGET,
     _password="barbarba",
     _confirmed=False,
     _enabled=True,
@@ -24,7 +25,7 @@ def create_signup_payload(
     }
 
 
-def create_login_payload(_username="foo@home.com", _password="barbarba"):
+def create_login_payload(_username=test_config.SES_TARGET, _password="barbarba"):
     return {
         "username": _username,
         "password": _password,

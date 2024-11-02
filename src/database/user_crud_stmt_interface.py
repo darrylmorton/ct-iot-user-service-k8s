@@ -1,4 +1,5 @@
 import abc
+import uuid
 
 
 class UserCrudStmtInterface(metaclass=abc.ABCMeta):
@@ -12,4 +13,8 @@ class UserCrudStmtInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def find_user_by_username_stmt(self, username: str):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def update_confirmed(self, _id: uuid.UUID, _confirmed: bool):
         raise NotImplementedError

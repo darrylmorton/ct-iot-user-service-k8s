@@ -19,7 +19,15 @@ from database.user_crud import UserCrud
 
 from logger import log
 from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
-from routers import health, users, user_details, signup, login, admin
+from routers import (
+    health,
+    users,
+    user_details,
+    signup,
+    login,
+    admin,
+    account_confirmation,
+)
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
@@ -169,6 +177,10 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
+
+app.include_router(
+    account_confirmation.router, prefix="/api", tags=["account-confirmation"]
+)
 
 app.include_router(
     users.router,

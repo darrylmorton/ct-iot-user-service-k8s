@@ -1,12 +1,13 @@
 from database.admin_crud import AdminCrud
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
+import tests.config as test_config
 
 
 class TestCrud:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     user_id = "00000000-0000-0000-0000-000000000000"
-    username = "foo@home.com"
+    username = test_config.SES_TARGET
     password = "barbarba"
     first_name = "Foo"
     last_name = "Bar"

@@ -1,3 +1,5 @@
+import uuid
+
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -99,5 +101,22 @@ class UserCrud(UserCrudInterface):
         except Exception as error:
             log.error(f"add_user {error}")
             raise SQLAlchemyError("Cannot add user")
+        finally:
+            await session.close()
+
+    async def update_confirmed(self, _id: uuid.UUID, _confirmed: bool) -> schemas.User:
+        try:
+            async with self.session as session:
+                user = self.stmt.update_confirmed(_id=_id, _confirmed=_confirmed)
+
+                async with session.begin():
+                    session.add(user)
+                    await session.commit()
+
+                await session.refresh(user)
+                return schemas.User(id=user.id, username=user.username)
+        except Exception as error:
+            log.error(f"update_confirmed {error}")
+            raise SQLAlchemyError("Cannot update confirmed")
         finally:
             await session.close()
