@@ -36,7 +36,7 @@ def create_sqs_queue(queue_name: str, dlq_name="") -> tuple[Any, Any]:
     return queue, dlq
 
 
-def create_job_message(
+def create_email_message(
     email_type: str,
     username: str,
     message_id=uuid.uuid4(),
@@ -86,11 +86,6 @@ def email_consumer(email_queue: Any, timeout_seconds=0) -> list[dict]:
             MaxNumberOfMessages=10,
             WaitTimeSeconds=test_config.QUEUE_WAIT_SECONDS,
         )
-
-        # for job_message in job_messages:
-        #     messages.append(job_message)
-        #
-        #     job_message.delete()
 
         if len(email_messages) > 0:
             for email_message in email_messages:

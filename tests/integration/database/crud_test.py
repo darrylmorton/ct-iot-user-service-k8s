@@ -1,7 +1,11 @@
+import pytest
+
 from database.admin_crud import AdminCrud
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 import tests.config as test_config
+from helper import user_helper
+from utils.validator_util import ValidatorUtil
 
 
 class TestCrud:
@@ -21,11 +25,6 @@ class TestCrud:
         result = await UserCrud().find_user_by_id(self.id)
 
         assert not result
-
-    # async def test_find_user_by_id_and_enabled(self, db_cleanup):
-    #     result = await UserCrud().find_user_by_id_and_enabled(self.id)
-    #
-    #     assert not result
 
     async def test_find_user_by_username(self, db_cleanup):
         result = await UserCrud().find_user_by_username(self.username)
@@ -58,3 +57,17 @@ class TestCrud:
         assert actual_result.user_id == str(expected_result.id)
         assert actual_result.first_name == self.first_name
         assert actual_result.last_name == self.last_name
+
+    @pytest.mark.parametrize(
+        "add_test_user",
+        [[user_helper.create_signup_payload()]],
+        indirect=True,
+    )
+    async def test_update_confirmed(self, db_cleanup, add_test_user):
+        actual_result = await UserCrud().update_confirmed(
+            _username=self.username, _confirmed=True
+        )
+
+        assert ValidatorUtil.validate_uuid4(str(actual_result[0][0])) is True
+        assert actual_result[0][1] == test_config.SES_TARGET
+        assert actual_result[0][2] is True

@@ -1,18 +1,22 @@
 import json
 
+import config
+
 
 class SqsUtil:
     @staticmethod
     def create_sqs_email_message(
-        message_id: str, email_type: str, username: str, timestamp: str
+        message_id: str,
+            email_type: str,
+            username: str,
+            timestamp: str,
+            token: str
     ) -> dict:
+        message_url = f"{config.ALB_URL}/?token={token}"
+
         return dict(
             Id=message_id,
             MessageAttributes={
-                "Id": {
-                    "DataType": "String",
-                    "StringValue": message_id,
-                },
                 "EmailType": {
                     "DataType": "String",
                     "StringValue": email_type,
@@ -25,12 +29,16 @@ class SqsUtil:
                     "DataType": "String",
                     "StringValue": timestamp,
                 },
+                "Url": {
+                    "DataType": "String",
+                    "StringValue": message_url,
+                }
             },
             MessageBody=json.dumps({
-                "Id": message_id,
                 "EmailType": email_type,
                 "Username": username,
                 "Timestamp": timestamp,
+                "Url": message_url,
             }),
             MessageDeduplicationId=message_id,
         )

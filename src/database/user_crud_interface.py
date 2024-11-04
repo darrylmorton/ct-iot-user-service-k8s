@@ -1,6 +1,7 @@
 import abc
 import uuid
 
+from sqlalchemy.sql.dml import ReturningUpdate
 from starlette.responses import JSONResponse
 
 import schemas
@@ -25,5 +26,15 @@ class UserCrudInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def update_confirmed(self, _id: uuid.UUID, _confirmed: bool) -> schemas.User:
+    async def find_user_by_username(self, username: str) -> schemas.User:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def find_user_by_username_and_confirmed(self, username: str) -> schemas.User:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def update_confirmed(
+        self, _username: str, _confirmed: bool
+    ) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
         raise NotImplementedError

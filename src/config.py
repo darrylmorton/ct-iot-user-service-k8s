@@ -32,6 +32,11 @@ DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_NAME = os.environ.get("DB_NAME")
 
+HTTP_STATUS_CODE_EXPIRED_TOKEN = 498
+JWT_SECRET_VERIFY_ACCOUNT = os.environ.get("JWT_SECRET_VERIFY_ACCOUNT")
+JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT = int(os.environ.get("JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT"))
+ALB_URL = os.environ.get("ALB_URL")
+
 JWT_EXCLUDED_ENDPOINTS = [
     "/favicon.ico",
     "/openapi.json",

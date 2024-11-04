@@ -10,10 +10,10 @@ import pytest
 from sqlalchemy import delete
 
 from database.models import UserModel, UserDetailsModel
-from logger import log
+
 from sqs.email_producer import EmailProducer
 from tests.database import async_session
-from tests.config import AWS_REGION, SES_SOURCE
+from tests.config import AWS_REGION
 
 load_dotenv(dotenv_path=".env.test")
 
@@ -32,9 +32,6 @@ def aws_credentials():
 def ses_client(aws_credentials):
     with mock_aws():
         conn = boto3.client("ses", region_name=AWS_REGION)
-
-        response = conn.verify_email_identity(EmailAddress=SES_SOURCE)
-        log.debug(f"***** RESPONSE {response=}")
 
         yield conn
 

@@ -3,6 +3,7 @@ import uuid
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql.dml import ReturningUpdate
 from starlette.responses import JSONResponse
 
 import schemas
@@ -78,6 +79,20 @@ class UserCrud(UserCrudInterface):
                 finally:
                     await session.close()
 
+    async def find_user_by_username_and_confirmed(self, username: str) -> schemas.User:
+        async with self.session as session:
+            async with session.begin():
+                try:
+                    stmt = self.stmt.find_user_by_username_and_confirmed_stmt(username=username)
+                    result = await session.execute(stmt)
+
+                    return result.scalars().first()
+                except SQLAlchemyError as error:
+                    log.error(f"find_user_by_username_and_confirmed {error}")
+                    raise SQLAlchemyError("Cannot find user with username and confirmed")
+                finally:
+                    await session.close()
+
     async def add_user(
         self, _username: str, _password: str
     ) -> JSONResponse | schemas.User:
@@ -104,17 +119,19 @@ class UserCrud(UserCrudInterface):
         finally:
             await session.close()
 
-    async def update_confirmed(self, _id: uuid.UUID, _confirmed: bool) -> schemas.User:
+    async def update_confirmed(self, _username: str, _confirmed: bool) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
         try:
             async with self.session as session:
-                user = self.stmt.update_confirmed(_id=_id, _confirmed=_confirmed)
+                stmt = self.stmt.update_confirmed(
+                    _username=_username, _confirmed=_confirmed
+                )
 
                 async with session.begin():
-                    session.add(user)
-                    await session.commit()
+                    result = await session.execute(stmt)
 
-                await session.refresh(user)
-                return schemas.User(id=user.id, username=user.username)
+                    user = result.fetchall()
+
+                    return user
         except Exception as error:
             log.error(f"update_confirmed {error}")
             raise SQLAlchemyError("Cannot update confirmed")
