@@ -5,6 +5,8 @@ on:
     branches-ignore: ["main"]
 
 env:
+  SES_SOURCE: noreply@example.com
+  SES_TARGET: foo@example.com
   SENTRY_TRACES_SAMPLE_RATE: 1.0
   SENTRY_PROFILES_SAMPLE_RATE: 0.5
   SENTRY_SAMPLE_RATE: 50
@@ -20,6 +22,12 @@ env:
   DB_HOST: localhost
   DB_PORT: 5432
   DB_NAME: users
+  QUEUE_WAIT_SECONDS: 5
+  SQS_EMAIL_QUEUE_NAME: email-queue
+  SQS_EMAIL_DLQ_NAME: email-dlq
+  ALB_URL: http://localhost
+  JWT_SECRET_VERIFY_ACCOUNT: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC
+  JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
 
