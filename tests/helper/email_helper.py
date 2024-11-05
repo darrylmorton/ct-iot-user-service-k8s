@@ -6,6 +6,7 @@ from typing import Any
 
 import boto3
 
+from tests.helper import token_helper
 from logger import log
 import tests.config as test_config
 
@@ -42,13 +43,15 @@ def create_email_message(
     message_id=uuid.uuid4(),
     timestamp=datetime.now(tz=timezone.utc).isoformat(),
 ) -> dict:
+    token = token_helper.create_token(
+        secret=test_config.JWT_SECRET_VERIFY_ACCOUNT,
+        data={"username": username, "email_type": email_type},
+    )
+    message_url = f"{test_config.ALB_URL}/?token={token}"
+
     return dict(
         Id=str(message_id),
         MessageAttributes={
-            "Id": {
-                "DataType": "String",
-                "StringValue": str(message_id),
-            },
             "EmailType": {
                 "DataType": "String",
                 "StringValue": email_type,
@@ -61,12 +64,16 @@ def create_email_message(
                 "DataType": "String",
                 "StringValue": timestamp,
             },
+            "Url": {
+                "DataType": "String",
+                "StringValue": message_url,
+            },
         },
         MessageBody=json.dumps({
-            "Id": str(message_id),
             "EmailType": email_type,
             "Username": username,
             "Timestamp": timestamp,
+            "Url": message_url,
         }),
         MessageDeduplicationId=str(message_id),
     )

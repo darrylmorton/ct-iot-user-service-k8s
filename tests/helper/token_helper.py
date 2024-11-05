@@ -8,10 +8,10 @@ def create_token_expiry(_seconds=test_config.JWT_TOKEN_EXPIRY_SECONDS) -> dateti
     return datetime.now(tz=timezone.utc) + timedelta(seconds=_seconds)
 
 
-def create_token(data: dict, token_expiry: datetime = create_token_expiry()):
+def create_token(secret: str, data: dict, expiry: datetime = create_token_expiry()):
     to_encode = data.copy()
 
-    to_encode.update({"exp": token_expiry})
-    encoded_jwt = jwt.encode(to_encode, test_config.JWT_SECRET, algorithm="HS256")
+    to_encode.update({"exp": expiry})
+    encoded_jwt = jwt.encode(to_encode, secret, algorithm="HS256")
 
     return encoded_jwt

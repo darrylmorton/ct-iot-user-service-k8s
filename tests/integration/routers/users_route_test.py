@@ -1,6 +1,6 @@
 import pytest
 
-import tests.config
+import tests.config as test_config
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -9,10 +9,12 @@ from user_service.service import app
 
 class TestUsersRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = tests.config.SES_TARGET
+    username = test_config.SES_TARGET
     password = "barbarba"
     admin = False
-    token = create_token(data={"id": id, "is_admin": admin})
+    token = create_token(
+        secret=test_config.JWT_SECRET, data={"id": id, "is_admin": admin}
+    )
 
     @pytest.mark.parametrize(
         "add_test_user",
@@ -78,7 +80,8 @@ class TestUsersRoute:
         self, db_cleanup, add_test_user
     ):
         token = create_token(
-            data={"id": "848a3cdd-cafd-4ec6-a921-afb0bcc841de", "is_admin": self.admin}
+            secret=test_config.JWT_SECRET,
+            data={"id": "848a3cdd-cafd-4ec6-a921-afb0bcc841de", "is_admin": self.admin},
         )
 
         response = await RoutesHelper.http_client(app, f"/api/users/{self.id}", token)

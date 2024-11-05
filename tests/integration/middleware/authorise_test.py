@@ -4,6 +4,7 @@ from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
+import tests.config as test_config
 
 
 # Only testing unhappy paths
@@ -19,7 +20,9 @@ class TestMiddlewareAuthorise:
         indirect=True,
     )
     async def test_not_admin_different_id(self, db_cleanup, add_test_user):
-        _token = create_token({"id": self._id, "is_admin": False})
+        _token = create_token(
+            secret=test_config.JWT_SECRET, data={"id": self._id, "is_admin": False}
+        )
 
         response = await RoutesHelper.http_client(
             app, "/api/users/eaf0bb67-288b-4e56-860d-e727b4f57ff9", _token
@@ -36,7 +39,9 @@ class TestMiddlewareAuthorise:
         indirect=True,
     )
     async def test_not_admin(self, db_cleanup, add_test_user):
-        _token = create_token(data={"id": self._id, "is_admin": False})
+        _token = create_token(
+            secret=test_config.JWT_SECRET, data={"id": self._id, "is_admin": False}
+        )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)
         actual_result = response.json()
@@ -59,8 +64,9 @@ class TestMiddlewareAuthorise:
     )
     async def test_expired_token(self, db_cleanup, add_test_user):
         _token = create_token(
+            secret=test_config.JWT_SECRET,
             data={"id": self._id, "is_admin": self.admin},
-            token_expiry=create_token_expiry(-3000),
+            expiry=create_token_expiry(-3000),
         )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)
@@ -71,6 +77,7 @@ class TestMiddlewareAuthorise:
 
     async def test_invalid_token(self):
         _token = create_token(
+            secret=test_config.JWT_SECRET,
             data={"id": self._id, "is_admin": self.admin},
         )
 

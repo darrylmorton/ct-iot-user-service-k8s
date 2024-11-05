@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 import config
-from logger import log
 
 
 class AppUtil:

@@ -18,7 +18,7 @@ import config
 from database.user_crud import UserCrud
 
 from logger import log
-from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
+from config import SERVICE_NAME
 from routers import (
     health,
     users,
@@ -98,7 +98,7 @@ async def authenticate(request: Request, call_next):
 
     try:
         if not AppUtil.is_excluded_endpoint(request_path):
-            log.info(f"SHOULD NOT SEE ME")
+            log.info("SHOULD NOT SEE ME")
 
             auth_token = request.headers["authorization"]
 
