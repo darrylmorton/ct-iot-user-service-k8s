@@ -4,7 +4,7 @@ from jose import jwt
 import tests.config as test_config
 
 
-def create_token_expiry(_seconds=test_config.JWT_TOKEN_EXPIRY_SECONDS) -> datetime:
+def create_token_expiry(_seconds=test_config.JWT_EXPIRY_SECONDS) -> datetime:
     return datetime.now(tz=timezone.utc) + timedelta(seconds=_seconds)
 
 

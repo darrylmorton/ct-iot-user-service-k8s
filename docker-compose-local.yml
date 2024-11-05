@@ -30,7 +30,7 @@ services:
      - SERVICE_NAME=authentication-service
      - UVICORN_PORT=8000
      - JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-     - JWT_TOKEN_EXPIRY_SECONDS=3600
+     - JWT_EXPIRY_SECONDS=3600
    depends_on:
      users-db:
        condition: service_healthy
