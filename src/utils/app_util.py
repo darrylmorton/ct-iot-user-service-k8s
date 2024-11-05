@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 import config
+from logger import log
 
 
 class AppUtil:
@@ -49,3 +50,16 @@ class AppUtil:
     @staticmethod
     def get_sqlalchemy_db_url() -> str:
         return f"postgresql+asyncpg://{AppUtil.create_db_url_suffix()}"
+
+    @staticmethod
+    def is_excluded_endpoint(request_path: str) -> bool:
+        for item in config.JWT_EXCLUDED_ENDPOINTS:
+            # log.info(f"{request_path=}")
+            # log.info(f"{item=}")
+            # log.info(f"{item == request_path}")
+            # log.info(f"{item in config.JWT_EXCLUDED_ENDPOINTS}")
+
+            if item == request_path:
+                return True
+
+        return False

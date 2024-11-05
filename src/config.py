@@ -34,7 +34,9 @@ DB_NAME = os.environ.get("DB_NAME")
 
 HTTP_STATUS_CODE_EXPIRED_TOKEN = 498
 JWT_SECRET_VERIFY_ACCOUNT = os.environ.get("JWT_SECRET_VERIFY_ACCOUNT")
-JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT = int(os.environ.get("JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT"))
+JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT = int(
+    os.environ.get("JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT")
+)
 ALB_URL = os.environ.get("ALB_URL")
 
 JWT_EXCLUDED_ENDPOINTS = [
@@ -44,7 +46,7 @@ JWT_EXCLUDED_ENDPOINTS = [
     "/healthz",
     "/api/signup",
     "/api/login",
-    "/api/account-confirmation",
+    "/api/verify-account/",
 ]
 
 UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]

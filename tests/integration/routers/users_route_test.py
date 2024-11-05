@@ -2,7 +2,7 @@ import pytest
 
 import tests.config
 from tests.helper.user_helper import create_signup_payload
-from tests.helper.auth_helper import create_token
+from tests.helper.token_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 

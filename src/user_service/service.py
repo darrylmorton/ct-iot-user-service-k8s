@@ -26,7 +26,7 @@ from routers import (
     signup,
     login,
     admin,
-    account_confirmation,
+    verify_account,
 )
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
@@ -92,10 +92,14 @@ http_bearer_security = HTTPBearer()
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
+    log.info(f"authenticate REQUEST {request=}")
+
     request_path = request["path"]
 
     try:
-        if request_path not in JWT_EXCLUDED_ENDPOINTS:
+        if not AppUtil.is_excluded_endpoint(request_path):
+            log.info(f"SHOULD NOT SEE ME")
+
             auth_token = request.headers["authorization"]
 
             if not auth_token:
@@ -177,10 +181,7 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
-
-app.include_router(
-    account_confirmation.router, prefix="/api", tags=["account-confirmation"]
-)
+app.include_router(verify_account.router, prefix="/api", tags=["verify-account"])
 
 app.include_router(
     users.router,

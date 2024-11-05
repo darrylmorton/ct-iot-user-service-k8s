@@ -5,7 +5,7 @@ from jose import jwt
 
 from tests.helper.user_helper import create_signup_payload
 import tests.config as tests_config
-from tests.helper.auth_helper import create_token_expiry
+from tests.helper.token_helper import create_token_expiry
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 

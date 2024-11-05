@@ -18,13 +18,15 @@ class TokenUtil:
     @staticmethod
     def decode_token(token: str) -> dict:
         try:
-            return jwt.decode(token, config.JWT_SECRET_VERIFY_ACCOUNT, algorithms=["HS256"])
+            return jwt.decode(
+                token, config.JWT_SECRET_VERIFY_ACCOUNT, algorithms=["HS256"]
+            )
 
         except TypeError as error:
             log.debug(f"decode_token - type error {error}")
 
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Token error"
+                status_code=HTTPStatus.BAD_REQUEST, detail="Token error"
             )
         except ExpiredSignatureError as error:
             log.debug(f"decode_token - expired signature {error}")
@@ -37,13 +39,13 @@ class TokenUtil:
             log.debug(f"decode_token - invalid token {error}")
 
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid JWT"
+                status_code=HTTPStatus.BAD_REQUEST, detail="Invalid JWT"
             )
         except KeyError as error:
             log.debug(f"decode_token - invalid key {error}")
 
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid JWT payload"
+                status_code=HTTPStatus.BAD_REQUEST, detail="Invalid JWT payload"
             )
 
     @staticmethod
@@ -56,23 +58,21 @@ class TokenUtil:
 
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail="Email type not supported"
+                    detail="Email type not supported",
                 )
 
     @staticmethod
     def encode_token(_username: str, _email_type: str):
         try:
-            return {
-                "token": jwt.encode(
-                    {
-                        "username": _username,
-                        "email_type": TokenUtil.email_type_selector(_email_type),
-                        "exp": TokenUtil.create_token_expiry(),
-                    },
-                    config.JWT_SECRET_VERIFY_ACCOUNT,
-                    algorithm="HS256",
-                )
-            }
+            return jwt.encode(
+                {
+                    "username": _username,
+                    "email_type": TokenUtil.email_type_selector(_email_type),
+                    "exp": TokenUtil.create_token_expiry(),
+                },
+                config.JWT_SECRET_VERIFY_ACCOUNT,
+                algorithm="HS256",
+            )
         except KeyError as error:
             log.debug(f"encode_token - key error {error}")
 
@@ -88,6 +88,4 @@ class TokenUtil:
         except JWTError as error:
             log.debug(f"encode_token - jwt error {error}")
 
-            raise HTTPException(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=error
-            )
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=error)

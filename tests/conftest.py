@@ -13,7 +13,7 @@ from database.models import UserModel, UserDetailsModel
 
 from sqs.email_producer import EmailProducer
 from tests.database import async_session
-from tests.config import AWS_REGION
+import tests.config as test_config
 
 load_dotenv(dotenv_path=".env.test")
 
@@ -25,13 +25,13 @@ def aws_credentials():
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_SECURITY_TOKEN"] = "testing"
     os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_REGION"] = AWS_REGION
+    os.environ["AWS_REGION"] = test_config.AWS_REGION
 
 
 @pytest.fixture
 def ses_client(aws_credentials):
     with mock_aws():
-        conn = boto3.client("ses", region_name=AWS_REGION)
+        conn = boto3.client("ses", region_name=test_config.AWS_REGION)
 
         yield conn
 

@@ -6,9 +6,9 @@ from botocore.exceptions import ClientError
 
 import config
 from logger import log
-from unit.utils.token_util import TokenUtil
 
 from utils.sqs_util import SqsUtil
+from utils.token_util import TokenUtil
 
 
 class EmailProducer:
@@ -25,7 +25,7 @@ class EmailProducer:
             username=username,
             email_type=email_type,
             timestamp=datetime.now(tz=timezone.utc).isoformat(),
-            token=TokenUtil.encode_token()
+            token=TokenUtil.encode_token(username, email_type),
         )
         log.debug(f"produce - sqs message {message=}")
 

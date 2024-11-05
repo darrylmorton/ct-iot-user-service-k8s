@@ -4,7 +4,7 @@ from database.admin_crud import AdminCrud
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 import tests.config as test_config
-from helper import user_helper
+from tests.helper import user_helper
 from utils.validator_util import ValidatorUtil
 
 

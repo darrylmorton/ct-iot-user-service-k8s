@@ -6,11 +6,7 @@ import config
 class SqsUtil:
     @staticmethod
     def create_sqs_email_message(
-        message_id: str,
-            email_type: str,
-            username: str,
-            timestamp: str,
-            token: str
+        message_id: str, email_type: str, username: str, timestamp: str, token: str
     ) -> dict:
         message_url = f"{config.ALB_URL}/?token={token}"
 
@@ -32,7 +28,7 @@ class SqsUtil:
                 "Url": {
                     "DataType": "String",
                     "StringValue": message_url,
-                }
+                },
             },
             MessageBody=json.dumps({
                 "EmailType": email_type,

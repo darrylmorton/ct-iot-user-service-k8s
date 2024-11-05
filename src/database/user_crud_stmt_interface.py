@@ -22,5 +22,7 @@ class UserCrudStmtInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def update_confirmed(self, _username: str, _confirmed: bool) -> ReturningUpdate[tuple[UUID, str, bool]]:
+    async def update_confirmed(
+        self, _username: str, _confirmed: bool
+    ) -> ReturningUpdate[tuple[UUID, str, bool]]:
         raise NotImplementedError

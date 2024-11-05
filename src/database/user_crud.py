@@ -83,13 +83,17 @@ class UserCrud(UserCrudInterface):
         async with self.session as session:
             async with session.begin():
                 try:
-                    stmt = self.stmt.find_user_by_username_and_confirmed_stmt(username=username)
+                    stmt = self.stmt.find_user_by_username_and_confirmed_stmt(
+                        username=username
+                    )
                     result = await session.execute(stmt)
 
                     return result.scalars().first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username_and_confirmed {error}")
-                    raise SQLAlchemyError("Cannot find user with username and confirmed")
+                    raise SQLAlchemyError(
+                        "Cannot find user with username and confirmed"
+                    )
                 finally:
                     await session.close()
 
@@ -119,7 +123,9 @@ class UserCrud(UserCrudInterface):
         finally:
             await session.close()
 
-    async def update_confirmed(self, _username: str, _confirmed: bool) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
+    async def update_confirmed(
+        self, _username: str, _confirmed: bool
+    ) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
         try:
             async with self.session as session:
                 stmt = self.stmt.update_confirmed(

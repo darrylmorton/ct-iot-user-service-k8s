@@ -1,17 +1,25 @@
 from http import HTTPStatus
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from fastapi.params import Query
 from starlette.responses import JSONResponse
 
 from database.user_crud import UserCrud
 from logger import log
-from unit.utils.token_util import TokenUtil
+from utils.token_util import TokenUtil
 
 router = APIRouter()
 
 
-@router.get("/verify-account/{token}", status_code=HTTPStatus.OK)
-async def verify_account(token: str) -> JSONResponse:
+@router.get("/verify-account/", status_code=HTTPStatus.OK)
+async def verify_account(token: str = Query(default=None)) -> JSONResponse:
     try:
+        if not token:
+            log.debug("Token is missing")
+
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST, detail="Token is missing"
+            )
+
         payload = TokenUtil.decode_token(token)
         username = payload["username"]
 
@@ -25,6 +33,10 @@ async def verify_account(token: str) -> JSONResponse:
             return JSONResponse(status_code=HTTPStatus.OK, content="Account confirmed")
 
         return JSONResponse(status_code=HTTPStatus.OK, content="")
+    except HTTPException as error:
+        log.error(f"Verify Account - http error {error}")
+
+        return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as error:
         log.error(f"Verify Account error {error}")
 
