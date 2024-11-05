@@ -5,6 +5,7 @@ on:
     branches-ignore: ["main"]
 
 env:
+  AWS_REGION: eu-west-2
   SES_SOURCE: noreply@example.com
   SES_TARGET: foo@example.com
   SENTRY_TRACES_SAMPLE_RATE: 1.0
