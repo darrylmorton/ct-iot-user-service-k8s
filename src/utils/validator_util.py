@@ -39,7 +39,7 @@ class ValidatorUtil:
     @staticmethod
     def validate_email(email: str) -> bool:
         try:
-            validate_email(email)
+            validate_email(email, check_deliverability=False)
 
             return True
         except EmailSyntaxError:

@@ -12,7 +12,7 @@ from database.user_details_crud import UserDetailsCrud
 class TestCrudExceptions:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     user_id = "00000000-0000-0000-0000-000000000000"
-    username = tests.config.SES_TARGET
+    username = tests.config.USERNAME
     password = "barbarba"
     first_name = "Foo"
     last_name = "Bar"

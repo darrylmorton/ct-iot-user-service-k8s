@@ -44,7 +44,7 @@ async def login(
             },
         )
 
-        if response.status_code == HTTPStatus.CREATED:
+        if response.status_code == HTTPStatus.OK:
             return JSONResponse(status_code=HTTPStatus.OK, content=response.json())
         else:
             log.debug(

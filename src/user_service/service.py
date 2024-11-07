@@ -18,7 +18,6 @@ import config
 from database.user_crud import UserCrud
 
 from logger import log
-from config import SERVICE_NAME
 from routers import (
     health,
     users,
@@ -48,7 +47,7 @@ async def run_migrations():
 
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
-    log.info(f"Starting {SERVICE_NAME}...{app.host}")
+    log.info(f"Starting {config.SERVICE_NAME}...{app.host}")
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
 
@@ -79,10 +78,10 @@ async def lifespan_wrapper(app: FastAPI):
 
     await run_migrations()
 
-    log.info(f"{SERVICE_NAME} is ready")
+    log.info(f"{config.SERVICE_NAME} is ready")
 
     yield
-    log.info(f"{SERVICE_NAME} is shutting down...")
+    log.info(f"{config.SERVICE_NAME} is shutting down...")
 
 
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
@@ -92,14 +91,10 @@ http_bearer_security = HTTPBearer()
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
-    log.info(f"authenticate REQUEST {request=}")
-
     request_path = request["path"]
 
     try:
         if not AppUtil.is_excluded_endpoint(request_path):
-            log.info("SHOULD NOT SEE ME")
-
             auth_token = request.headers["authorization"]
 
             if not auth_token:

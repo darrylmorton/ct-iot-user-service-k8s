@@ -9,7 +9,7 @@ from user_service.service import app
 
 class TestUsersRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = test_config.SES_TARGET
+    username = test_config.USERNAME
     password = "barbarba"
     admin = False
     token = create_token(

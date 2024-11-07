@@ -11,7 +11,7 @@ class TestVerifyAccountRoute:
     token = create_token(
         secret=test_config.JWT_SECRET_VERIFY_ACCOUNT,
         data={
-            "username": test_config.SES_TARGET,
+            "username": test_config.USERNAME,
             "email_type": test_config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE,
         },
     )

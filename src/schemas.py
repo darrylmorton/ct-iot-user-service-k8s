@@ -116,7 +116,7 @@ class SignupRequest(SignupBase):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "foo@bar.com",
+                    "username": "foo@example.com",
                     "password": "barbarba",
                     "first_name": "Foo",
                     "last_name": "Bar",
@@ -162,7 +162,7 @@ class LoginRequest(LoginBase):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "foo@bar.com",
+                    "username": "foo@example.com",
                     "password": "barbarba",
                 }
             ]

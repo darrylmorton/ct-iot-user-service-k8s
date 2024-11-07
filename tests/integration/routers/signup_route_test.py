@@ -33,7 +33,7 @@ class TestSignupRoute:
         actual_result = response.json()
 
         assert response.status_code == 201
-        assert actual_result["username"] == test_config.SES_TARGET
+        assert actual_result["username"] == test_config.USERNAME
 
     async def test_post_signup_user_exists(self):
         payload = create_signup_payload()

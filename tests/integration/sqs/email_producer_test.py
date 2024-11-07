@@ -23,4 +23,4 @@ class TestEmailProducer:
             actual_result[0]["EmailType"]
             == test_config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE
         )
-        assert actual_result[0]["Username"] == test_config.SES_TARGET
+        assert actual_result[0]["Username"] == test_config.USERNAME

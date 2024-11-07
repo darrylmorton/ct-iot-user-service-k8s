@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AWS_REGION = os.environ.get("AWS_REGION")
-SES_SOURCE = os.environ.get("SES_SOURCE")
+# SES_SOURCE = os.environ.get("SES_SOURCE")
 
 SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT") or "local"
 SENTRY_DSN = os.environ.get("SENTRY_DSN")

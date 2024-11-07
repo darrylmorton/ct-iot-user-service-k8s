@@ -29,15 +29,15 @@ def aws_credentials():
 
 
 @pytest.fixture
-def ses_client(aws_credentials):
+def sqs_client(aws_credentials):
     with mock_aws():
-        conn = boto3.client("ses", region_name=test_config.AWS_REGION)
+        conn = boto3.client("sqs", region_name=test_config.AWS_REGION)
 
         yield conn
 
 
 @pytest.fixture
-def email_producer(ses_client):
+def email_producer(sqs_client):
     producer = EmailProducer()
 
     yield producer

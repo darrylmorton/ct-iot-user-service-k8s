@@ -7,7 +7,7 @@ on:
 env:
   AWS_REGION: eu-west-2
   SES_SOURCE: noreply@example.com
-  SES_TARGET: foo@example.com
+  USERNAME: foo@example.com
   SENTRY_TRACES_SAMPLE_RATE: 1.0
   SENTRY_PROFILES_SAMPLE_RATE: 0.5
   SENTRY_SAMPLE_RATE: 50
