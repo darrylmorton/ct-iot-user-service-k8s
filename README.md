@@ -1,4 +1,4 @@
-# ct-iot-user-service
+# ct-iot-user-service-k8s
 
 ## Description
 The `user-service` is responsible for managing users of the `ct-iot` platform.
