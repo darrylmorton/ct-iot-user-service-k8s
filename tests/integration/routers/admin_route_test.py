@@ -5,14 +5,14 @@ from jose import jwt
 
 from tests.helper.user_helper import create_signup_payload
 import tests.config as tests_config
-from tests.helper.auth_helper import create_token_expiry
+from tests.helper.token_helper import create_token_expiry
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
 
 
 class TestAdminRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    username = "foo@home.com"
+    username = tests_config.USERNAME
     password = "barbarba"
     admin = True
 
@@ -24,7 +24,7 @@ class TestAdminRoute:
 
     @pytest.mark.parametrize(
         "add_test_user",
-        [[create_signup_payload(_enabled=True, _is_admin=True)]],
+        [[create_signup_payload(_confirmed=True, _is_admin=True)]],
         indirect=True,
     )
     async def test_get_users(self, db_cleanup, add_test_user):

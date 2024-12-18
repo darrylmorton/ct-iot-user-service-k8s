@@ -10,6 +10,7 @@ from fastapi.params import Depends
 from fastapi.security import HTTPBearer
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -17,9 +18,18 @@ import config
 from database.user_crud import UserCrud
 
 from logger import log
-from config import SERVICE_NAME, JWT_EXCLUDED_ENDPOINTS
-from routers import health, users, user_details, signup, login, admin
+from routers import (
+    health,
+    users,
+    user_details,
+    signup,
+    login,
+    admin,
+    verify_account,
+)
 from utils.app_util import AppUtil
+from utils.auth_util import AuthUtil
+from utils.validator_util import ValidatorUtil
 
 
 async def run_migrations():
@@ -37,7 +47,7 @@ async def run_migrations():
 
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
-    log.info(f"Starting {SERVICE_NAME}...{app.host}")
+    log.info(f"Starting {config.SERVICE_NAME}...{app.host}")
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
 
@@ -68,10 +78,10 @@ async def lifespan_wrapper(app: FastAPI):
 
     await run_migrations()
 
-    log.info(f"{SERVICE_NAME} is ready")
+    log.info(f"{config.SERVICE_NAME} is ready")
 
     yield
-    log.info(f"{SERVICE_NAME} is shutting down...")
+    log.info(f"{config.SERVICE_NAME} is shutting down...")
 
 
 app = FastAPI(title="FastAPI server", lifespan=lifespan_wrapper)
@@ -84,14 +94,14 @@ async def authenticate(request: Request, call_next):
     request_path = request["path"]
 
     try:
-        if request_path not in JWT_EXCLUDED_ENDPOINTS:
+        if not AppUtil.is_excluded_endpoint(request_path):
             auth_token = request.headers["authorization"]
 
             if not auth_token:
                 log.debug("authenticate - missing auth token")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
             auth_token = auth_token.replace("Bearer ", "")
@@ -103,8 +113,8 @@ async def authenticate(request: Request, call_next):
             if response.status_code != HTTPStatus.OK:
                 log.debug("authenticate - invalid token")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
             response_json = response.json()
@@ -113,54 +123,45 @@ async def authenticate(request: Request, call_next):
             _admin = response_json["admin"]
 
             # token user id must be a valid uuid
-            if not AppUtil.validate_uuid4(_id):
+            if not ValidatorUtil.validate_uuid4(_id):
                 log.debug("authenticate - invalid uuid")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
-            user = await UserCrud().find_user_by_id_and_enabled(_id=_id)
+            user = await UserCrud().find_user_by_id(_id=_id)
 
-            # user must exist
             if not user:
                 log.debug("authenticate - user not found")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
-            # admin status must match user status
-            if _admin != user.is_admin:
-                log.debug("authenticate - invalid user")
+            # user must be valid:
+            AuthUtil.is_user_valid(
+                _confirmed=user.confirmed,
+                _enabled=user.enabled,
+            )
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
-                )
-
-            # only admins can access admin paths
-            if not user.is_admin and request_path.startswith("/api/admin"):
-                log.debug("authenticate - only admins can access admin paths")
-
-                return JSONResponse(
-                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
-                )
-
-            # only a user can access their own user record by id
-            if not user.is_admin and not AppUtil.validate_uuid_path_param(
-                request_path, str(user.id)
-            ):
-                log.debug("authenticate - user cannot access another user record")
-
-                return JSONResponse(
-                    status_code=HTTPStatus.FORBIDDEN, content="Forbidden error"
-                )
+            # admin status must be valid
+            AuthUtil.is_admin_valid(
+                _id=str(user.id),
+                _is_admin=user.is_admin,
+                _admin=_admin,
+                _request_path=request_path,
+            )
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
 
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
         )
+    except HTTPException as error:
+        log.error(f"authenticate - http error {error}")
+
+        return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as err:
         log.error(f"authenticate - server error {err}")
 
@@ -175,6 +176,7 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
+app.include_router(verify_account.router, prefix="/api", tags=["verify-account"])
 
 app.include_router(
     users.router,

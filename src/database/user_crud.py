@@ -1,6 +1,9 @@
+import uuid
+
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql.dml import ReturningUpdate
 from starlette.responses import JSONResponse
 
 import schemas
@@ -18,7 +21,7 @@ class UserCrud(UserCrudInterface):
 
     async def authorise(
         self, _username: str, _password: str
-    ) -> schemas.UserAuthenticated:
+    ) -> schemas.UserAuthenticated | None:
         async with self.session as session:
             async with session.begin():
                 try:
@@ -36,13 +39,12 @@ class UserCrud(UserCrudInterface):
                         if password_match:
                             return schemas.UserAuthenticated(
                                 id=str(user.id),
+                                confirmed=user.confirmed,
                                 enabled=user.enabled,
                                 is_admin=user.is_admin,
                             )
 
-                    return schemas.UserAuthenticated(
-                        id="", enabled=False, is_admin=False
-                    )
+                    return None
                 except SQLAlchemyError as error:
                     log.error(f"authorise {error}")
                     raise SQLAlchemyError("Cannot authorise user")
@@ -63,20 +65,6 @@ class UserCrud(UserCrudInterface):
                 finally:
                     await session.close()
 
-    async def find_user_by_id_and_enabled(self, _id: str) -> schemas.UserAuthenticated:
-        async with self.session as session:
-            async with session.begin():
-                try:
-                    stmt = self.stmt.find_user_by_id_and_enabled_stmt(_id=_id)
-                    result = await session.execute(stmt)
-
-                    return result.scalars().first()
-                except SQLAlchemyError as error:
-                    log.error(f"find_user_by_id_and_enabled {error}")
-                    raise SQLAlchemyError("Cannot find enabled user by id")
-                finally:
-                    await session.close()
-
     async def find_user_by_username(self, username: str) -> schemas.User:
         async with self.session as session:
             async with session.begin():
@@ -88,6 +76,24 @@ class UserCrud(UserCrudInterface):
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username {error}")
                     raise SQLAlchemyError("Cannot find user with username")
+                finally:
+                    await session.close()
+
+    async def find_user_by_username_and_confirmed(self, username: str) -> schemas.User:
+        async with self.session as session:
+            async with session.begin():
+                try:
+                    stmt = self.stmt.find_user_by_username_and_confirmed_stmt(
+                        username=username
+                    )
+                    result = await session.execute(stmt)
+
+                    return result.scalars().first()
+                except SQLAlchemyError as error:
+                    log.error(f"find_user_by_username_and_confirmed {error}")
+                    raise SQLAlchemyError(
+                        "Cannot find user with username and confirmed"
+                    )
                 finally:
                     await session.close()
 
@@ -114,5 +120,26 @@ class UserCrud(UserCrudInterface):
         except Exception as error:
             log.error(f"add_user {error}")
             raise SQLAlchemyError("Cannot add user")
+        finally:
+            await session.close()
+
+    async def update_confirmed(
+        self, _username: str, _confirmed: bool
+    ) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
+        try:
+            async with self.session as session:
+                stmt = self.stmt.update_confirmed(
+                    _username=_username, _confirmed=_confirmed
+                )
+
+                async with session.begin():
+                    result = await session.execute(stmt)
+
+                    user = result.fetchall()
+
+                    return user
+        except Exception as error:
+            log.error(f"update_confirmed {error}")
+            raise SQLAlchemyError("Cannot update confirmed")
         finally:
             await session.close()

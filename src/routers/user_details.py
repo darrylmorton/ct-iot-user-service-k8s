@@ -1,3 +1,4 @@
+import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter
@@ -13,7 +14,7 @@ router = APIRouter()
 
 @router.get("/user-details/{user_id}", response_model=schemas.UserDetails)
 async def get_user_details_by_user_id(
-    user_id: int,
+    user_id: uuid.UUID,
 ) -> schemas.UserDetails | JSONResponse:
     try:
         return await UserDetailsCrud().find_user_details_by_user_id(user_id)

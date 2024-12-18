@@ -19,6 +19,7 @@ class User(UserBase):
 
 class UserAuthenticated(BaseModel):
     id: str
+    confirmed: bool
     enabled: bool
     is_admin: bool
 
@@ -115,7 +116,7 @@ class SignupRequest(SignupBase):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "foo@bar.com",
+                    "username": "foo@example.com",
                     "password": "barbarba",
                     "first_name": "Foo",
                     "last_name": "Bar",
@@ -161,7 +162,7 @@ class LoginRequest(LoginBase):
         "json_schema_extra": {
             "examples": [
                 {
-                    "username": "foo@bar.com",
+                    "username": "foo@example.com",
                     "password": "barbarba",
                 }
             ]

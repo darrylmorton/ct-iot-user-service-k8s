@@ -1,5 +1,5 @@
-import uuid
 from pathlib import Path
+from urllib.parse import quote
 
 import toml
 from fastapi import FastAPI
@@ -13,7 +13,7 @@ class AppUtil:
     def set_openapi_info(app: FastAPI) -> FastAPI:
         app.openapi_schema = get_openapi(
             title=config.SERVICE_NAME,
-            version=config.APP_VERSION,
+            version=AppUtil.get_app_version(),
             routes=app.routes,
         )
 
@@ -31,48 +31,7 @@ class AppUtil:
         return app_version
 
     @staticmethod
-    def validate_uuid4(uuid_string: str) -> bool:
-        """
-        Validate that a UUID string is in
-        fact a valid uuid4.
-        Happily, the uuid module does the actual
-        checking for us.
-        It is vital that the 'version' kwarg be passed
-        to the UUID() call, otherwise any 32-character
-        hex string is considered valid.
-        """
-
-        try:
-            val = uuid.UUID(uuid_string, version=4)
-
-        except ValueError:
-            # If it's a value error, then the string
-            # is not a valid hex code for a UUID.
-            return False
-
-        # If the uuid_string is a valid hex code,
-        # but an invalid uuid4,
-        # the UUID.__init__ will convert it to a
-        # valid uuid4. This is bad for validation purposes.
-
-        return str(val) == uuid_string
-
-    @staticmethod
-    def validate_uuid_path_param(request_path: str, _id: str) -> bool:
-        for path_prefix in config.UUID_PATH_PARAMS_ROUTES:
-            if path_prefix in request_path:
-                path_params = request_path.split("/")
-
-                return (
-                    len(path_params) == 4
-                    and AppUtil.validate_uuid4(path_params[3])
-                    and _id == path_params[3]
-                )
-
-        return False
-
-    @staticmethod
-    def create_db_url_suffix(password: str) -> str:
+    def create_db_url_suffix(password=config.DB_PASSWORD) -> str:
         return "{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}".format(
             DB_USERNAME=config.DB_USERNAME,
             DB_PASSWORD=password,
@@ -80,3 +39,26 @@ class AppUtil:
             DB_PORT=config.DB_PORT,
             DB_NAME=config.DB_NAME,
         )
+
+    @staticmethod
+    def get_alembic_db_url() -> str:
+        db_password = quote(config.DB_PASSWORD).replace("%", "%%")
+
+        return f"postgresql://{AppUtil.create_db_url_suffix(db_password)}"
+
+    @staticmethod
+    def get_sqlalchemy_db_url() -> str:
+        return f"postgresql+asyncpg://{AppUtil.create_db_url_suffix()}"
+
+    @staticmethod
+    def is_excluded_endpoint(request_path: str) -> bool:
+        for item in config.JWT_EXCLUDED_ENDPOINTS:
+            # log.info(f"{request_path=}")
+            # log.info(f"{item=}")
+            # log.info(f"{item == request_path}")
+            # log.info(f"{item in config.JWT_EXCLUDED_ENDPOINTS}")
+
+            if item == request_path:
+                return True
+
+        return False

@@ -2,12 +2,14 @@ import requests
 
 from http import HTTPStatus
 from fastapi import APIRouter, Body
+from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 import config
 import schemas
 from database.user_crud import UserCrud
 from logger import log
+from utils.auth_util import AuthUtil
 
 router = APIRouter()
 
@@ -17,42 +19,48 @@ async def login(
     payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
-        authorised_user = await UserCrud().authorise(
+        _user = await UserCrud().authorise(
             _username=payload.username, _password=payload.password
         )
 
-        if not authorised_user.id:
-            log.debug("Login - Invalid login")
+        if not _user:
+            log.debug("Login - invalid login")
 
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Invalid login credentials"
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid login"
             )
-        elif not authorised_user.enabled:
-            log.debug("Login - account not enabled")
 
-            return JSONResponse(
-                status_code=HTTPStatus.FORBIDDEN, content="Account not enabled"
-            )
+        # user must be valid:
+        AuthUtil.is_user_valid(
+            _confirmed=_user.confirmed,
+            _enabled=_user.enabled,
+        )
+
+        response = requests.post(
+            f"{config.AUTH_SERVICE_URL}/jwt",
+            json={
+                "id": str(_user.id),
+                "admin": _user.is_admin,
+            },
+        )
+
+        if response.status_code == HTTPStatus.OK:
+            return JSONResponse(status_code=HTTPStatus.OK, content=response.json())
         else:
-            response = requests.post(
-                f"{config.AUTH_SERVICE_URL}/jwt",
-                json={
-                    "id": str(authorised_user.id),
-                    "admin": authorised_user.is_admin,
-                },
+            log.debug(
+                f"Login - jwt create failed: {response.status_code}, {response.text}"
             )
 
-            if response.status_code == HTTPStatus.CREATED:
-                return JSONResponse(status_code=HTTPStatus.OK, content=response.json())
-            else:
-                log.debug("Login - invalid username or password")
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Login error",
+            )
+    except HTTPException as error:
+        log.error(f"Login http error {error}")
 
-                return JSONResponse(
-                    status_code=HTTPStatus.UNAUTHORIZED,
-                    content="Invalid username or password",
-                )
+        return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as error:
-        log.error(f"Login error {error}")
+        log.error(f"Login server error {error}")
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Login error"

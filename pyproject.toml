@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "user-service"
-version = "1.0.2"
-description = "user_service"
+version = "1.1.0"
+description = "User Service"
 authors = ["Darryl Morton"]
 license = "GNU"
 readme = "README.md"
@@ -27,17 +27,17 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 cryptography = "^42.0.4"
 structlog = "^24.1.0"
 toml = "^0.10.2"
-sentry-sdk = {version = "^2.7.1", extras = ["fastapi"]}
+sentry-sdk = {version = "^2.11.1", extras = ["fastapi"]}
 requests = "^2.32.3"
+boto3 = "^1.35.50"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
 ruff = "^0.1.1"
 pytest-cov = "^4.1.0"
+moto = "^5.0.18"
 
-[tool.poetry.group.test]
 [tool.poetry.group.test.dependencies]
-httpx = "^0.25.0"
 psycopg = "^3.1.13"
 pytest = "^7.4.2"
 pytest-asyncio = "^0.21.1"
