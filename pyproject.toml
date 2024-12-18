@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "user-service"
 version = "1.1.0"
-description = "user_service"
+description = "User Service"
 authors = ["Darryl Morton"]
 license = "GNU"
 readme = "README.md"
