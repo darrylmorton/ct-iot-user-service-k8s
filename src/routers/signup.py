@@ -7,7 +7,7 @@ import schemas
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
-from sqs.email_producer import EmailProducer
+from kafka.email_producer import EmailProducer
 
 router = APIRouter()
 
@@ -36,8 +36,8 @@ async def signup(
             _last_name=payload.last_name,
         )
 
-        await EmailProducer().produce(
-            email_type=config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE,
+        EmailProducer().produce(
+            email_type=config.EMAIL_ACCOUNT_VERIFICATION_TYPE,
             username=user.username,
         )
 

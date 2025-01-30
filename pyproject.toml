@@ -30,6 +30,7 @@ toml = "^0.10.2"
 sentry-sdk = {version = "^2.11.1", extras = ["fastapi"]}
 requests = "^2.32.3"
 boto3 = "^1.35.50"
+confluent-kafka = "^2.8.0"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
@@ -106,7 +107,7 @@ line-ending = "auto"
 [tool.pytest.ini_options]
 pythonpath = [ "src/" ]
 asyncio_mode = "auto"
-log_cli = false
+log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format = "%Y-%m-%d %H:%M:%S"

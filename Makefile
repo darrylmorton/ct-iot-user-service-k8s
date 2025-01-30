@@ -15,7 +15,7 @@ build: lint
 .PHONY: build
 
 dev-server-start: fmt
-	poetry run uvicorn user_service.service:app --reload --port 8001
+	poetry run uvicorn user_service.service:app --reload --port 8002
 .PHONY: dev-server-start
 
 server-start: fmt
