@@ -5,7 +5,6 @@ import time
 import uuid
 from datetime import datetime, timezone
 from threading import Thread
-
 from confluent_kafka import Producer, KafkaException
 
 import config
@@ -19,19 +18,17 @@ class EmailProducer:
         log.debug("initializing EmailProducer...")
 
         self.config = KafkaUtil.create_config()
+        self.producer = Producer(self.config)
+        self.topic = config.QUEUE_TOPIC_NAME
 
         self._loop = loop or asyncio.get_event_loop()
-        self._producer = Producer(self.config)
         self._cancelled = False
         self._poll_thread = Thread(target=self._poll_loop)
         self._poll_thread.start()
 
-        self.kafka = Producer(self.config)
-        self.email_topic = "email-topic"
-
     def _poll_loop(self):
         while not self._cancelled:
-            self._producer.poll(1.0)
+            self.producer.poll(config.QUEUE_POLL_WAIT_SECONDS)
 
     def close(self):
         self._cancelled = True
@@ -58,14 +55,14 @@ class EmailProducer:
             token=TokenUtil.encode_token(username, email_type),
         )
 
-        self.kafka.produce(
-            topic="email-topic",
+        self.producer.produce(
+            topic=self.topic,
             key=str(uuid.uuid4()),
             value=json.dumps(message),
             timestamp=calendar.timegm(time.gmtime()),
             on_delivery=ack,
         )
-        self.kafka.flush()
+        self.producer.flush()
         self.close()
 
         return message

@@ -1,5 +1,3 @@
-import logging
-
 from confluent_kafka import Consumer
 
 import tests.config as test_config
@@ -19,7 +17,7 @@ class TestEmailProducer:
         consumer_config = {
             "bootstrap.servers": "localhost:9092",
             "session.timeout.ms": 6000,
-            "group.id": "email-topic-group",
+            "group.id": test_config.QUEUE_GROUP_ID,
             # "enable.auto.commit": True,
             "auto.offset.reset": "earliest",
             # "enable.auto.offset.store": True,
@@ -30,9 +28,10 @@ class TestEmailProducer:
         actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
         log.debug(f"{actual_result=}")
 
-        assert len(actual_result) == 100
+        assert len(actual_result) == 1
 
         assert (
-            actual_result[0]["email_type"] == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
+            actual_result[0]["email_type"]
+            == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
         )
         assert actual_result[0]["username"] == test_config.USERNAME

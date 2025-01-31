@@ -1,14 +1,8 @@
 import json
-import sys
 import time
-import uuid
-from datetime import datetime, timezone
-from pydoc_data.topics import topics
 from typing import Any
-from confluent_kafka import KafkaError, KafkaException
+from confluent_kafka import KafkaException
 
-import config
-from tests.helper import token_helper
 from logger import log
 import tests.config as test_config
 
@@ -18,28 +12,27 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     messages = []
 
     try:
-        log.info(f"email_consuming....")
+        log.debug(f"email_consuming....")
 
-        _consumer.subscribe(["email-topic"])
+        _consumer.subscribe([test_config.QUEUE_TOPIC_NAME])
 
         while True:
             log.debug(f"consumer polling...")
 
             if time.time() > timeout:
-                log.info(f"Task timed out after {timeout_seconds}")
+                log.debug(f"Task timed out after {timeout_seconds}")
                 break
 
-            message = _consumer.poll(1.0)
+            message = _consumer.poll(test_config.QUEUE_POLL_WAIT_SECONDS)
 
             if message is None:
                 continue
 
             if message.error():
-                log.info(f"Consumer error: {message.error()}")
-                continue
+                raise KafkaException(message.error())
 
             log.debug(
-                f'{message.topic()=}, {message.partition()=}, {message.offset()=}, {str(message.key())=}'
+                f"{message.topic()=}, {message.partition()=}, {message.offset()=}, {str(message.key())=}"
             )
             log.debug(f"{message.value()=}")
 
@@ -49,5 +42,4 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     except KafkaException as e:
         log.error(f"email_consumer error: {e}")
     finally:
-
         return messages

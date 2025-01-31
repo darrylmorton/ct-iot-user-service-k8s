@@ -15,7 +15,7 @@ from kafka.email_producer import EmailProducer
 from tests.database import async_session
 import tests.config as test_config
 
-load_dotenv(dotenv_path=".env.test")
+load_dotenv(dotenv_path=".test.env")
 
 
 # @pytest.fixture
