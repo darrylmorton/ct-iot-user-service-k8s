@@ -1,3 +1,5 @@
+import logging
+
 from confluent_kafka import Consumer
 
 import tests.config as test_config
@@ -16,15 +18,26 @@ class TestEmailProducer:
 
         consumer_config = {
             "bootstrap.servers": "localhost:9092",
-            "session.timeout.ms": 300000,
-            "group.id": "email-topic",
-            "enable.auto.commit": False,
+            "session.timeout.ms": 15000,
+            "group.id": "email-topic-group",
+            # "enable.auto.commit": True,
             "auto.offset.reset": "earliest",
-            "enable.auto.offset.store": False,
+            # "enable.auto.offset.store": False,
         }
-        _consumer = Consumer(consumer_config)
+        # Create logger for consumer (logs will be emitted when poll() is called)
+        # logger = logging.getLogger('consumer')
+        # logger.setLevel(logging.DEBUG)
+        # handler = logging.StreamHandler()
+        # handler.setFormatter(logging.Formatter('%(asctime)-15s %(levelname)-8s %(message)s'))
+        # logger.addHandler(handler)
 
-        actual_result = email_consumer(_consumer=_consumer, timeout_seconds=20)
+        # Create Consumer instance
+        # Hint: try debug='fetch' to generate some log messages
+
+        # TODO consumer test
+        consumer = Consumer(consumer_config)
+
+        actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
         log.debug(f"{actual_result=}")
 
         assert len(actual_result) == 1

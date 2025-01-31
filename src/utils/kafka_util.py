@@ -10,9 +10,9 @@ class KafkaUtil:
             # User-specific properties that you must set
             "client.id": socket.gethostname(),
             # "bootstrap.servers": f"{config.QUEUE_PROTOCOL}:{config.QUEUE_PORTS}",
-            "bootstrap.servers": f"localhost:9092",
+            "bootstrap.servers": "localhost:9092",
             # Fixed properties
-            "acks": config.QUEUE_ACKS,
+            "acks": "all",
         }
 
     @staticmethod

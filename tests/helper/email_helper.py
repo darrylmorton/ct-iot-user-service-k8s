@@ -30,29 +30,31 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
                 log.info(f"Task timed out after {timeout_seconds}")
                 break
 
-            message = _consumer.poll(timeout=1.0)
-            log.info(f"**** MESSAGE {message=}")
+            log.debug(f"consumer polling...")
+
+            message = _consumer.poll(1.0)
+            # log.info(f"**** MESSAGE {message=}")
 
             if message is None:
                 continue
 
-            # if message.error():
-            #     log.info(f"message.error(): {message.error()}")
-
             if message.error():
-                if message.error().code() == KafkaError._PARTITION_EOF:
-                    # End of partition event
-                    sys.stderr.write(
-                        "%% %s [%d] reached end at offset %d\n"
-                        % (message.topic(), message.partition(), message.offset())
-                    )
-                elif message.error():
-                    raise KafkaException(message.error())
-            else:
-                message_body = json.loads(message.value())
+                log.info(f"Consumer error: {message.error()}")
+                continue
+            #     raise KafkaException(message.error())
 
-                messages.append(message_body)
+            log.debug('%% %s [%d] at offset %d with key %s:\n' %
+                 (message.topic(), message.partition(), message.offset(),
+                  str(message.key())))
+
+            log.debug(f"message.value() {message.value()}")
+
+            message_body = json.loads(message.value())
+            messages.append(message_body)
+
+    except KafkaException as e:
+        log.error(f"email_consumer error: {e}")
     finally:
-        # _consumer.close()
+        # consumer.close()
 
         return messages
