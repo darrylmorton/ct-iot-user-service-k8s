@@ -18,11 +18,11 @@ class TestEmailProducer:
 
         consumer_config = {
             "bootstrap.servers": "localhost:9092",
-            "session.timeout.ms": 15000,
+            "session.timeout.ms": 6000,
             "group.id": "email-topic-group",
             # "enable.auto.commit": True,
             "auto.offset.reset": "earliest",
-            # "enable.auto.offset.store": False,
+            # "enable.auto.offset.store": True,
         }
 
         consumer = Consumer(consumer_config)
@@ -30,7 +30,7 @@ class TestEmailProducer:
         actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
         log.debug(f"{actual_result=}")
 
-        assert len(actual_result) == 1
+        assert len(actual_result) == 100
 
         assert (
             actual_result[0]["email_type"] == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
