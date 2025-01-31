@@ -20,8 +20,8 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     try:
         log.info(f"email_consuming....")
 
-        def print_assignment(_consumer, partitions):
-            log.info("Assignment:", partitions)
+        # def print_assignment(_consumer, partitions):
+        #     log.info("Assignment:", partitions)
 
         _consumer.subscribe(["email-topic"]) # , on_assign=print_assignment)
 

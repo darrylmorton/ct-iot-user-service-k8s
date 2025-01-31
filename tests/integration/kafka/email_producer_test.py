@@ -24,17 +24,7 @@ class TestEmailProducer:
             "auto.offset.reset": "earliest",
             # "enable.auto.offset.store": False,
         }
-        # Create logger for consumer (logs will be emitted when poll() is called)
-        # logger = logging.getLogger('consumer')
-        # logger.setLevel(logging.DEBUG)
-        # handler = logging.StreamHandler()
-        # handler.setFormatter(logging.Formatter('%(asctime)-15s %(levelname)-8s %(message)s'))
-        # logger.addHandler(handler)
 
-        # Create Consumer instance
-        # Hint: try debug='fetch' to generate some log messages
-
-        # TODO consumer test
         consumer = Consumer(consumer_config)
 
         actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
@@ -42,7 +32,7 @@ class TestEmailProducer:
 
         assert len(actual_result) == 1
 
-        # assert (
-        #     actual_result[0]["email_type"] == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
-        # )
-        # assert actual_result[0]["username"] == test_config.USERNAME
+        assert (
+            actual_result[0]["email_type"] == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
+        )
+        assert actual_result[0]["username"] == test_config.USERNAME
