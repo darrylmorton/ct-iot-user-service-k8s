@@ -1,7 +1,6 @@
 from confluent_kafka import Consumer
 
 import tests.config as test_config
-from logger import log
 from tests.helper.email_helper import email_consumer
 from tests.helper.routes_helper import RoutesHelper
 from tests.helper.user_helper import create_signup_payload
@@ -26,7 +25,6 @@ class TestEmailProducer:
         consumer = Consumer(consumer_config)
 
         actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
-        log.debug(f"{actual_result=}")
 
         assert len(actual_result) == 1
 

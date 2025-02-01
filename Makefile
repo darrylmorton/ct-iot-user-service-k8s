@@ -7,11 +7,11 @@ lint: fmt
 .PHONY: lint
 
 local-build: lint
-	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service:dev --target=runtime --progress=plain .
+	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service-k8s:dev --target=runtime --progress=plain .
 .PHONY: local-build
 
 build: lint
-	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service --platform=linux/amd64 --target=runtime --progress=plain .
+	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service-k8s --platform=linux/amd64 --target=runtime --progress=plain .
 .PHONY: build
 
 dev-server-start: fmt

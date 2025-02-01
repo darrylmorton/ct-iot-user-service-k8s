@@ -1,6 +1,6 @@
 import socket
 
-import config
+from logger import log
 
 
 class KafkaUtil:
@@ -40,9 +40,10 @@ class KafkaUtil:
         """
 
         if err is not None:
-            print("Delivery failed for User record {}: {}".format(msg.key(), err))
+            log.error("Delivery failed for User record {}: {}".format(msg.key(), err))
             return
-        print(
+
+        log.debug(
             "User record {} successfully produced to {} [{}] at offset {}".format(
                 msg.key(), msg.topic(), msg.partition(), msg.offset()
             )

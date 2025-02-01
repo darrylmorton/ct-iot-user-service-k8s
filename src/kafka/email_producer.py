@@ -17,9 +17,8 @@ class EmailProducer:
     def __init__(self, loop=None):
         log.debug("initializing EmailProducer...")
 
-        self.config = KafkaUtil.create_config()
-        self.producer = Producer(self.config)
-        self.topic = config.QUEUE_TOPIC_NAME
+        producer_config = KafkaUtil.create_config()
+        self._producer = Producer(producer_config)
 
         self._loop = loop or asyncio.get_event_loop()
         self._cancelled = False
@@ -28,9 +27,9 @@ class EmailProducer:
 
     def _poll_loop(self):
         while not self._cancelled:
-            self.producer.poll(config.QUEUE_POLL_WAIT_SECONDS)
+            self._producer.poll(config.QUEUE_POLL_WAIT_SECONDS)
 
-    def close(self):
+    def _close(self):
         self._cancelled = True
         self._poll_thread.join()
 
@@ -40,7 +39,7 @@ class EmailProducer:
         """
         result = self._loop.create_future()
 
-        def ack(err, msg):
+        def _ack(err, msg):
             if err:
                 self._loop.call_soon_threadsafe(
                     result.set_exception, KafkaException(err)
@@ -55,14 +54,14 @@ class EmailProducer:
             token=TokenUtil.encode_token(username, email_type),
         )
 
-        self.producer.produce(
-            topic=self.topic,
+        self._producer.produce(
+            topic=config.QUEUE_TOPIC_NAME,
             key=str(uuid.uuid4()),
             value=json.dumps(message),
             timestamp=calendar.timegm(time.gmtime()),
-            on_delivery=ack,
+            on_delivery=_ack,
         )
-        self.producer.flush()
-        self.close()
+        self._producer.flush()
+        self._close()
 
         return message

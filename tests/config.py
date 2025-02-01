@@ -7,7 +7,6 @@ from utils.app_util import AppUtil
 load_dotenv(dotenv_path=".test.env")
 
 AWS_REGION = os.environ.get("AWS_REGION")
-# SES_SOURCE = os.environ.get("SES_SOURCE")
 USERNAME = os.environ.get("USERNAME")
 
 SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT") or "local"

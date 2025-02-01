@@ -1,17 +1,21 @@
-# Default values for user-service.
+# Default values for authentication-service.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+app:
+  name: "ct-iot"
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 2
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: ghcr.io/darrylmorton/ct-iot-user-service-k8s
+  repository: ct-iot-user-service-k8s
   # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
+  pullPolicy: Never
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "dev"
+  # Overrides environment variables
   env:
     - name: "SENTRY_TRACES_SAMPLE_RATE"
       value: "1.0"
@@ -47,6 +51,10 @@ image:
       value: "http://localhost"
     - name: "AUTH_SERVICE_URL"
       value: "http://authentication-service.local:8001"
+    - name: "JWT_SECRET"
+      value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    - name: "JWT_EXPIRY_SECONDS"
+      value: "3600"
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -89,7 +97,7 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  port: 8001
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
