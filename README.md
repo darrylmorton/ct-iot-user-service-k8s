@@ -49,5 +49,21 @@ Swagger docs: http://localhost:8001/docs
 ### Test
 ```
 docker compose -f docker-compose-local.yml up
+make migrations
 make test
+```
+
+### Helm | K8s 
+```
+# development
+helm install user-service helm/user-service -f helm/user-service/local-values.yaml -n ct-iot
+helm upgrade user-service helm/user-service -f helm/user-service/local-values.yaml -n ct-iot
+
+k -n ct-iot port-forward svc/user-service 8002:9001 &
+
+# production
+helm install user-service helm/user-service -f helm/user-service/values.yaml -n ct-iot
+helm upgrade user-service helm/user-service -f helm/user-service/values.yaml -n ct-iot
+
+helm uninstall user-service -n ct-iot
 ```
