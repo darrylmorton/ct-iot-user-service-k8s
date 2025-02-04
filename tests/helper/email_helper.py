@@ -12,12 +12,12 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     messages = []
 
     try:
-        log.debug(f"email_consuming....")
+        log.debug("email_consuming....")
 
         _consumer.subscribe([test_config.QUEUE_TOPIC_NAME])
 
         while True:
-            log.debug(f"consumer polling...")
+            log.debug("consumer polling...")
 
             if time.time() > timeout:
                 log.debug(f"Task timed out after {timeout_seconds}")
@@ -32,7 +32,8 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
                 raise KafkaException(message.error())
 
             log.debug(
-                f"{message.topic()=}, {message.partition()=}, {message.offset()=}, {str(message.key())=}"
+                f"""{message.topic()=}, {message.partition()=}, 
+                    {message.offset()=}, {str(message.key())=}"""
             )
             log.debug(f"{message.value()=}")
 

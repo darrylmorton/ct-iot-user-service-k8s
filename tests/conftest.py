@@ -1,9 +1,6 @@
 import asyncio
-import os
 from uuid import UUID
-import boto3
 from dotenv import load_dotenv
-from moto import mock_aws
 
 import bcrypt
 import pytest
@@ -13,7 +10,6 @@ from database.models import UserModel, UserDetailsModel
 
 from kafka.email_producer import EmailProducer
 from tests.database import async_session
-import tests.config as test_config
 
 load_dotenv(dotenv_path=".test.env")
 

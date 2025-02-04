@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+app:
+  name: "ct-iot"
+
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 2
 
@@ -11,7 +14,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
   env:
     - name: "SENTRY_TRACES_SAMPLE_RATE"
       value: "1.0"
@@ -22,9 +25,9 @@ image:
     - name: "ENVIRONMENT"
       value: "test"
     - name: "LOG_LEVEL"
-      value: "DEBUG"
+      value: "INFO"
     - name: "SERVICE_NAME"
-      value: "user-service-k8s.local"
+      value: "user-service-k8s"
     - name: "UVICORN_PORT"
       value: "8002"
     - name: "QUEUE_PROTOCOL"

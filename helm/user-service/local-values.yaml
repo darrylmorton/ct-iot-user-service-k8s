@@ -2,6 +2,19 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+postgresql:
+  auth:
+    username: postgres
+    postgresPassword: postgres
+    database: users
+
+kafka:
+  initContainers: []
+  broker:
+    initContainers: []
+  zookeeper:
+    containerPorts:
+
 app:
   name: "ct-iot"
 
@@ -51,10 +64,12 @@ image:
       value: "http://localhost"
     - name: "AUTH_SERVICE_URL"
       value: "http://authentication-service.local:8001"
-    - name: "JWT_SECRET"
-      value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    - name: "JWT_EXPIRY_SECONDS"
+    # TODO remove below and place within secrets
+    - name: "JWT_SECRET_VERIFY_ACCOUNT"
+      value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC"
+    - name: "JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT"
       value: "3600"
+    # dependency secrets
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
