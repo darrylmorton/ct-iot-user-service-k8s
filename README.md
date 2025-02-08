@@ -44,7 +44,7 @@ Refer to the `authentication-service` [repository](https://github.com/darrylmort
 docker compose -f docker-compose-local.yml up
 make dev-server-start
 ```
-Swagger docs: http://localhost:8001/docs
+Swagger docs: http://localhost:8002/docs
 
 ### Test
 ```

@@ -165,7 +165,7 @@ services:
     container_name: authentication-service
     image: ghcr.io/darrylmorton/ct-iot-authentication-service:latest
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - SENTRY_TRACES_SAMPLE_RATE=1.0
       - SENTRY_PROFILES_SAMPLE_RATE=0.5

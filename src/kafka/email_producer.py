@@ -37,31 +37,40 @@ class EmailProducer:
         """
         An awaitable produce method.
         """
-        result = self._loop.create_future()
+        try:
+            result = self._loop.create_future()
 
-        def _ack(err, msg):
-            if err:
-                self._loop.call_soon_threadsafe(
-                    result.set_exception, KafkaException(err)
-                )
-            else:
-                self._loop.call_soon_threadsafe(result.set_result, msg)
+            def _ack(err, msg):
+                if err:
+                    log.error(f"Kafka produce ack {err}")
 
-        message = KafkaUtil.create_email_message(
-            username=username,
-            email_type=email_type,
-            timestamp=datetime.now(tz=timezone.utc).isoformat(),
-            token=TokenUtil.encode_token(username, email_type),
-        )
+                    self._loop.call_soon_threadsafe(
+                        result.set_exception, KafkaException(err)
+                    )
+                else:
+                    self._loop.call_soon_threadsafe(result.set_result, msg)
 
-        self._producer.produce(
-            topic=config.QUEUE_TOPIC_NAME,
-            key=str(uuid.uuid4()),
-            value=json.dumps(message),
-            timestamp=calendar.timegm(time.gmtime()),
-            on_delivery=_ack,
-        )
-        self._producer.flush()
-        self._close()
+            message = KafkaUtil.create_email_message(
+                username=username,
+                email_type=email_type,
+                timestamp=datetime.now(tz=timezone.utc).isoformat(),
+                token=TokenUtil.encode_token(username, email_type),
+            )
 
-        return message
+            self._producer.produce(
+                topic=config.QUEUE_TOPIC_NAME,
+                key=str(uuid.uuid4()),
+                value=json.dumps(message),
+                timestamp=calendar.timegm(time.gmtime()),
+                on_delivery=_ack,
+            )
+            self._producer.flush()
+            log.debug(f"Kafka produced {message=} and flushed")
+
+        except KafkaException as err:
+            log.error(f"Kafka produce {err}")
+        finally:
+            self._close()
+            log.debug("Kafka closed producer")
+
+            return message

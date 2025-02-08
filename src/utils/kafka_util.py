@@ -1,5 +1,6 @@
 import socket
 
+import config
 from logger import log
 
 
@@ -10,7 +11,7 @@ class KafkaUtil:
             # User-specific properties that you must set
             "client.id": socket.gethostname(),
             # "bootstrap.servers": f"{config.QUEUE_PROTOCOL}:{config.QUEUE_PORTS}",
-            "bootstrap.servers": "localhost:9092",
+            "bootstrap.servers": f"{config.QUEUE_HOST}:9092",
             # Fixed properties
             "acks": "all",
         }
