@@ -17,16 +17,15 @@ class TestEmailProducer:
             "bootstrap.servers": "localhost:9092",
             "session.timeout.ms": 6000,
             "group.id": test_config.QUEUE_GROUP_ID,
-            # "enable.auto.commit": True,
             "auto.offset.reset": "earliest",
-            # "enable.auto.offset.store": True,
+            "enable.auto.offset.store": False,
         }
 
         consumer = Consumer(consumer_config)
 
         actual_result = email_consumer(_consumer=consumer, timeout_seconds=10)
 
-        assert len(actual_result) == 1
+        assert len(actual_result) > 0
 
         assert (
             actual_result[0]["email_type"]

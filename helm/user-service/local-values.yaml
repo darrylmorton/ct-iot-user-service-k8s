@@ -91,7 +91,7 @@ image:
     - name: "ALB_URL"
       value: "http://localhost"
     - name: "AUTH_SERVICE_URL"
-      value: "http://authentication-service.local:8001"
+      value: "http://authentication-service:8001"
     # TODO remove below and place within secrets
     - name: "JWT_SECRET_VERIFY_ACCOUNT"
       value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC"

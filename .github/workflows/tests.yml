@@ -132,7 +132,7 @@ jobs:
         run: docker ps -a
 
       - name: Curl Authentication Service Health Check
-        run: curl http://localhost:8000/healthz
+        run: curl http://localhost:8001/healthz
 
       - name: Start User Service
         run: |
