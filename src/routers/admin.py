@@ -6,14 +6,16 @@ from starlette.responses import JSONResponse
 
 import schemas
 from database.admin_crud import AdminCrud
+from decorators.metrics import observability_metrics
 from logger import log
 
 router = APIRouter()
 
 
 @router.get("/admin/users", response_model=list[schemas.User])
-async def get_users(req: Request) -> list[schemas.User] | JSONResponse:
-    offset = req.query_params.get("offset")
+@observability_metrics
+async def get_users(request: Request) -> list[schemas.User] | JSONResponse:
+    offset = request.query_params.get("offset")
 
     if offset and offset.isnumeric():
         offset = int(offset)

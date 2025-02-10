@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Body
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
@@ -8,12 +9,15 @@ from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
 from kafka.email_producer import EmailProducer
+from decorators.metrics import observability_metrics
 
 router = APIRouter()
 
 
 @router.post("/signup", status_code=HTTPStatus.CREATED)
+@observability_metrics
 async def signup(
+    request: Request,
     payload: schemas.SignupRequest = Body(embed=False),
 ) -> JSONResponse:
     try:

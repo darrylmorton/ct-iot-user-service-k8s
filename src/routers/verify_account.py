@@ -1,9 +1,11 @@
 from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Query
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from database.user_crud import UserCrud
+from decorators.metrics import observability_metrics
 from logger import log
 from utils.token_util import TokenUtil
 
@@ -11,7 +13,8 @@ router = APIRouter()
 
 
 @router.get("/verify-account/", status_code=HTTPStatus.OK)
-async def verify_account(token: str = Query(default=None)) -> JSONResponse:
+@observability_metrics
+async def verify_account(request: Request, token: str = Query(default=None)) -> JSONResponse:
     try:
         if not token:
             log.debug("Token is missing")

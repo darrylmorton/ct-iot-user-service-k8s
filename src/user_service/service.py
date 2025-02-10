@@ -1,6 +1,7 @@
 import contextlib
 from http import HTTPStatus
 
+import psutil
 import requests
 import sentry_sdk
 from alembic import command
@@ -13,23 +14,19 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from prometheus_client import make_asgi_app, Gauge
 
 import config
 from database.user_crud import UserCrud
 
 from logger import log
-from routers import (
-    health,
-    users,
-    user_details,
-    signup,
-    login,
-    admin,
-    verify_account,
-)
+from routers import health, users, user_details, signup, login, admin, verify_account
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
+
+CPU_USAGE = Gauge("process_cpu_usage", "Current CPU usage in percent")
+MEMORY_USAGE = Gauge("process_memory_usage_bytes", "Current memory usage in bytes")
 
 
 async def run_migrations():
@@ -91,6 +88,8 @@ http_bearer_security = HTTPBearer()
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
+    log.debug(f"middleware - authentication")
+
     request_path = request["path"]
 
     try:
@@ -169,8 +168,15 @@ async def authenticate(request: Request, call_next):
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Server error"
         )
 
+    CPU_USAGE.set(psutil.cpu_percent())
+    MEMORY_USAGE.set(psutil.Process().memory_info().rss)
+
     return await call_next(request)
 
+
+# prometheus metrics
+metrics_app = make_asgi_app()
+app.mount("/metrics/", metrics_app)
 
 app.include_router(health.router, include_in_schema=False)
 

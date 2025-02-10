@@ -3,11 +3,13 @@ import requests
 from http import HTTPStatus
 from fastapi import APIRouter, Body
 from starlette.exceptions import HTTPException
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
 import schemas
 from database.user_crud import UserCrud
+from decorators.metrics import observability_metrics
 from logger import log
 from utils.auth_util import AuthUtil
 
@@ -15,8 +17,9 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
+@observability_metrics
 async def login(
-    payload: schemas.LoginRequest = Body(embed=False),
+    request: Request, payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
         _user = await UserCrud().authorise(

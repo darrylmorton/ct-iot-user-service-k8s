@@ -66,11 +66,10 @@ class EmailProducer:
             )
             self._producer.flush()
             log.debug(f"Kafka produced {message=} and flushed")
+            return message
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")
         finally:
             self._close()
             log.debug("Kafka closed producer")
-
-            return message

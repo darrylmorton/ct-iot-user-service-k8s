@@ -51,6 +51,8 @@ JWT_EXCLUDED_ENDPOINTS = [
     "/api/signup",
     "/api/login",
     "/api/verify-account/",
+    "/metrics",
+    "/metrics/",
 ]
 
 UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]

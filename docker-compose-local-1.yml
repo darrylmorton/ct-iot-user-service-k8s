@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   users-db:
     container_name: users-db
@@ -155,7 +153,7 @@ services:
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server broker-1:29092 --list
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server broker-1:29092 --create --if-not-exists --topic email-topic --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server broker-1:29092 --create --if-not-exists --topic email-topic --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker-1:29092 --list
@@ -163,7 +161,7 @@ services:
 
   authentication-service:
     container_name: authentication-service
-    image: ghcr.io/darrylmorton/ct-iot-authentication-service:latest
+    image: ct-iot-authentication-service:dev
     ports:
       - "8001:8001"
     environment:
@@ -178,4 +176,6 @@ services:
       - JWT_EXPIRY_SECONDS=3600
     depends_on:
       users-db:
+        condition: service_healthy
+      broker-1:
         condition: service_healthy

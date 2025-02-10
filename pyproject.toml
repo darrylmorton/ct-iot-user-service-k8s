@@ -31,6 +31,7 @@ sentry-sdk = {version = "^2.11.1", extras = ["fastapi"]}
 requests = "^2.32.3"
 boto3 = "^1.35.50"
 confluent-kafka = "^2.8.0"
+prometheus-client = "^0.21.1"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
