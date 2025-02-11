@@ -11,7 +11,7 @@ psycopg==3.1.13
 bcrypt==4.1.1
 email-validator==2.1.0.post1
 python-jose[cryptography]==3.3.0
-cryptography==42.0.4
+cryptography==43.0.1
 structlog==24.1.0
 toml==0.10.2
 sentry-sdk[fastapi]==2.11.0
@@ -26,7 +26,7 @@ httpcore~=1.0.5
 anyio~=3.7.1
 pytest~=7.4.4
 h11~=0.14.0
-pip~=23.3.1
+pip~=25.0
 attrs~=23.2.0
 rsa~=4.9
 pyasn1~=0.6.0
@@ -62,7 +62,7 @@ Pygments~=2.18.0
 rich~=13.7.1
 port-for~=0.7.2
 annotated-types~=0.7.0
-python-multipart~=0.0.18
+python-multipart~=0.0.19
 Jinja2~=3.1.4
 pytest-postgresql~=5.1.1
 responses~=0.25.3
