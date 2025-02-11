@@ -9,13 +9,13 @@ from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
 from kafka.email_producer import EmailProducer
-from decorators.metrics import observability_metrics
+from decorators.metrics import observability
 
 router = APIRouter()
 
 
 @router.post("/signup", status_code=HTTPStatus.CREATED)
-@observability_metrics
+@observability(status_code=HTTPStatus.CREATED)
 async def signup(
     request: Request,
     payload: schemas.SignupRequest = Body(embed=False),

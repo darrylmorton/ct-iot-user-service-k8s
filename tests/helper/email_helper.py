@@ -43,4 +43,7 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     except KafkaException as e:
         log.error(f"email_consumer error: {e}")
     finally:
+        _consumer.unsubscribe()
+        _consumer.close()
+
         return messages

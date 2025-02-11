@@ -1,5 +1,6 @@
 import pytest
 
+from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -11,7 +12,7 @@ import tests.config as test_config
 # Corresponding router happy paths are tested via other router tests
 class TestMiddlewareAuthorise:
     _id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    admin = True
+    is_admin = True
     password = "barbarba"
 
     @pytest.mark.parametrize(
@@ -29,6 +30,7 @@ class TestMiddlewareAuthorise:
         )
 
         actual_result = response.json()
+        log.debug(f"{actual_result=}")
 
         assert response.status_code == 403
         assert actual_result == "Forbidden error"
@@ -65,7 +67,7 @@ class TestMiddlewareAuthorise:
     async def test_expired_token(self, db_cleanup, add_test_user):
         _token = create_token(
             secret=test_config.JWT_SECRET,
-            data={"id": self._id, "is_admin": self.admin},
+            data={"id": self._id, "is_admin": self.is_admin},
             expiry=create_token_expiry(-3000),
         )
 
@@ -78,7 +80,7 @@ class TestMiddlewareAuthorise:
     async def test_invalid_token(self):
         _token = create_token(
             secret=test_config.JWT_SECRET,
-            data={"id": self._id, "is_admin": self.admin},
+            data={"id": self._id, "is_admin": self.is_admin},
         )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)

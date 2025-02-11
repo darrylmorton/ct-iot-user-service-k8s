@@ -10,6 +10,8 @@ from utils.validator_util import ValidatorUtil
 class AuthUtil:
     @staticmethod
     def is_user_valid(_confirmed: bool, _enabled: bool):
+        log.debug(f"** _confirmed _enabled {_confirmed=} {_enabled=}")
+
         if not _confirmed:
             log.debug("authenticate - user account unconfirmed")
 
@@ -54,6 +56,11 @@ class AuthUtil:
                         raise HTTPException(
                             status_code=HTTPStatus.BAD_REQUEST, detail="Invalid id"
                         )
+
+                    log.debug(
+                        f"** is_admin_valid _id != path_params[3]{_id=} {path_params[3]=}"
+                    )
+
                     if _id != path_params[3]:
                         log.debug(
                             "authenticate - user cannot access another user record"

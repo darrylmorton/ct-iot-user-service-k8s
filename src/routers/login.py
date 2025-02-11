@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse
 import config
 import schemas
 from database.user_crud import UserCrud
-from decorators.metrics import observability_metrics
+from decorators.metrics import observability
 from logger import log
 from utils.auth_util import AuthUtil
 
@@ -17,9 +17,10 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
-@observability_metrics
+@observability()
 async def login(
-    request: Request, payload: schemas.LoginRequest = Body(embed=False),
+    request: Request,
+    payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
         _user = await UserCrud().authorise(
@@ -43,7 +44,7 @@ async def login(
             f"{config.AUTH_SERVICE_URL}/jwt",
             json={
                 "id": str(_user.id),
-                "admin": _user.is_admin,
+                "is_admin": _user.is_admin,
             },
         )
 

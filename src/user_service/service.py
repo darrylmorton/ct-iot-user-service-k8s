@@ -117,9 +117,12 @@ async def authenticate(request: Request, call_next):
                 )
 
             response_json = response.json()
+            # log.debug(f"**** authenticate - response: {response_json=}")
 
             _id = response_json["id"]
-            _admin = response_json["admin"]
+            _admin = response_json["is_admin"]
+
+            # log.debug(f"** authenticate - {ValidatorUtil.validate_uuid4(_id)=}")
 
             # token user id must be a valid uuid
             if not ValidatorUtil.validate_uuid4(_id):
@@ -130,6 +133,7 @@ async def authenticate(request: Request, call_next):
                 )
 
             user = await UserCrud().find_user_by_id(_id=_id)
+            # log.debug(f"**** authenticate - response: {user.id=} {user.username=}")
 
             if not user:
                 log.debug("authenticate - user not found")
@@ -143,6 +147,9 @@ async def authenticate(request: Request, call_next):
                 _confirmed=user.confirmed,
                 _enabled=user.enabled,
             )
+            # log.debug(
+            #     f"**** authenticate - response: confirmed/enabled: {user.confirmed=} {user.enabled=}"
+            # )
 
             # admin status must be valid
             AuthUtil.is_admin_valid(
@@ -151,6 +158,10 @@ async def authenticate(request: Request, call_next):
                 _admin=_admin,
                 _request_path=request_path,
             )
+            # log.debug(
+            #     f"**** authenticate - response: admin/request_path: {user.is_admin=} {request_path=}"
+            # )
+
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
 
@@ -167,9 +178,9 @@ async def authenticate(request: Request, call_next):
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Server error"
         )
-
-    CPU_USAGE.set(psutil.cpu_percent())
-    MEMORY_USAGE.set(psutil.Process().memory_info().rss)
+    finally:
+        CPU_USAGE.set(psutil.cpu_percent())
+        MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
     return await call_next(request)
 

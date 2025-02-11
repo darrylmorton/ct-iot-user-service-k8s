@@ -11,9 +11,9 @@ class TestUsersRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     username = test_config.USERNAME
     password = "barbarba"
-    admin = False
+    is_admin = False
     token = create_token(
-        secret=test_config.JWT_SECRET, data={"id": id, "is_admin": admin}
+        secret=test_config.JWT_SECRET, data={"id": id, "is_admin": is_admin}
     )
 
     @pytest.mark.parametrize(
@@ -81,7 +81,10 @@ class TestUsersRoute:
     ):
         token = create_token(
             secret=test_config.JWT_SECRET,
-            data={"id": "848a3cdd-cafd-4ec6-a921-afb0bcc841de", "is_admin": self.admin},
+            data={
+                "id": "848a3cdd-cafd-4ec6-a921-afb0bcc841de",
+                "is_admin": self.is_admin,
+            },
         )
 
         response = await RoutesHelper.http_client(app, f"/api/users/{self.id}", token)

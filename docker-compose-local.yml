@@ -14,72 +14,61 @@ services:
       timeout : 5s
       retries : 5
 
-  zookeeper-1:
-    image: confluentinc/cp-zookeeper:7.8.0.arm64
-    hostname: zookeeper-1
-    container_name: zookeeper-1
-#    volumes:
-#      - ./bin/zookeeper-1_data:/var/lib/zookeeper/data
-#      - ./bin/zookeeper-1_log:/var/lib/zookeeper/log
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zookeeper-1:2888:3888;2181
-
-  broker-1:
+  kafka-kraft:
     image: confluentinc/cp-kafka:7.8.0.arm64
-    hostname: broker-1
-    container_name: broker-1
-#    volumes:
-#      - ./bin/broker-1-data:/var/lib/kafka/data
-    depends_on:
-      - zookeeper-1
+    hostname: kafka-kraft
+    container_name: kafka-kraft
     ports:
       - "9092:9092"
-      - "29092:29092"
+      - "9101:9101"
+#      - "29092:29092"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,INTERNAL://broker-1:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,INTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_SNAPSHOT_TRUST_EMPTY: true
-#      TOPIC_NAME: email-topic
-#    healthcheck:
-#      test: [ "CMD-SHELL", "./scripts/kafka-topics.sh --bootstrap-server broker-1:9092 --list" ]
-#      interval: 5s
-#      timeout: 10s
-#      retries: 5
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-kraft:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-kraft:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      CLUSTER_ID: 'mrhrCnrlRAaSqOVYNjq__g' # bin/kafka-storage random-uuid
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server kafka-kraft:9101 --list" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
-#  rest-proxy:
-#    image: confluentinc/cp-kafka-rest:7.8.0.arm64
-#    ports:
-#      - "8082:8082"
-#    depends_on:
-#      - zookeeper-1
-#      - broker-1
-#    hostname: rest-proxy
-#    container_name: rest-proxy
-#    environment:
-#      KAFKA_REST_HOST_NAME: rest-proxy
-#      KAFKA_REST_BOOTSTRAP_SERVERS: "broker-1:29092"
-#      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.8.0.arm64
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka-kraft
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: "kafka-kraft:29092"
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
 
   kafka-init:
     image: confluentinc/cp-kafka:7.8.0.arm64
     depends_on:
-      - broker-1
+      kafka-kraft:
+        condition: service_healthy
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
       # blocks until kafka is reachable
-      kafka-topics --bootstrap-server broker-1:29092 --list
+      kafka-topics --bootstrap-server kafka-kraft:29092 --list
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server broker-1:29092 --create --if-not-exists --topic email-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-kraft:29092 --create --if-not-exists --topic email-topic --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
-      kafka-topics --bootstrap-server broker-1:29092 --list
+      kafka-topics --bootstrap-server kafka-kraft:29092 --list
       "
 
   authentication-service:
@@ -100,5 +89,5 @@ services:
     depends_on:
       users-db:
         condition: service_healthy
-#      broker-1:
-#        condition: service_healthy
+      kafka-init:
+        condition: service_started
