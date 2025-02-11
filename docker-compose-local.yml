@@ -21,7 +21,6 @@ services:
     ports:
       - "9092:9092"
       - "9101:9101"
-#      - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
@@ -36,10 +35,11 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       CLUSTER_ID: 'mrhrCnrlRAaSqOVYNjq__g' # bin/kafka-storage random-uuid
     healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server kafka-kraft:9101 --list" ]
+      test: nc -z localhost 9092 || exit -1
+      start_interval: 15s
       interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 10
 
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.8.0.arm64
