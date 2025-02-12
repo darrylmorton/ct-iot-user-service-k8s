@@ -21,6 +21,8 @@ def observability(status_code=200):
     def outer_wrapper(func):
         @wraps(func)
         async def inner_wrapper(*args, **kwargs):
+            log.debug("inner wrapper start")
+
             start_time = time.time()
             request = kwargs.get("request")
             method = request["method"]
@@ -32,6 +34,8 @@ def observability(status_code=200):
                 method=method, status=status_code, path=path
             ).observe(time.time() - start_time)
             REQUEST_IN_PROGRESS.labels(method=method, path=path).dec()
+
+            log.debug("inner wrapper end")
 
             return await func(*args, **kwargs)
 
