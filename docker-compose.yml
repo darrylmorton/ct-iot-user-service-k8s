@@ -15,7 +15,7 @@ services:
       retries : 5
 
   kafka-kraft:
-    image: confluentinc/cp-kafka:7.8.0.arm64
+    image: confluentinc/cp-kafka:7.8.0.amd64
     hostname: kafka-kraft
     container_name: kafka-kraft
     ports:
@@ -42,7 +42,7 @@ services:
       retries: 10
 
   rest-proxy:
-    image: confluentinc/cp-kafka-rest:7.8.0.arm64
+    image: confluentinc/cp-kafka-rest:7.8.0.amd64
     ports:
       - "8082:8082"
     depends_on:
@@ -55,7 +55,7 @@ services:
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
 
   kafka-init:
-    image: confluentinc/cp-kafka:7.8.0.arm64
+    image: confluentinc/cp-kafka:7.8.0.amd64
     depends_on:
       kafka-kraft:
         condition: service_healthy
