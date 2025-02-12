@@ -2,6 +2,8 @@ import time
 from functools import wraps
 from prometheus_client import Gauge, Counter, Histogram
 
+from logger import log
+
 REQUEST_COUNT = Counter(
     "http_request_total", "Total HTTP Requests", ["method", "status", "path"]
 )
@@ -33,6 +35,10 @@ def observability(status_code=200):
 
             return await func(*args, **kwargs)
 
+        log.debug("inner wrapper completed")
+
         return inner_wrapper
+
+    log.debug("outer wrapper completed")
 
     return outer_wrapper
