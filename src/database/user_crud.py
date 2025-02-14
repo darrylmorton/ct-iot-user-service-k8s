@@ -120,9 +120,7 @@ class UserCrud(UserCrudInterface):
                 async with session.begin():
                     result = await session.execute(stmt)
 
-                    user = result.fetchall()
-
-                    return user
+                    return result.first()
         except Exception as error:
             log.error(f"update_confirmed {error}")
             raise SQLAlchemyError("Cannot update confirmed")

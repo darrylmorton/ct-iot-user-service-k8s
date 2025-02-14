@@ -10,8 +10,6 @@ from utils.validator_util import ValidatorUtil
 class AuthUtil:
     @staticmethod
     def is_user_valid(_confirmed: bool, _enabled: bool):
-        log.debug(f"** _confirmed _enabled {_confirmed=} {_enabled=}")
-
         if not _confirmed:
             log.debug("authenticate - user account unconfirmed")
 

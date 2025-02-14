@@ -1,10 +1,6 @@
-from uuid import UUID
-
 from sqlalchemy import update, select
-from sqlalchemy.sql.dml import ReturningUpdate
 
 from database import models
-from database.models import UserModel
 from database.user_crud_stmt_interface import UserCrudStmtInterface
 
 
@@ -32,16 +28,18 @@ class UserCrudStmt(UserCrudStmtInterface):
         ).where(models.UserModel.username == username)
 
     def find_user_by_username_and_confirmed_stmt(self, username: str):
-        return select(models.UserModel.id, models.UserModel.username).where(
-            models.UserModel.username == username
-        )
+        return select(
+            models.UserModel.id, models.UserModel.username, models.UserModel.confirmed
+        ).where(models.UserModel.username == username)
 
-    def update_confirmed(
-        self, _username: str, _confirmed: bool
-    ) -> ReturningUpdate[tuple[UUID, str, bool]]:
+    def update_confirmed(self, _username: str, _confirmed: bool):
         return (
-            update(UserModel)
+            update(models.UserModel)
             .where(models.UserModel.username == _username)
             .values({"confirmed": _confirmed})
-            .returning(UserModel.id, UserModel.username, UserModel.confirmed)
+            .returning(
+                models.UserModel.id,
+                models.UserModel.username,
+                models.UserModel.confirmed,
+            )
         )

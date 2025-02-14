@@ -19,7 +19,7 @@ class AdminCrud(AdminCrudInterface):
                     stmt = self.stmt.find_users_stmt(offset=offset)
                     result = await session.execute(stmt)
 
-                    return result.first()
+                    return result.all()
                 except SQLAlchemyError as error:
                     log.error(f"find_users {error}")
                     raise SQLAlchemyError("Cannot find users")

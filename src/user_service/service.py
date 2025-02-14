@@ -128,8 +128,6 @@ async def authenticate(request: Request, call_next):
                 )
 
             user = await UserCrud().find_user_by_id(_id=_id)
-            log.debug(f"authentication LOOKUP USER BY ID {user=}")
-            # log.debug(f"authentication LOOKUP USER BY ID {user.password_hash}")
 
             if not user:
                 log.debug("authenticate - user not found")
