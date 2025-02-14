@@ -11,11 +11,14 @@ from logger import log
 from kafka.email_producer import EmailProducer
 from decorators.metrics import observability
 
+
 router = APIRouter()
 
+ROUTE_PATH = "/signup"
 
-@router.post("/signup", status_code=HTTPStatus.CREATED)
-@observability(status_code=HTTPStatus.CREATED)
+
+@router.post(ROUTE_PATH, status_code=HTTPStatus.CREATED)
+@observability(path=ROUTE_PATH, method="POST", status_code=HTTPStatus.CREATED)
 async def signup(
     request: Request,
     payload: schemas.SignupRequest = Body(embed=False),
@@ -45,6 +48,7 @@ async def signup(
             username=user.username,
         )
 
+        # TODO query should return this via join and aliases
         return JSONResponse(
             status_code=HTTPStatus.CREATED,
             content={

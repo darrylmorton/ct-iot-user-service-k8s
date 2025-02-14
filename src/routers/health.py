@@ -9,9 +9,11 @@ from utils.app_util import AppUtil
 
 router = APIRouter()
 
+ROUTE_PATH = "/healthz"
 
-@router.get("/healthz")
-@observability()
+
+@router.get(ROUTE_PATH)
+@observability(path=ROUTE_PATH, method="GET")
 async def health(request: Request) -> JSONResponse:
     return JSONResponse(
         status_code=HTTPStatus.OK,

@@ -1,7 +1,6 @@
 import uuid
 
 from sqlalchemy.exc import SQLAlchemyError
-from starlette.responses import JSONResponse
 
 import schemas
 from database.config import async_session
@@ -16,9 +15,7 @@ class UserDetailsCrud(UserDetailsCrudInterface):
         self.stmt = UserDetailsCrudStmt()
         self.session = async_session()
 
-    async def add_user_details(
-        self, _user_id: uuid, _first_name: str, _last_name: str
-    ) -> JSONResponse | schemas.UserDetails:
+    async def add_user_details(self, _user_id: uuid, _first_name: str, _last_name: str):
         try:
             async with self.session as session:
                 user_details = self.stmt.add_user_details_model(
@@ -43,9 +40,7 @@ class UserDetailsCrud(UserDetailsCrudInterface):
         finally:
             await session.close()
 
-    async def find_user_details_by_user_id(
-        self, user_id: uuid, offset=0
-    ) -> schemas.UserDetails:
+    async def find_user_details_by_user_id(self, user_id: uuid, offset=0):
         async with self.session as session:
             async with session.begin():
                 try:

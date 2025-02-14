@@ -2,7 +2,6 @@ import pytest
 from jose import jwt
 
 import tests.config as test_config
-from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.routes_helper import RoutesHelper
 from user_service.service import app
@@ -73,7 +72,6 @@ class TestLoginRoute:
 
         response = await RoutesHelper.http_post_client(app, "/api/login", payload)
         response_json = response.json()
-        log.info(f"**** {response_json=}")
 
         actual_result = jwt.decode(
             response_json["token"], test_config.JWT_SECRET, algorithms=["HS256"]

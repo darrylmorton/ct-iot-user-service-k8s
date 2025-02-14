@@ -14,19 +14,17 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from prometheus_client import make_asgi_app, Gauge
+from prometheus_client import make_asgi_app
 
 import config
 from database.user_crud import UserCrud
+from decorators.metrics import CPU_USAGE, MEMORY_USAGE
 
 from logger import log
 from routers import health, users, user_details, signup, login, admin, verify_account
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
-
-CPU_USAGE = Gauge("process_cpu_usage", "Current CPU usage in percent")
-MEMORY_USAGE = Gauge("process_memory_usage_bytes", "Current memory usage in bytes")
 
 
 async def run_migrations():
@@ -130,6 +128,8 @@ async def authenticate(request: Request, call_next):
                 )
 
             user = await UserCrud().find_user_by_id(_id=_id)
+            log.debug(f"authentication LOOKUP USER BY ID {user=}")
+            # log.debug(f"authentication LOOKUP USER BY ID {user.password_hash}")
 
             if not user:
                 log.debug("authenticate - user not found")

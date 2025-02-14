@@ -9,11 +9,14 @@ from decorators.metrics import observability
 from logger import log
 from utils.token_util import TokenUtil
 
+
 router = APIRouter()
 
+ROUTE_PATH = "/verify-account/"
 
-@router.get("/verify-account/", status_code=HTTPStatus.OK)
-@observability()
+
+@router.get(ROUTE_PATH, status_code=HTTPStatus.OK)
+@observability(path=ROUTE_PATH, method="GET")
 async def verify_account(
     request: Request, token: str = Query(default=None)
 ) -> JSONResponse:

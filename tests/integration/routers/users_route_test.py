@@ -1,6 +1,7 @@
 import pytest
 
 import tests.config as test_config
+from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -21,12 +22,13 @@ class TestUsersRoute:
         [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
-    async def test_get_by_user_id_valid_token(self, db_cleanup, add_test_user):
+    async def test_get_user_by_id_valid_token(self, db_cleanup, add_test_user):
         response = await RoutesHelper.http_client(
             app, f"/api/users/{self.id}", self.token
         )
 
         actual_result = response.json()
+        log.debug(f"{actual_result=}")
 
         assert response.status_code == 200
         assert actual_result["id"] == self.id
@@ -36,7 +38,7 @@ class TestUsersRoute:
         [[create_signup_payload(_confirmed=True)]],
         indirect=True,
     )
-    async def test_get_by_user_id_invalid_uuid(self, db_cleanup, add_test_user):
+    async def test_get_user_by_id_invalid_uuid(self, db_cleanup, add_test_user):
         response = await RoutesHelper.http_client(
             app, "/api/users/848a3cdd-cafd-4ec6-a921-afb0bcc841d", self.token
         )
@@ -48,7 +50,7 @@ class TestUsersRoute:
         [[create_signup_payload(_confirmed=False)]],
         indirect=True,
     )
-    async def test_get_by_user_id_valid_token_user_unconfirmed(
+    async def test_get_user_by_id_valid_token_user_unconfirmed(
         self, db_cleanup, add_test_user
     ):
         response = await RoutesHelper.http_client(
@@ -62,7 +64,7 @@ class TestUsersRoute:
         [[create_signup_payload(_confirmed=True, _enabled=False)]],
         indirect=True,
     )
-    async def test_get_by_user_id_valid_token_user_suspended(
+    async def test_get_user_by_id_valid_token_user_suspended(
         self, db_cleanup, add_test_user
     ):
         response = await RoutesHelper.http_client(
@@ -76,7 +78,7 @@ class TestUsersRoute:
         [[create_signup_payload(_confirmed=True, _enabled=False)]],
         indirect=True,
     )
-    async def test_get_by_user_id_valid_token_user_does_not_exist(
+    async def test_get_user_by_id_valid_token_user_does_not_exist(
         self, db_cleanup, add_test_user
     ):
         token = create_token(

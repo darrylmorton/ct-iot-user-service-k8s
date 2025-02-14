@@ -14,8 +14,12 @@ class UserDetailsCrudStmt(UserDetailsCrudStmtInterface):
 
     def find_user_details_by_user_id_stmt(self, user_id: int, offset=0):
         return (
-            select(models.UserDetailsModel)
-            .where(user_id == models.UserDetailsModel.user_id)
+            select(
+                models.UserDetailsModel.id,
+                models.UserDetailsModel.first_name,
+                models.UserDetailsModel.last_name,
+            )
+            .where(models.UserDetailsModel.user_id == user_id)
             .limit(25)
             .offset(offset)
         )

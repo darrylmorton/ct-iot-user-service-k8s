@@ -2,10 +2,10 @@ import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter
+from fastapi.encoders import jsonable_encoder
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-import schemas
 from database.user_details_crud import UserDetailsCrud
 from decorators.metrics import observability
 from logger import log
@@ -13,15 +13,19 @@ from logger import log
 
 router = APIRouter()
 
+ROUTE_PATH = "/user-details/{user_id}"
 
-@router.get("/user-details/{user_id}", response_model=schemas.UserDetails)
-@observability()
+
+@router.get(ROUTE_PATH)
+@observability(path=ROUTE_PATH, method="GET")
 async def get_user_details_by_user_id(
     request: Request,
     user_id: uuid.UUID,
-) -> schemas.UserDetails | JSONResponse:
+) -> JSONResponse:
     try:
-        return await UserDetailsCrud().find_user_details_by_user_id(user_id)
+        result = await UserDetailsCrud().find_user_details_by_user_id(user_id)
+
+        return JSONResponse(status_code=HTTPStatus.OK, content=jsonable_encoder(result))
     except Exception as error:
         log.error(f"get_user_details_by_user_id {error}")
 

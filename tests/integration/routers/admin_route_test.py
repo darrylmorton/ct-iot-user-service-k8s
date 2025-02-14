@@ -3,6 +3,7 @@ from unittest import skip
 import pytest
 from jose import jwt
 
+from logger import log
 from tests.helper.user_helper import create_signup_payload
 import tests.config as tests_config
 from tests.helper.token_helper import create_token_expiry
@@ -30,6 +31,8 @@ class TestAdminRoute:
     async def test_get_users(self, db_cleanup, add_test_user):
         response = await RoutesHelper.http_client(app, "/api/admin/users", self.token)
         actual_result = response.json()
+
+        log.debug(f"{actual_result=}")
 
         assert response.status_code == 200
         assert len(actual_result) == 1

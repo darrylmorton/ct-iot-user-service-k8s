@@ -13,11 +13,14 @@ from decorators.metrics import observability
 from logger import log
 from utils.auth_util import AuthUtil
 
+
 router = APIRouter()
 
+ROUTE_PATH = "/login"
 
-@router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
-@observability()
+
+@router.post(ROUTE_PATH, response_model=schemas.User, status_code=HTTPStatus.OK)
+@observability(path=ROUTE_PATH, method="POST")
 async def login(
     request: Request,
     payload: schemas.LoginRequest = Body(embed=False),
