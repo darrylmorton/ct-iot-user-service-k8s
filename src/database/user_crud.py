@@ -61,7 +61,7 @@ class UserCrud(UserCrudInterface):
                     stmt = self.stmt.find_user_by_username_stmt(username=username)
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username {error}")
                     raise SQLAlchemyError("Cannot find user with username")
@@ -77,7 +77,7 @@ class UserCrud(UserCrudInterface):
                     )
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username_and_confirmed {error}")
                     raise SQLAlchemyError(

@@ -49,7 +49,7 @@ class UserDetailsCrud(UserDetailsCrudInterface):
                     )
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_details_by_user_id {error}")
                     raise SQLAlchemyError("Cannot find user details")

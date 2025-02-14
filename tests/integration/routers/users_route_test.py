@@ -1,7 +1,6 @@
 import pytest
 
 import tests.config as test_config
-from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -28,7 +27,6 @@ class TestUsersRoute:
         )
 
         actual_result = response.json()
-        log.debug(f"{actual_result=}")
 
         assert response.status_code == 200
         assert actual_result["id"] == self.id
