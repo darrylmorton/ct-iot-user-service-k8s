@@ -14,10 +14,10 @@ class TestAdminRoute:
     id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
     username = tests_config.USERNAME
     password = "barbarba"
-    admin = True
+    is_admin = True
 
     token = jwt.encode(
-        {"id": id, "is_admin": admin, "exp": create_token_expiry()},
+        {"id": id, "is_admin": is_admin, "exp": create_token_expiry()},
         tests_config.JWT_SECRET,
         algorithm="HS256",
     )

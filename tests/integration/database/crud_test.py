@@ -68,6 +68,6 @@ class TestCrud:
             _username=self.username, _confirmed=True
         )
 
-        assert ValidatorUtil.validate_uuid4(str(actual_result[0][0])) is True
-        assert actual_result[0][1] == test_config.USERNAME
-        assert actual_result[0][2] is True
+        assert ValidatorUtil.validate_uuid4(str(actual_result[0])) is True
+        assert actual_result[1] == test_config.USERNAME
+        assert actual_result[2] is True

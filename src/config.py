@@ -16,12 +16,16 @@ SENTRY_SAMPLE_RATE = int(os.environ.get("SENTRY_SAMPLE_RATE"))
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL")
 SERVICE_NAME = os.environ.get("SERVICE_NAME")
-APP_PORT = os.environ.get("UVICORN_PORT") or 8001
+APP_PORT = os.environ.get("UVICORN_PORT") or 8002
 
-QUEUE_WAIT_SECONDS = int(os.environ.get("QUEUE_WAIT_SECONDS"))
-SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE = "ACCOUNT_VERIFICATION"
-SQS_EMAIL_QUEUE_NAME = os.environ.get("SQS_EMAIL_QUEUE_NAME")
-SQS_EMAIL_DLQ_NAME = os.environ.get("SQS_EMAIL_DLQ_NAME")
+QUEUE_PROTOCOL = os.environ.get("QUEUE_PROTOCOL")
+QUEUE_HOST = os.environ.get("QUEUE_HOST")
+QUEUE_PORTS = os.environ.get("QUEUE_PORTS")
+QUEUE_ACKS = os.environ.get("QUEUE_ACKS")
+QUEUE_POLL_WAIT_SECONDS = int(os.environ.get("QUEUE_POLL_WAIT_SECONDS"))
+QUEUE_TOPIC_NAME = os.environ.get("QUEUE_TOPIC_NAME")
+QUEUE_GROUP_ID = os.environ.get("QUEUE_GROUP_ID")
+EMAIL_ACCOUNT_VERIFICATION_TYPE = os.environ.get("EMAIL_ACCOUNT_VERIFICATION_TYPE")
 
 AUTH_SERVICE_ENDPOINT = os.environ.get("AUTH_SERVICE_URL")
 AUTH_SERVICE_URL = f"{AUTH_SERVICE_ENDPOINT}/api"
@@ -47,6 +51,8 @@ JWT_EXCLUDED_ENDPOINTS = [
     "/api/signup",
     "/api/login",
     "/api/verify-account/",
+    "/metrics",
+    "/metrics/",
 ]
 
 UUID_PATH_PARAMS_ROUTES = ["/api/users/", "/api/user-details/"]

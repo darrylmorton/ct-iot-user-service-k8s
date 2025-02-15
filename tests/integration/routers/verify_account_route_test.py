@@ -12,7 +12,7 @@ class TestVerifyAccountRoute:
         secret=test_config.JWT_SECRET_VERIFY_ACCOUNT,
         data={
             "username": test_config.USERNAME,
-            "email_type": test_config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE,
+            "email_type": test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE,
         },
     )
 
@@ -28,7 +28,7 @@ class TestVerifyAccountRoute:
         actual_result = response.json()
 
         assert response.status_code == 200
-        assert actual_result == "Account confirmed"
+        assert actual_result["message"] == "Account confirmed"
 
     async def test_verify_account_user_does_not_exist(self, db_cleanup):
         response = await RoutesHelper.http_client(

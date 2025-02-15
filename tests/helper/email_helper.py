@@ -1,104 +1,49 @@
 import json
 import time
-import uuid
-from datetime import datetime, timezone
 from typing import Any
+from confluent_kafka import KafkaException
 
-import boto3
-
-from tests.helper import token_helper
 from logger import log
 import tests.config as test_config
 
 
-def create_sqs_queue(queue_name: str, dlq_name="") -> tuple[Any, Any]:
-    sqs = boto3.resource("sqs", region_name=test_config.AWS_REGION)
-    queue_attributes = {
-        "WaitSeconds": f"{queue_name}",
-    }
-    dlq = None
-
-    if dlq_name:
-        dlq = sqs.create_queue(
-            QueueName=f"{dlq_name}.fifo", Attributes=queue_attributes
-        )
-
-        dlq_policy = json.dumps({
-            "deadLetterTargetArn": dlq.attributes["QueueArn"],
-            "maxReceiveCount": "10",
-        })
-
-        queue_attributes["RedrivePolicy"] = dlq_policy
-
-    queue = sqs.create_queue(
-        QueueName=f"{queue_name}.fifo", Attributes=queue_attributes
-    )
-
-    return queue, dlq
-
-
-def create_email_message(
-    email_type: str,
-    username: str,
-    message_id=uuid.uuid4(),
-    timestamp=datetime.now(tz=timezone.utc).isoformat(),
-) -> dict:
-    token = token_helper.create_token(
-        secret=test_config.JWT_SECRET_VERIFY_ACCOUNT,
-        data={"username": username, "email_type": email_type},
-    )
-    message_url = f"{test_config.ALB_URL}/?token={token}"
-
-    return dict(
-        Id=str(message_id),
-        MessageAttributes={
-            "EmailType": {
-                "DataType": "String",
-                "StringValue": email_type,
-            },
-            "Username": {
-                "DataType": "String",
-                "StringValue": username,
-            },
-            "Timestamp": {
-                "DataType": "String",
-                "StringValue": timestamp,
-            },
-            "Url": {
-                "DataType": "String",
-                "StringValue": message_url,
-            },
-        },
-        MessageBody=json.dumps({
-            "EmailType": email_type,
-            "Username": username,
-            "Timestamp": timestamp,
-            "Url": message_url,
-        }),
-        MessageDeduplicationId=str(message_id),
-    )
-
-
-def email_consumer(email_queue: Any, timeout_seconds=0) -> list[dict]:
+def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
     timeout = time.time() + timeout_seconds
     messages = []
 
-    while True:
-        if time.time() > timeout:
-            log.info(f"Task timed out after {timeout_seconds}")
-            break
+    try:
+        log.debug("email_consuming....")
 
-        email_messages = email_queue.receive_messages(
-            MessageAttributeNames=["All"],
-            MaxNumberOfMessages=10,
-            WaitTimeSeconds=test_config.QUEUE_WAIT_SECONDS,
-        )
+        _consumer.subscribe([test_config.QUEUE_TOPIC_NAME])
 
-        if len(email_messages) > 0:
-            for email_message in email_messages:
-                message_body = json.loads(email_message.body)
-                messages.append(message_body)
+        while True:
+            log.debug("consumer polling...")
 
-                email_message.delete()
+            if time.time() > timeout:
+                log.debug(f"Task timed out after {timeout_seconds}")
+                break
 
-    return messages
+            message = _consumer.poll(test_config.QUEUE_POLL_WAIT_SECONDS)
+
+            if message is None:
+                continue
+
+            if message.error():
+                raise KafkaException(message.error())
+
+            log.debug(
+                f"""{message.topic()=}, {message.partition()=}, 
+                    {message.offset()=}, {str(message.key())=}"""
+            )
+            log.debug(f"{message.value()=}")
+
+            message_body = json.loads(message.value())
+            messages.append(message_body)
+
+    except KafkaException as e:
+        log.error(f"email_consumer error: {e}")
+    finally:
+        _consumer.unsubscribe()
+        _consumer.close()
+
+        return messages

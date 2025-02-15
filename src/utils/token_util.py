@@ -51,8 +51,8 @@ class TokenUtil:
     @staticmethod
     def email_type_selector(_email_type: str) -> str:
         match _email_type:
-            case config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE:
-                return config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE
+            case config.EMAIL_ACCOUNT_VERIFICATION_TYPE:
+                return config.EMAIL_ACCOUNT_VERIFICATION_TYPE
             case _:
                 log.debug(f"email_type_selector - type not found {_email_type}")
 

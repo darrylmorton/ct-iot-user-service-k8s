@@ -1,10 +1,6 @@
-import uuid
-
 import bcrypt
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql.dml import ReturningUpdate
-from starlette.responses import JSONResponse
 
 import schemas
 from database.config import async_session
@@ -19,16 +15,14 @@ class UserCrud(UserCrudInterface):
         self.stmt = UserCrudStmt()
         self.session = async_session()
 
-    async def authorise(
-        self, _username: str, _password: str
-    ) -> schemas.UserAuthenticated | None:
+    async def authorise(self, _username: str, _password: str):
         async with self.session as session:
             async with session.begin():
                 try:
                     stmt = self.stmt.find_user_by_username_stmt(username=_username)
                     result = await session.execute(stmt)
 
-                    user = result.scalars().first()
+                    user = result.first()
 
                     if user:
                         password = _password.encode("utf-8")
@@ -37,12 +31,7 @@ class UserCrud(UserCrudInterface):
                         password_match = bcrypt.checkpw(password, password_hash)
 
                         if password_match:
-                            return schemas.UserAuthenticated(
-                                id=str(user.id),
-                                confirmed=user.confirmed,
-                                enabled=user.enabled,
-                                is_admin=user.is_admin,
-                            )
+                            return user
 
                     return None
                 except SQLAlchemyError as error:
@@ -51,35 +40,35 @@ class UserCrud(UserCrudInterface):
                 finally:
                     await session.close()
 
-    async def find_user_by_id(self, _id: str) -> schemas.User:
+    async def find_user_by_id(self, _id: str):
         async with self.session as session:
             async with session.begin():
                 try:
                     stmt = self.stmt.find_user_by_id_stmt(_id=_id)
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_id {error}")
                     raise SQLAlchemyError("Cannot find user by id")
                 finally:
                     await session.close()
 
-    async def find_user_by_username(self, username: str) -> schemas.User:
+    async def find_user_by_username(self, username: str):
         async with self.session as session:
             async with session.begin():
                 try:
                     stmt = self.stmt.find_user_by_username_stmt(username=username)
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username {error}")
                     raise SQLAlchemyError("Cannot find user with username")
                 finally:
                     await session.close()
 
-    async def find_user_by_username_and_confirmed(self, username: str) -> schemas.User:
+    async def find_user_by_username_and_confirmed(self, username: str):
         async with self.session as session:
             async with session.begin():
                 try:
@@ -88,7 +77,7 @@ class UserCrud(UserCrudInterface):
                     )
                     result = await session.execute(stmt)
 
-                    return result.scalars().first()
+                    return result.first()
                 except SQLAlchemyError as error:
                     log.error(f"find_user_by_username_and_confirmed {error}")
                     raise SQLAlchemyError(
@@ -97,9 +86,7 @@ class UserCrud(UserCrudInterface):
                 finally:
                     await session.close()
 
-    async def add_user(
-        self, _username: str, _password: str
-    ) -> JSONResponse | schemas.User:
+    async def add_user(self, _username: str, _password: str):
         password = _password.encode("utf-8")
 
         salt = bcrypt.gensalt()
@@ -123,9 +110,7 @@ class UserCrud(UserCrudInterface):
         finally:
             await session.close()
 
-    async def update_confirmed(
-        self, _username: str, _confirmed: bool
-    ) -> ReturningUpdate[tuple[uuid.UUID, str, bool]]:
+    async def update_confirmed(self, _username: str, _confirmed: bool):
         try:
             async with self.session as session:
                 stmt = self.stmt.update_confirmed(
@@ -135,9 +120,7 @@ class UserCrud(UserCrudInterface):
                 async with session.begin():
                     result = await session.execute(stmt)
 
-                    user = result.fetchall()
-
-                    return user
+                    return result.first()
         except Exception as error:
             log.error(f"update_confirmed {error}")
             raise SQLAlchemyError("Cannot update confirmed")

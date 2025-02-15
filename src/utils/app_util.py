@@ -53,11 +53,6 @@ class AppUtil:
     @staticmethod
     def is_excluded_endpoint(request_path: str) -> bool:
         for item in config.JWT_EXCLUDED_ENDPOINTS:
-            # log.info(f"{request_path=}")
-            # log.info(f"{item=}")
-            # log.info(f"{item == request_path}")
-            # log.info(f"{item in config.JWT_EXCLUDED_ENDPOINTS}")
-
             if item == request_path:
                 return True
 

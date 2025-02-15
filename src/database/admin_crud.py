@@ -1,6 +1,5 @@
 from sqlalchemy.exc import SQLAlchemyError
 
-import schemas
 from database.admin_crud_interface import AdminCrudInterface
 from database.config import async_session
 from database.admin_crud_stmt import AdminCrudStmt
@@ -13,14 +12,14 @@ class AdminCrud(AdminCrudInterface):
         self.stmt = AdminCrudStmt()
         self.session = async_session()
 
-    async def find_users(self, offset=0) -> list[schemas.User]:
+    async def find_users(self, offset=0):
         async with self.session as session:
             async with session.begin():
                 try:
                     stmt = self.stmt.find_users_stmt(offset=offset)
                     result = await session.execute(stmt)
 
-                    return result.scalars().all()
+                    return result.all()
                 except SQLAlchemyError as error:
                     log.error(f"find_users {error}")
                     raise SQLAlchemyError("Cannot find users")

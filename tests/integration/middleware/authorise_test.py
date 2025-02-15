@@ -11,7 +11,7 @@ import tests.config as test_config
 # Corresponding router happy paths are tested via other router tests
 class TestMiddlewareAuthorise:
     _id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    admin = True
+    is_admin = True
     password = "barbarba"
 
     @pytest.mark.parametrize(
@@ -55,7 +55,7 @@ class TestMiddlewareAuthorise:
         actual_result = response.json()
 
         assert response.status_code == 401
-        assert actual_result == "Unauthorised error"
+        assert actual_result["message"] == "Unauthorised error"
 
     @pytest.mark.parametrize(
         "add_test_user",
@@ -65,7 +65,7 @@ class TestMiddlewareAuthorise:
     async def test_expired_token(self, db_cleanup, add_test_user):
         _token = create_token(
             secret=test_config.JWT_SECRET,
-            data={"id": self._id, "is_admin": self.admin},
+            data={"id": self._id, "is_admin": self.is_admin},
             expiry=create_token_expiry(-3000),
         )
 
@@ -78,7 +78,7 @@ class TestMiddlewareAuthorise:
     async def test_invalid_token(self):
         _token = create_token(
             secret=test_config.JWT_SECRET,
-            data={"id": self._id, "is_admin": self.admin},
+            data={"id": self._id, "is_admin": self.is_admin},
         )
 
         response = await RoutesHelper.http_client(app, "/api/admin/users", _token)

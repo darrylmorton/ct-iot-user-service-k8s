@@ -1,40 +1,34 @@
 from http import HTTPStatus
-from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict, UUID4
 from pydantic_core.core_schema import ValidationInfo
 
 from utils.validator_util import ValidatorUtil
 
 
 class UserBase(BaseModel):
-    id: UUID
-    username: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class User(UserBase):
-    class ConfigDict:
-        from_attributes = True
+    id: UUID4
+    username: str
 
 
-class UserAuthenticated(BaseModel):
+class UserAuthenticated(User):
     id: str
     confirmed: bool
     enabled: bool
     is_admin: bool
 
-    class ConfigDict:
-        from_attributes = True
-
-
-class UserRequest(UserBase):
-    id: str = Field(None, exclude=True)
-    password: str
-
 
 class UserDetailsBase(BaseModel):
-    id: UUID
-    user_id: UUID
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserDetails(UserDetailsBase):
+    id: UUID4
+    user_id: UUID4
     first_name: str
     last_name: str
 
@@ -59,32 +53,31 @@ class UserDetailsBase(BaseModel):
         return ValidatorUtil.validate_last_name(v, info)
 
 
-class UserDetails(UserDetailsBase):
-    class ConfigDict:
-        from_attributes = True
-
-
 class UserDetailsRequest(UserDetailsBase):
     id: str = Field(None, exclude=True)
 
 
 class SignupBase(BaseModel):
-    id: str
-    user_id: str
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "username": "foo@example.com",
+                    "password": "barbarba",
+                    "first_name": "Foo",
+                    "last_name": "Bar",
+                }
+            ]
+        },
+    )
+
+
+class SignupRequest(SignupBase):
     username: str
     password: str
     first_name: str
     last_name: str
-
-    @field_validator("id")
-    @classmethod
-    def validate_id(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_id(v, info)
-
-    @field_validator("user_id")
-    @classmethod
-    def validate_user_id(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_user_id(v, info)
 
     @field_validator("username")
     @classmethod
@@ -110,10 +103,9 @@ class SignupBase(BaseModel):
     def validate_last_name(cls, v: str, info: ValidationInfo):
         return ValidatorUtil.validate_last_name(v, info)
 
-
-class SignupRequest(SignupBase):
-    model_config = {
-        "json_schema_extra": {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "examples": [
                 {
                     "username": "foo@example.com",
@@ -122,25 +114,27 @@ class SignupRequest(SignupBase):
                     "last_name": "Bar",
                 }
             ]
-        }
-    }
-
-    id: str = Field(None, exclude=True)
-    user_id: str = Field(None, exclude=True)
-
-    class ConfigDict:
-        from_attributes = True
+        },
+    )
 
 
 class LoginBase(BaseModel):
-    id: str
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "username": "foo@example.com",
+                    "password": "barbarba",
+                }
+            ]
+        },
+    )
+
+
+class LoginRequest(LoginBase):
     username: str
     password: str
-
-    @field_validator("id")
-    @classmethod
-    def validate_id(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_id(v, info)
 
     @field_validator("username")
     @classmethod
@@ -155,21 +149,3 @@ class LoginBase(BaseModel):
         return ValidatorUtil.validate_password(
             v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
         )
-
-
-class LoginRequest(LoginBase):
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "username": "foo@example.com",
-                    "password": "barbarba",
-                }
-            ]
-        }
-    }
-
-    id: str = Field(None, exclude=True)
-
-    class ConfigDict:
-        from_attributes = True
