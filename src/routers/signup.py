@@ -30,7 +30,7 @@ async def signup(
             log.debug("Signup - username exists")
 
             return JSONResponse(
-                status_code=HTTPStatus.CONFLICT, content="Username exists"
+                status_code=HTTPStatus.CONFLICT, content={"message": "Username exists"}
             )
 
         user = await UserCrud().add_user(
@@ -61,5 +61,6 @@ async def signup(
         log.error(f"Signup error {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Signup error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Signup error"},
         )

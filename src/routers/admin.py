@@ -42,5 +42,6 @@ async def get_users(request: Request) -> JSONResponse:
         log.error(f"get_users {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Cannot get users"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Cannot get users"},
         )

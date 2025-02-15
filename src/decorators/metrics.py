@@ -3,7 +3,6 @@ from functools import wraps
 
 from prometheus_client import Gauge, Counter, Histogram
 
-
 REQUEST_COUNT = Counter(
     "http_request_total", "Total HTTP Requests", ["method", "status", "path"]
 )

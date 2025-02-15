@@ -70,5 +70,6 @@ async def login(
         log.error(f"Login server error {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Login error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Login error"},
         )

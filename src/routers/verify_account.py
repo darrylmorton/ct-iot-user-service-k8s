@@ -38,7 +38,9 @@ async def verify_account(
 
             await UserCrud().update_confirmed(_username=username, _confirmed=True)
 
-            return JSONResponse(status_code=HTTPStatus.OK, content="Account confirmed")
+            return JSONResponse(
+                status_code=HTTPStatus.OK, content={"message": "Account confirmed"}
+            )
 
         return JSONResponse(status_code=HTTPStatus.OK, content="")
     except HTTPException as error:
@@ -49,5 +51,6 @@ async def verify_account(
         log.error(f"Verify Account error {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Verify Account error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Verify Account error"},
         )

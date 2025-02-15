@@ -31,5 +31,5 @@ async def get_user_details_by_user_id(
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            content="Cannot get user details by user id",
+            content={"message": "Cannot get user details by user id"},
         )

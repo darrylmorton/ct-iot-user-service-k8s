@@ -1,6 +1,5 @@
 import pytest
 
-from logger import log
 from tests.helper.user_helper import create_signup_payload
 from tests.helper.token_helper import create_token_expiry, create_token
 from tests.helper.routes_helper import RoutesHelper
@@ -30,7 +29,6 @@ class TestMiddlewareAuthorise:
         )
 
         actual_result = response.json()
-        log.debug(f"{actual_result=}")
 
         assert response.status_code == 403
         assert actual_result == "Forbidden error"
@@ -57,7 +55,7 @@ class TestMiddlewareAuthorise:
         actual_result = response.json()
 
         assert response.status_code == 401
-        assert actual_result == "Unauthorised error"
+        assert actual_result["message"] == "Unauthorised error"
 
     @pytest.mark.parametrize(
         "add_test_user",

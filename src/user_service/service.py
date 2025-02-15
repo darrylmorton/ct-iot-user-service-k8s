@@ -154,7 +154,8 @@ async def authenticate(request: Request, call_next):
         log.error(f"authenticate - missing token {err}")
 
         return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content={"message": "Unauthorised error"},
         )
     except HTTPException as error:
         log.error(f"authenticate - http error {error}")
@@ -164,7 +165,8 @@ async def authenticate(request: Request, call_next):
         log.error(f"authenticate - server error {err}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Server error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Server error"},
         )
     finally:
         CPU_USAGE.set(psutil.cpu_percent())

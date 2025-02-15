@@ -12,7 +12,6 @@ from database.user_crud import UserCrud
 from decorators.metrics import observability
 from logger import log
 
-
 router = APIRouter()
 
 ROUTE_PATH = "/users/{id}"
@@ -37,5 +36,5 @@ async def get_user_by_id(request: Request, id: uuid.UUID) -> JSONResponse:
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            content="Cannot get user by id",
+            content={"message": "Cannot get user by id"},
         )
