@@ -16,40 +16,23 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
   env:
-    - name: "SENTRY_TRACES_SAMPLE_RATE"
-      value: "1.0"
-    - name: "SENTRY_PROFILES_SAMPLE_RATE"
-      value: "0.5"
-    - name: "SENTRY_SAMPLE_RATE"
-      value: "50"
-    - name: "ENVIRONMENT"
-      value: "test"
-    - name: "LOG_LEVEL"
-      value: "INFO"
-    - name: "SERVICE_NAME"
-      value: "user-service"
-    - name: "UVICORN_PORT"
-      value: "8002"
-    - name: "QUEUE_PROTOCOL"
-      value: "PLAINTEXT"
-    - name: "QUEUE_HOST"
-      value: "localhost"
-    - name: "QUEUE_PORTS"
-      value: "9092,9093,9094"
-    - name: "QUEUE_ACKS"
-      value: "all"
-    - name: "QUEUE_POLL_WAIT_SECONDS"
-      value: "1"
-    - name: "QUEUE_TOPIC_NAME"
-      value: "email-topic"
-    - name: "QUEUE_GROUP_ID"
-      value: "email-topic-group"
-    - name: "EMAIL_ACCOUNT_VERIFICATION_TYPE"
-      value: "ACCOUNT_VERIFICATION"
-    - name: "ALB_URL"
-      value: "http://localhost"
-    - name: "AUTH_SERVICE_URL"
-      value: "http://authentication-service.local:8001"
+    sentryTracesSampleRate: 1.0
+    sentryProfilesSampleRate: 0.5
+    sentrySampleRate: 50
+    environment: test
+    logLevel: DEBUG
+    serviceName: user-service
+    uvicornPort: 8002
+    queueProtocol: PLAINTEXT
+    queueHost: user-service-kafka
+    queuePorts: 9092,9093,9094
+    queueAcks: all
+    queuePollWaitSeconds: 1
+    queueTopicName: email-topic
+    queueGroupId: email-topic-group
+    emailAccountVerificationType: ACCOUNT_VERIFICATION
+    albUrl: http://localhost
+    authServiceUrl: http://authentication-service.local:8001
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []

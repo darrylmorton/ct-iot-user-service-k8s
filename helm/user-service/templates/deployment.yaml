@@ -36,7 +36,126 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
-            {{- toYaml .Values.image.env | nindent 12 }}
+            - name: SENTRY_TRACES_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: sentryTracesSampleRate
+            - name: SENTRY_PROFILES_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: sentryProfilesSampleRate
+            - name: SENTRY_SAMPLE_RATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: sentrySampleRate
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: environment
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: logLevel
+            - name: SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: serviceName
+            - name: UVICORN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: uvicornPort
+            - name: QUEUE_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queueProtocol
+            - name: QUEUE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queueHost
+            - name: QUEUE_PORTS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queuePorts
+            - name: QUEUE_ACKS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queueAcks
+            - name: QUEUE_POLL_WAIT_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queuePollWaitSeconds
+            - name: QUEUE_TOPIC_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queueTopicName
+            - name: QUEUE_GROUP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: queueGroupId
+            - name: EMAIL_ACCOUNT_VERIFICATION_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: emailAccountVerificationType
+            - name: ALB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: albUrl
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "user-service.fullname" . }}-config
+                  key: authServiceUrl
+            - name: JWT_SECRET_VERIFY_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: jwtSecretVerifyAccount
+            - name: JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: jwtExpirySecondsVerifyAccount
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: dbHost
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: dbPort
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: dbName
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: dbUsername
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "user-service.fullname" . }}-secret
+                  key: dbPassword
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
