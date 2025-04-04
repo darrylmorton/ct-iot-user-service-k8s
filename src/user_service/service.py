@@ -1,6 +1,7 @@
 import contextlib
 from http import HTTPStatus
 
+import psutil
 import requests
 import sentry_sdk
 from alembic import command
@@ -13,20 +14,14 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from prometheus_client import make_asgi_app
 
 import config
 from database.user_crud import UserCrud
+from decorators.metrics import CPU_USAGE, MEMORY_USAGE
 
 from logger import log
-from routers import (
-    health,
-    users,
-    user_details,
-    signup,
-    login,
-    admin,
-    verify_account,
-)
+from routers import health, users, user_details, signup, login, admin, verify_account
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
@@ -91,6 +86,8 @@ http_bearer_security = HTTPBearer()
 
 @app.middleware("http")
 async def authenticate(request: Request, call_next):
+    log.debug("middleware - authentication")
+
     request_path = request["path"]
 
     try:
@@ -120,7 +117,7 @@ async def authenticate(request: Request, call_next):
             response_json = response.json()
 
             _id = response_json["id"]
-            _admin = response_json["admin"]
+            _admin = response_json["is_admin"]
 
             # token user id must be a valid uuid
             if not ValidatorUtil.validate_uuid4(_id):
@@ -152,11 +149,13 @@ async def authenticate(request: Request, call_next):
                 _admin=_admin,
                 _request_path=request_path,
             )
+
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
 
         return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED, content="Unauthorised error"
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content={"message": "Unauthorised error"},
         )
     except HTTPException as error:
         log.error(f"authenticate - http error {error}")
@@ -166,11 +165,19 @@ async def authenticate(request: Request, call_next):
         log.error(f"authenticate - server error {err}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Server error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Server error"},
         )
+    finally:
+        CPU_USAGE.set(psutil.cpu_percent())
+        MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
     return await call_next(request)
 
+
+# prometheus metrics
+metrics_app = make_asgi_app()
+app.mount("/metrics/", metrics_app)
 
 app.include_router(health.router, include_in_schema=False)
 

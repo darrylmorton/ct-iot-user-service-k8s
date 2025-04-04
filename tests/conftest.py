@@ -1,9 +1,6 @@
 import asyncio
-import os
 from uuid import UUID
-import boto3
 from dotenv import load_dotenv
-from moto import mock_aws
 
 import bcrypt
 import pytest
@@ -11,33 +8,15 @@ from sqlalchemy import delete
 
 from database.models import UserModel, UserDetailsModel
 
-from sqs.email_producer import EmailProducer
+from kafka.email_producer import EmailProducer
 from tests.database import async_session
-import tests.config as test_config
-
-load_dotenv(dotenv_path=".env.test")
 
 
-@pytest.fixture
-def aws_credentials():
-    # Mocked AWS Credentials for moto
-    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-    os.environ["AWS_SECURITY_TOKEN"] = "testing"
-    os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_REGION"] = test_config.AWS_REGION
+load_dotenv(dotenv_path=".test.env")
 
 
 @pytest.fixture
-def sqs_client(aws_credentials):
-    with mock_aws():
-        conn = boto3.client("sqs", region_name=test_config.AWS_REGION)
-
-        yield conn
-
-
-@pytest.fixture
-def email_producer(sqs_client):
+def email_producer():
     producer = EmailProducer()
 
     yield producer

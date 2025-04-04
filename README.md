@@ -1,4 +1,4 @@
-# ct-iot-user-service
+# ct-iot-user-service-k8s
 
 ## Description
 The `user-service` is responsible for managing users of the `ct-iot` platform.
@@ -44,10 +44,29 @@ Refer to the `authentication-service` [repository](https://github.com/darrylmort
 docker compose -f docker-compose-local.yml up
 make dev-server-start
 ```
-Swagger docs: http://localhost:8001/docs
+Swagger docs: http://localhost:8002/docs
 
 ### Test
 ```
 docker compose -f docker-compose-local.yml up
+make migrations
 make test
+```
+
+### Helm | K8s 
+```
+helm plugin install https://github.com/jkroepke/helm-secrets --version v4.6.2
+helm secrets encrypt helm/user-service/secrets-decrypted/credentials.yaml.dec > helm/user-service/secrets/credentials.yaml helm/user-service -n ct-iot
+
+# development
+helm secrets install user-service helm/user-service -f helm/user-service/local-values.yaml -f helm/user-service/secrets/credentials.yaml -n ct-iot
+helm upgrade user-service helm/user-service -f helm/user-service/local-values.yaml -n ct-iot
+
+k -n ct-iot port-forward svc/user-service 8002:9001 &
+
+# production
+helm secrets install user-service helm/user-service -f helm/user-service/values.yaml -f helm/user-service/secrets/credentials.yaml -n ct-iot
+helm upgrade user-service helm/user-service -f helm/user-service/values.yaml -n ct-iot
+
+helm uninstall user-service -n ct-iot
 ```

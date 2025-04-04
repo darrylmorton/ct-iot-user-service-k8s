@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Body
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
@@ -7,13 +8,19 @@ import schemas
 from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
-from sqs.email_producer import EmailProducer
+from kafka.email_producer import EmailProducer
+from decorators.metrics import observability
+
 
 router = APIRouter()
 
+ROUTE_PATH = "/signup"
 
-@router.post("/signup", status_code=HTTPStatus.CREATED)
+
+@router.post(ROUTE_PATH, status_code=HTTPStatus.CREATED)
+@observability(path=ROUTE_PATH, method="POST", status_code=HTTPStatus.CREATED)
 async def signup(
+    request: Request,
     payload: schemas.SignupRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
@@ -23,7 +30,7 @@ async def signup(
             log.debug("Signup - username exists")
 
             return JSONResponse(
-                status_code=HTTPStatus.CONFLICT, content="Username exists"
+                status_code=HTTPStatus.CONFLICT, content={"message": "Username exists"}
             )
 
         user = await UserCrud().add_user(
@@ -36,11 +43,12 @@ async def signup(
             _last_name=payload.last_name,
         )
 
-        await EmailProducer().produce(
-            email_type=config.SQS_EMAIL_ACCOUNT_VERIFICATION_TYPE,
+        EmailProducer().produce(
+            email_type=config.EMAIL_ACCOUNT_VERIFICATION_TYPE,
             username=user.username,
         )
 
+        # TODO query should return this via join and aliases
         return JSONResponse(
             status_code=HTTPStatus.CREATED,
             content={
@@ -53,5 +61,6 @@ async def signup(
         log.error(f"Signup error {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Signup error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Signup error"},
         )

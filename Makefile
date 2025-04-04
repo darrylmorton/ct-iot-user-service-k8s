@@ -15,24 +15,24 @@ build: lint
 .PHONY: build
 
 dev-server-start: fmt
-	poetry run uvicorn user_service.service:app --reload --port 8001
+	poetry run uvicorn user_service.service:app --reload --port 8002
 .PHONY: dev-server-start
 
 server-start: fmt
 	poetry run uvicorn user_service.service:app
 .PHONY: server-start
 
-run-migrations: fmt
+migrations: fmt
 	poetry run alembic upgrade head
-.PHONY: run-migrations
+.PHONY: migrations
 
-run-migrations-rollback: fmt
+migrations-rollback: fmt
 	poetry run alembic downgrade -1
-.PHONY: run-migrations-rollback
+.PHONY: migrations-rollback
 
-run-migrations-downgrade-base: fmt
+migrations-downgrade-base: fmt
 	poetry run alembic downgrade base
-.PHONY: run-migrations-downgrade-base
+.PHONY: migrations-downgrade-base
 
 test-unit: fmt
 	poetry run pytest tests/unit/

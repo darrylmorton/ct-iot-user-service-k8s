@@ -3,19 +3,26 @@ import requests
 from http import HTTPStatus
 from fastapi import APIRouter, Body
 from starlette.exceptions import HTTPException
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
 import schemas
 from database.user_crud import UserCrud
+from decorators.metrics import observability
 from logger import log
 from utils.auth_util import AuthUtil
 
+
 router = APIRouter()
 
+ROUTE_PATH = "/login"
 
-@router.post("/login", response_model=schemas.User, status_code=HTTPStatus.OK)
+
+@router.post(ROUTE_PATH, response_model=schemas.User, status_code=HTTPStatus.OK)
+@observability(path=ROUTE_PATH, method="POST")
 async def login(
+    request: Request,
     payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
@@ -40,7 +47,7 @@ async def login(
             f"{config.AUTH_SERVICE_URL}/jwt",
             json={
                 "id": str(_user.id),
-                "admin": _user.is_admin,
+                "is_admin": _user.is_admin,
             },
         )
 
@@ -63,5 +70,6 @@ async def login(
         log.error(f"Login server error {error}")
 
         return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content="Login error"
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Login error"},
         )

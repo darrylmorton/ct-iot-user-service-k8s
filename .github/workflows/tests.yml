@@ -6,32 +6,36 @@ on:
 
 env:
   AWS_REGION: eu-west-2
-  SES_SOURCE: noreply@example.com
-  USERNAME: foo@example.com
   SENTRY_TRACES_SAMPLE_RATE: 1.0
   SENTRY_PROFILES_SAMPLE_RATE: 0.5
   SENTRY_SAMPLE_RATE: 50
+  USERNAME: foo@example.com
   SERVICE_NAME: user-service
   LOG_LEVEL: DEBUG
   ENVIRONMENT: test
-  UVICORN_PORT: 8001
-  AUTH_SERVICE_URL: http://localhost:8000
+  APP_HOST: localhost
+  UVICORN_PORT: 8002
   JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
   JWT_EXPIRY_SECONDS: 3600
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
+  QUEUE_PROTOCOL: PLAINTEXT
+  QUEUE_HOST: localhost
+  QUEUE_PORTS: 9092,9093,9094
+  QUEUE_ACKS: all
+  QUEUE_POLL_WAIT_SECONDS: 1
+  QUEUE_TOPIC_NAME: email-topic
+  QUEUE_GROUP_ID: email-topic-group
+  EMAIL_ACCOUNT_VERIFICATION_TYPE: ACCOUNT_VERIFICATION
+  ALB_URL: http://localhost
+  AUTH_SERVICE_URL: http://localhost:8001
   DB_HOST: localhost
   DB_PORT: 5432
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
   DB_NAME: users
-  QUEUE_WAIT_SECONDS: 5
-  SQS_EMAIL_QUEUE_NAME: email-queue
-  SQS_EMAIL_DLQ_NAME: email-dlq
-  ALB_URL: http://localhost
   JWT_SECRET_VERIFY_ACCOUNT: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC
   JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
-
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -121,7 +125,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Setup dependencies
-        run: docker compose up -d
+        run: docker compose -f docker-compose.yml up -d
 
       - name: Sleep
         uses: kibertoad/wait-action@1.0.1
@@ -132,15 +136,7 @@ jobs:
         run: docker ps -a
 
       - name: Curl Authentication Service Health Check
-        run: curl http://localhost:8000/healthz
-
-      - name: Start User Service
-        run: |
-          make dev-server-start &
-          sleep 5
-
-      - name: Curl User Service Health Check
         run: curl http://localhost:8001/healthz
 
       - name: Run integration tests
-        run: make test-integration
+        run: make migrations && make test-integration
