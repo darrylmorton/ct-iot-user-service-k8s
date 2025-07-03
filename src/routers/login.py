@@ -1,15 +1,13 @@
 import requests
-
 from http import HTTPStatus
 from fastapi import APIRouter, Body
 from starlette.exceptions import HTTPException
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
 import schemas
 from database.user_crud import UserCrud
-from decorators.metrics import observability
+from decorators.metrics import observability, REQUEST_COUNT
 from logger import log
 from utils.auth_util import AuthUtil
 
@@ -17,12 +15,12 @@ from utils.auth_util import AuthUtil
 router = APIRouter()
 
 ROUTE_PATH = "/login"
+ROUTE_METHOD = "POST"
 
 
 @router.post(ROUTE_PATH, response_model=schemas.User, status_code=HTTPStatus.OK)
-@observability(path=ROUTE_PATH, method="POST")
+@observability(path=ROUTE_PATH, method=ROUTE_METHOD)
 async def login(
-    request: Request,
     payload: schemas.LoginRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
@@ -65,9 +63,19 @@ async def login(
     except HTTPException as error:
         log.error(f"Login http error {error}")
 
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD, status=error.status_code, path=ROUTE_PATH
+        ).inc()
+
         return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as error:
         log.error(f"Login server error {error}")
+
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            path=ROUTE_PATH,
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

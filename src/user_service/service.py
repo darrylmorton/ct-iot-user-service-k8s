@@ -13,12 +13,12 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import JSONResponse
 from prometheus_client import make_asgi_app
+from starlette.responses import JSONResponse
 
 import config
 from database.user_crud import UserCrud
-from decorators.metrics import CPU_USAGE, MEMORY_USAGE
+from decorators.metrics import REQUEST_COUNT, CPU_USAGE, MEMORY_USAGE
 
 from logger import log
 from routers import health, users, user_details, signup, login, admin, verify_account
@@ -89,6 +89,7 @@ async def authenticate(request: Request, call_next):
     log.debug("middleware - authentication")
 
     request_path = request["path"]
+    method = request.method
 
     try:
         if not AppUtil.is_excluded_endpoint(request_path):
@@ -136,33 +137,42 @@ async def authenticate(request: Request, call_next):
                     status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorised error"
                 )
 
-            # user must be valid:
             AuthUtil.is_user_valid(
                 _confirmed=user.confirmed,
                 _enabled=user.enabled,
             )
 
-            # admin status must be valid
             AuthUtil.is_admin_valid(
                 _id=str(user.id),
                 _is_admin=user.is_admin,
                 _admin=_admin,
                 _request_path=request_path,
             )
-
     except KeyError as err:
         log.error(f"authenticate - missing token {err}")
+
+        REQUEST_COUNT.labels(
+            method=method, status=HTTPStatus.BAD_REQUEST, path=request_path
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED,
             content={"message": "Unauthorised error"},
         )
     except HTTPException as error:
-        log.error(f"authenticate - http error {error}")
+        log.error(f"authenticate http error {error}")
+
+        REQUEST_COUNT.labels(
+            method=method, status=error.status_code, path=request_path
+        ).inc()
 
         return JSONResponse(status_code=error.status_code, content=error.detail)
-    except Exception as err:
-        log.error(f"authenticate - server error {err}")
+    except Exception as error:
+        log.error(f"authenticate - server error {error}")
+
+        REQUEST_COUNT.labels(
+            method=method, status=HTTPStatus.INTERNAL_SERVER_ERROR, path=request_path
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

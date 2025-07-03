@@ -20,7 +20,7 @@ class TestAppUtil:
     async def test_get_app_version(self):
         actual_result = AppUtil.get_app_version()
 
-        assert actual_result == "2.0.0"
+        assert actual_result == "2.0.1"
 
     @skip
     def test_create_db_url_suffix(self):

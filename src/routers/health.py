@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from decorators.metrics import observability
@@ -14,7 +13,7 @@ ROUTE_PATH = "/healthz"
 
 @router.get(ROUTE_PATH)
 @observability(path=ROUTE_PATH, method="GET")
-async def health(request: Request) -> JSONResponse:
+async def health() -> JSONResponse:
     return JSONResponse(
         status_code=HTTPStatus.OK,
         content={"message": "ok", "version": AppUtil.get_app_version()},

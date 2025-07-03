@@ -63,6 +63,7 @@ helm secrets install user-service helm/user-service -f helm/user-service/local-v
 helm upgrade user-service helm/user-service -f helm/user-service/local-values.yaml -n ct-iot
 
 k -n ct-iot port-forward svc/user-service 8002:9001 &
+k -n ct-iot port-forward svc/user-service-postgresql 5432:5432 &
 
 # production
 helm secrets install user-service helm/user-service -f helm/user-service/values.yaml -f helm/user-service/secrets/credentials.yaml -n ct-iot
