@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "user-service"
-version = "2.0.0"
+version = "2.0.1"
 description = "User Service"
 authors = ["Darryl Morton"]
 license = "GNU"
@@ -50,6 +50,10 @@ psycopg-binary = "^3.1.13"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[virtualenvs]
+create = true
+in-project = true
 
 [tool.ruff]
 preview = true
