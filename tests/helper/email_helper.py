@@ -1,14 +1,15 @@
 import json
 import time
-from typing import Any
-from confluent_kafka import KafkaException
+from confluent_kafka import KafkaException, Consumer
 
 from logger import log
 import tests.config as test_config
 
 
-def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
+def email_consumer(_consumer: Consumer, timeout_seconds=0) -> list[dict]:
     timeout = time.time() + timeout_seconds
+
+    # TODO do we use these messages? otherwise remove
     messages = []
 
     try:
@@ -42,6 +43,7 @@ def email_consumer(_consumer: Any, timeout_seconds=0) -> list[dict]:
 
     except KafkaException as e:
         log.error(f"email_consumer error: {e}")
+
     finally:
         _consumer.unsubscribe()
         _consumer.close()

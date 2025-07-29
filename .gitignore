@@ -9,4 +9,4 @@ venv/
 *.log
 htmlcov/
 .coverage
-helm/user-service/secrets-decrypted/credentials.yaml.dec
+helm/user-service/secrets-decrypted/

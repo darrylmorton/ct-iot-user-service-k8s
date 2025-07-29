@@ -9,17 +9,18 @@ from starlette.responses import JSONResponse
 
 import schemas
 from database.admin_crud import AdminCrud
-from decorators.metrics import observability
+from decorators.metrics import observability, REQUEST_COUNT
 from logger import log
 
 
 router = APIRouter()
 
 ROUTE_PATH = "/admin/users"
+ROUTE_METHOD = "GET"
 
 
 @router.get(ROUTE_PATH)
-@observability(path=ROUTE_PATH, method="GET")
+@observability(path=ROUTE_PATH, method=ROUTE_METHOD)
 async def get_users(request: Request) -> JSONResponse:
     offset = request.query_params.get("offset")
 
@@ -40,6 +41,12 @@ async def get_users(request: Request) -> JSONResponse:
         )
     except Exception as error:
         log.error(f"get_users {error}")
+
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            path=ROUTE_PATH,
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

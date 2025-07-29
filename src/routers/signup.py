@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Body
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 import config
@@ -9,18 +8,17 @@ from database.user_crud import UserCrud
 from database.user_details_crud import UserDetailsCrud
 from logger import log
 from kafka.email_producer import EmailProducer
-from decorators.metrics import observability
-
+from decorators.metrics import observability, REQUEST_COUNT
 
 router = APIRouter()
 
 ROUTE_PATH = "/signup"
+ROUTE_METHOD = "POST"
 
 
 @router.post(ROUTE_PATH, status_code=HTTPStatus.CREATED)
-@observability(path=ROUTE_PATH, method="POST", status_code=HTTPStatus.CREATED)
+@observability(path=ROUTE_PATH, method=ROUTE_METHOD, status_code=HTTPStatus.CREATED)
 async def signup(
-    request: Request,
     payload: schemas.SignupRequest = Body(embed=False),
 ) -> JSONResponse:
     try:
@@ -59,6 +57,12 @@ async def signup(
         )
     except Exception as error:
         log.error(f"Signup error {error}")
+
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            path=ROUTE_PATH,
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,

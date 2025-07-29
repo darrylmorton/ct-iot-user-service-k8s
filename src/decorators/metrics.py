@@ -25,10 +25,13 @@ def observability(method: str, path: str, status_code=200):
             start_time = time.time()
 
             REQUEST_IN_PROGRESS.labels(method=method, path=path).inc()
-            REQUEST_COUNT.labels(method=method, status=status_code, path=path).inc()
 
             # returns JSONResponse with status_code and content
             response = await func(*args, **kwargs)
+
+            REQUEST_COUNT.labels(
+                method=method, status=response.status_code, path=path
+            ).inc()
 
             REQUEST_LATENCY.labels(
                 method=method, status=response.status_code, path=path

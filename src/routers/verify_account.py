@@ -1,25 +1,22 @@
 from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Query
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from database.user_crud import UserCrud
-from decorators.metrics import observability
+from decorators.metrics import observability, REQUEST_COUNT
 from logger import log
 from utils.token_util import TokenUtil
-
 
 router = APIRouter()
 
 ROUTE_PATH = "/verify-account/"
+ROUTE_METHOD = "GET"
 
 
 @router.get(ROUTE_PATH, status_code=HTTPStatus.OK)
-@observability(path=ROUTE_PATH, method="GET")
-async def verify_account(
-    request: Request, token: str = Query(default=None)
-) -> JSONResponse:
+@observability(path=ROUTE_PATH, method=ROUTE_METHOD)
+async def verify_account(token: str = Query(default=None)) -> JSONResponse:
     try:
         if not token:
             log.debug("Token is missing")
@@ -46,9 +43,19 @@ async def verify_account(
     except HTTPException as error:
         log.error(f"Verify Account - http error {error}")
 
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD, status=error.status_code, path=ROUTE_PATH
+        ).inc()
+
         return JSONResponse(status_code=error.status_code, content=error.detail)
     except Exception as error:
         log.error(f"Verify Account error {error}")
+
+        REQUEST_COUNT.labels(
+            method=ROUTE_METHOD,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            path=ROUTE_PATH,
+        ).inc()
 
         return JSONResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
