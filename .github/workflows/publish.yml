@@ -3,7 +3,7 @@ name: Build and publish a Docker image
 # Configures this workflow to run every time a main branch pull request has been merged.
 on:
   push:
-    tags: [ '[0-9].[0-9].[0-9]']
+    tags: ['[0-9].[0-9].[0-9]']
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
@@ -13,6 +13,30 @@ env:
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
+  check-version-greater-than-release-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if version is greater than release version
+        run: |
+          echo "Version: ${{ github.ref_name }}"
+          if [[ ! "${{ github.ref_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version tag does not match the expected format [0-9].[0-9].[0-9]."
+            exit 1
+          fi
+          # You can add logic here to compare with a specific release version if needed.
+          # For example, you could fetch the latest release version from GitHub and compare it.
+
+#  check-version:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check version
+#        run: |
+#          echo "Version: ${{ github.ref_name }}"
+#          if [[ ! "${{ github.ref_name }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+#            echo "Error: Version tag does not match the expected format [0-9].[0-9].[0-9]."
+#            exit 1
+#          fi
+
   build-and-push-image:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.

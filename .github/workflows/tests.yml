@@ -214,3 +214,29 @@ jobs:
 
       - name: Run integration tests
         run: make migrations && make test-integration
+
+  # ${{ github.event.release.tag_name }}
+  check-version-greater-than-release-version:
+    runs-on: ubuntu-latest
+    needs: [ lint ]
+
+    steps:
+      - name: Compare with latest release version
+        env:
+          REPO: ${{ github.repository }}
+#          APP_VERSION: 2.0.1 # ${{ github.ref_name }}
+          APP_VERSION: 2.0.1 # ${{ github.ref_name }}
+
+        run: |
+          latest_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
+          echo "Latest release: $latest_version"
+          echo "App version: $APP_VERSION"
+          if [[ "$APP_VERSION" > "$latest_version" ]]; then
+            echo "App version $APP_VERSION is newer than latest release $latest_version"
+          else
+            echo "App version $APP_VERSION is not newer than latest release $latest_version"
+            exit 1
+          fi
+
+      - name: Run version check script
+        run: python check_version.py #--app-version ${{ github.ref_name }}

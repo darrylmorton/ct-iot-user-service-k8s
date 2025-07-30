@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import match
 from urllib.parse import quote
 
 import toml
@@ -20,13 +21,24 @@ class AppUtil:
         return app
 
     @staticmethod
+    def get_pyproject_toml_app_version():
+        file_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+
+        if file_path.exists() and file_path.is_file():
+            return toml.load(file_path)["tool"]["poetry"]["version"]
+
+        raise FileNotFoundError(
+            f"pyproject.toml file not found at {file_path}. Please ensure it exists in the project root directory."
+        )
+
+    @staticmethod
     def get_app_version():
-        app_version = None
+        app_version = AppUtil.get_pyproject_toml_app_version()
 
-        pyproject_toml_file = Path(__file__).parent.parent.parent / "pyproject.toml"
-
-        if pyproject_toml_file.exists() and pyproject_toml_file.is_file():
-            app_version = toml.load(pyproject_toml_file)["tool"]["poetry"]["version"]
+        if not match("^[0-9]+\.[0-9]+\.[0-9]+$", app_version):
+            raise ValueError(
+                f"Invalid Application version {app_version} in pyproject.toml file."
+            )
 
         return app_version
 
