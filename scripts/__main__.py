@@ -24,8 +24,11 @@ def main(arg_list: list[str] | None = None):
 
     try:
         release_version = Version(args.release_version)
-    except InvalidVersion as e:
-        error_message = f"Invalid Release version {args.release_version} does not match semver format: {e}"
+    except InvalidVersion as error:
+        error_message = (
+            f"Invalid Release version {args.release_version} does not match "
+            f"semver format: {error}"
+        )
         log.error(error_message)
 
         raise InvalidVersion(error_message)
@@ -43,13 +46,17 @@ def main(arg_list: list[str] | None = None):
 
         raise ValueError(error_message)
     if Version(app_version) <= Version(args.release_version):
-        error_message = f"Invalid App version {app_version} is less than or equal to the Release version {release_version}"
+        error_message = (
+            f"Invalid App version {app_version} is less than or equal "
+            f"to the Release version {release_version}"
+        )
         log.error(error_message)
 
         raise ValueError(error_message)
 
     log.info(
-        f"Application version {app_version} is greater than the Release version {args.release_version}."
+        f"Application version {app_version} is greater than the Release version "
+        f"{args.release_version}."
     )
 
 

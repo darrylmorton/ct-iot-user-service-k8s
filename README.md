@@ -53,6 +53,10 @@ make migrations
 make test
 ```
 
+workflows:  
+install act
+
+
 ### Helm | K8s 
 ```
 helm plugin install https://github.com/jkroepke/helm-secrets --version v4.6.2

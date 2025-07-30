@@ -27,9 +27,8 @@ class AppUtil:
         if file_path.exists() and file_path.is_file():
             return toml.load(file_path)["tool"]["poetry"]["version"]
 
-        raise FileNotFoundError(
-            f"pyproject.toml file not found at {file_path}. Please ensure it exists in the project root directory."
-        )
+        raise FileNotFoundError(f"""pyproject.toml file not found at {file_path}.
+            Please ensure it exists in the project root directory.""")
 
     @staticmethod
     def get_app_version():

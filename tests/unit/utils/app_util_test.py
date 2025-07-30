@@ -33,30 +33,6 @@ class TestAppUtil:
             == "Invalid Application version 100 in pyproject.toml file."
         )
 
-    @skip(
-        reason="This test needs to be moved to the check_version.py script tests <= asserts"
-    )
-    @patch("utils.app_util.AppUtil.get_pyproject_toml_app_version")
-    def test_get_app_version_matches_release(self, mock_get_pyproject_toml_app_version):
-        mock_get_pyproject_toml_app_version.return_value = self._app_version
-
-        with pytest.raises(ValueError) as exc_info:
-            AppUtil.get_app_version()
-
-        assert (
-            exc_info.value.args[0]
-            == "Invalid Application version 100 in pyproject.toml file."
-        )
-
-    # @patch("utils.app_util.toml.load")
-    # def test_get_app_version_less_than_release(self, mocked_toml_load):
-    #     mocked_toml_load.return_value = "1.9.9"
-    #     # mock toml file import to return an invalid version format
-    #     # actual_result = AppUtil.get_app_version()
-    #
-    #     with pytest.raises(ValueError):
-    #         AppUtil.get_app_version()
-
     def test_get_app_version(self):
         actual_result = AppUtil.get_app_version()
 
