@@ -8,6 +8,8 @@ The `user-service` is responsible for managing users of the `ct-iot` platform.
 ## Requirements
 Python 3.11.9  
 Poetry 1.7.1
+Act 0.2.79+ (optional: for testing GitHub workflows locally)
+GitHub CLI 2.62.0+ (optional: for manually managing GitHub releases)
 
 ## Install
 ```
@@ -53,6 +55,12 @@ make migrations
 make test
 ```
 
+#### GitHub Workflows
+```
+act --container-architecture linux/amd64 -W ./.github/workflows/tests.yml
+```
+
+
 ### Helm | K8s 
 ```
 helm plugin install https://github.com/jkroepke/helm-secrets --version v4.6.2
@@ -69,4 +77,12 @@ helm secrets install user-service helm/user-service -f helm/user-service/values.
 helm upgrade user-service helm/user-service -f helm/user-service/values.yaml -n ct-iot
 
 helm uninstall user-service -n ct-iot
+```
+
+### Release
+Automated via GitHub Actions. 
+
+There's also a `GitHub Publish` workflow for performing a manual release which can be run with the following command:
+```
+gh release create {RELEASE_VERSION} --generate-notes
 ```

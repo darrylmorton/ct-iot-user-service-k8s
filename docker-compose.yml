@@ -1,6 +1,7 @@
 services:
   users-db:
     container_name: users-db
+    platform: linux/amd64
     image: postgres:16.0-alpine
     ports:
       - "5432:5432"
@@ -15,9 +16,10 @@ services:
       retries : 5
 
   kafka-kraft:
+    container_name: kafka-kraft
+    platform: linux/amd64
     image: confluentinc/cp-kafka:7.8.0.amd64
     hostname: kafka-kraft
-    container_name: kafka-kraft
     ports:
       - "9092:9092"
       - "9101:9101"
@@ -36,25 +38,28 @@ services:
       CLUSTER_ID: 'mrhrCnrlRAaSqOVYNjq__g' # bin/kafka-storage random-uuid
     healthcheck:
       test: nc -z localhost 9092 || exit -1
+      start_period: 15s
       start_interval: 15s
       interval: 5s
       timeout: 10s
       retries: 10
 
   rest-proxy:
+    container_name: rest-proxy
+    platform: linux/amd64
     image: confluentinc/cp-kafka-rest:7.8.0.amd64
     ports:
       - "8082:8082"
     depends_on:
       - kafka-kraft
     hostname: rest-proxy
-    container_name: rest-proxy
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: "kafka-kraft:29092"
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
 
   kafka-init:
+    platform: linux/amd64
     image: confluentinc/cp-kafka:7.8.0.amd64
     depends_on:
       kafka-kraft:
@@ -73,6 +78,7 @@ services:
 
   authentication-service:
     container_name: authentication-service
+    platform: linux/amd64
     image: ghcr.io/darrylmorton/ct-iot-authentication-service:latest
     ports:
       - "8001:8001"
