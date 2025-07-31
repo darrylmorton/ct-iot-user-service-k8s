@@ -47,7 +47,8 @@ env:
   JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 permissions:
-  contents: write
+  contents: read
+  packages: write
 
 jobs:
   if_merged:
