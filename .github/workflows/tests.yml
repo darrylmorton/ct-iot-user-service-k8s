@@ -1,4 +1,4 @@
-name: Lint, Tests
+name: Lint, Tests, Tag
 
 on:
   push:
