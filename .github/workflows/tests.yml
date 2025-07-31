@@ -40,9 +40,17 @@ env:
   JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
+  if_not_merged:
+    if: github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo The PR has not been merged yet!
+
   check-version:
     runs-on: ubuntu-latest
-
+    needs: [ if_not_merged ]
+    
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
