@@ -3,6 +3,8 @@ name: Lint, Tests, Tag
 on:
   push:
     branches-ignore: ["main"]
+  pull_request:
+    types: ["closed"]
 
 env:
   PYTHON_VERSION: '3.11.9'
