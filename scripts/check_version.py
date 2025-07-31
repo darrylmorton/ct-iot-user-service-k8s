@@ -18,45 +18,48 @@ def main(arg_list: list[str] | None = None):
         description="Check Application version is greater than the Release version."
     )
     parser.add_argument(
-        "--release-version", required=True, help="Release version to check"
+        "--latest-release-version",
+        required=True,
+        help="Latest Release version to check",
     )
     args = parser.parse_args(arg_list)
 
     try:
-        release_version = Version(args.release_version)
+        latest_release_version = Version(args.latest_release_version)
     except InvalidVersion as error:
         error_message = (
-            f"Invalid Release version {args.release_version} does not match "
+            f"Invalid Release version {args.latest_release_version} does not match "
             f"semver format: {error}"
         )
         log.error(error_message)
 
         raise InvalidVersion(error_message)
 
-    if not release_version:
-        error_message = f"Invalid Release version {release_version}"
+    if not latest_release_version:
+        error_message = f"Invalid Release version {latest_release_version}"
         log.error(error_message)
 
         raise ValueError(error_message)
-    if not match(r"^[0-9]+\.[0-9]+\.[0-9]+$", f"{release_version}"):
+    if not match(r"^[0-9]+\.[0-9]+\.[0-9]+$", f"{latest_release_version}"):
         error_message = (
-            f"Invalid Release version {release_version} does not match semver format"
+            f"Invalid Release version {latest_release_version} does not match "
+            f"semver format"
         )
         log.error(error_message)
 
         raise ValueError(error_message)
-    if Version(app_version) <= Version(args.release_version):
+    if Version(app_version) <= Version(args.latest_release_version):
         error_message = (
             f"Invalid App version {app_version} is less than or equal "
-            f"to the Release version {release_version}"
+            f"to the Release version {latest_release_version}"
         )
         log.error(error_message)
 
         raise ValueError(error_message)
 
     log.info(
-        f"Application version {app_version} is greater than the Release version "
-        f"{args.release_version}."
+        f"Valid Application version bump to {app_version} (greater than the "
+        f"latest Release version {args.latest_release_version})."
     )
 
 

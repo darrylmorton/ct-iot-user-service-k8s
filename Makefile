@@ -6,6 +6,10 @@ lint: fmt
 	poetry run ruff check . --fix
 .PHONY: lint
 
+check-version: lint
+	poetry run python scripts/check_version.py --latest-release-version $(RELEASE_VERSION)
+.PHONY: check-version
+
 local-build: lint
 	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service:dev --target=runtime --progress=plain .
 .PHONY: local-build
