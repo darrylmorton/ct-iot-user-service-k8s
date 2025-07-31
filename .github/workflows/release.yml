@@ -167,7 +167,7 @@ jobs:
       - name: Create and push tag
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: $(poetry run python scripts/app_version.py)
+          tag_name: poetry run python scripts/app_version.py
           generate_release_notes: true
 
   build-and-push-image:
