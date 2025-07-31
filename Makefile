@@ -10,6 +10,10 @@ check-version: lint
 	poetry run python scripts/check_version.py --latest-release-version $(RELEASE_VERSION)
 .PHONY: check-version
 
+app-version: lint
+	poetry run python scripts/app_version.py
+.PHONY: app-version
+
 local-build: lint
 	DOCKER_BUILDKIT=1 docker build -t ct-iot-user-service:dev --target=runtime --progress=plain .
 .PHONY: local-build

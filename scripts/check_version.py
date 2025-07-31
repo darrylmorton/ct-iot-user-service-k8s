@@ -1,9 +1,6 @@
 import argparse
-import sys
 from re import match
 from packaging.version import Version, InvalidVersion
-
-sys.path.append("src/")
 
 from logger import log
 from utils.app_util import AppUtil
