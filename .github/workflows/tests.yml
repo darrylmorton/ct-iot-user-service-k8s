@@ -284,5 +284,5 @@ jobs:
         make check-version RELEASE_VERSION=$latest_release_version
         app_version=$(make app-version)
         echo "App version: $app_version"
-        git tag $app_version
-        git push origin $app_version
+        git tag ${{ app_version }}
+        git push origin ${{ app_version }}
