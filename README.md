@@ -8,7 +8,7 @@ The `user-service` is responsible for managing users of the `ct-iot` platform.
 ## Requirements
 Python 3.11.9  
 Poetry 1.7.1
-Act 0.2.79+ (optional: for testing github workflows locally)
+Act 0.2.79+ (optional: for testing GitHub workflows locally)
 GitHub CLI 2.62.0+ (optional: for manually managing GitHub releases)
 
 ## Install
