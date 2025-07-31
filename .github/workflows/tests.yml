@@ -1,10 +1,8 @@
-name: Lint, Tests, Tag
+name: Lint, Tests
 
 on:
   push:
     branches-ignore: ["main"]
-  pull_request:
-    types: ["closed"]
 
 env:
   PYTHON_VERSION: '3.11.9'
@@ -40,16 +38,8 @@ env:
   JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
-  if_not_merged:
-    if: github.event.pull_request.merged == false
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo The PR has not been merged yet!
-
   check-version:
     runs-on: ubuntu-latest
-#    needs: [ if_not_merged ]
 
     steps:
       #----------------------------------------------
@@ -273,24 +263,3 @@ jobs:
 
       - name: Run integration tests
         run: make migrations && make test-integration
-
-  if_merged:
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        echo The PR was merged!
-
-  create-tag:
-    runs-on: ubuntu-latest
-    needs: [ if_merged ]
-    steps:
-    - name: Create and push tag
-      run: |
-        latest_release_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
-        echo "Latest release: $latest_release_version"
-        make check-version RELEASE_VERSION=$latest_release_version
-        app_version=$(make app-version)
-        echo "App version: $app_version"
-        git tag ${{ app_version }}
-        git push origin ${{ app_version }}
