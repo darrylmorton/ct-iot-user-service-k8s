@@ -49,8 +49,8 @@ jobs:
 
   check-version:
     runs-on: ubuntu-latest
-    needs: [ if_not_merged ]
-    
+#    needs: [ if_not_merged ]
+
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -275,7 +275,7 @@ jobs:
         run: make migrations && make test-integration
 
   if_merged:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - run: |
