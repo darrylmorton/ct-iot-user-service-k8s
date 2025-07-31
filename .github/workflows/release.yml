@@ -126,6 +126,8 @@ jobs:
     needs: [ app-version ]
     permissions:
       contents: write
+    env:
+      BRANCH_NAME: ${{ app-version.outputs.app_version }}
 
     steps:
       #----------------------------------------------
