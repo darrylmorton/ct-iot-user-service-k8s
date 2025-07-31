@@ -92,7 +92,7 @@ jobs:
           latest_release_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
           echo "Latest release: $latest_release_version"
           make check-version RELEASE_VERSION=$latest_release_version
-          app_version=$(make app-version)
+          app_version=$(poetry run python scripts/app_version.py)
           echo "App version: $app_version"
 
   lint:
