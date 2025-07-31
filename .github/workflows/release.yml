@@ -110,12 +110,21 @@ jobs:
           latest_release_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
           echo "Latest release: $latest_release_version"
           make check-version RELEASE_VERSION=$latest_release_version
-          app_version=$(poetry run python scripts/app_version.py)
-          echo "App version: $app_version"
+
+  app-version:
+    runs-on: ubuntu-latest
+    needs: [ check-version ]
+    outputs:
+      app_version: ${{ steps.app_version.outputs.app_version }}
+    steps:
+      - name: Set App version
+        id: app_version
+        run: |
+          echo "app_version=$(poetry run python scripts/app_version.py)" >> $GITHUB_OUTPUT
 
   create-tag:
     runs-on: ubuntu-latest
-    needs: [ check-version ]
+    needs: [ app-version ]
     permissions:
       contents: write
 
@@ -163,19 +172,15 @@ jobs:
       - name: Install project
         run: poetry install --no-interaction
 
-      - name: Set App version
-        run: |
-          echo "APP_VERSION=$(poetry run python scripts/app_version.py)" >> $GITHUB_ENV
-
       - name: Create and push tag
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.APP_VERSION }}
+          tag_name: ${{ needs.app-version.outputs.app_version }}
           generate_release_notes: true
 
   build-and-push-image:
     runs-on: ubuntu-latest
-    needs: [ create-tag ]
+    needs: [ app-version, create-tag ]
     permissions:
       contents: read
       packages: write
@@ -193,6 +198,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -203,7 +209,7 @@ jobs:
             prefix=
             suffix=
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: ${{ env.APP_VERSION }}
+          tags: ${{ needs.app-version.outputs.app_version }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see "[Usage](https://github.com/docker/build-push-action#usage)" in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
