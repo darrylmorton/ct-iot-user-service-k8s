@@ -1,90 +1,55 @@
-name: Lint, Tests
+name: Build, Lint, Tests
 
 on:
   push:
     branches-ignore: ["main"]
 
-env:
-  PYTHON_VERSION: '3.11.9'
-  POETRY_VERSION: '1.7.1'
-  AWS_REGION: eu-west-2
-  SENTRY_TRACES_SAMPLE_RATE: 1.0
-  SENTRY_PROFILES_SAMPLE_RATE: 0.5
-  SENTRY_SAMPLE_RATE: 50
-  USERNAME: foo@example.com
-  SERVICE_NAME: user-service
-  LOG_LEVEL: DEBUG
-  ENVIRONMENT: test
-  APP_HOST: localhost
-  UVICORN_PORT: 8002
-  JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-  JWT_EXPIRY_SECONDS: 3600
-  QUEUE_PROTOCOL: PLAINTEXT
-  QUEUE_HOST: localhost
-  QUEUE_PORTS: 9092,9093,9094
-  QUEUE_ACKS: all
-  QUEUE_POLL_WAIT_SECONDS: 1
-  QUEUE_TOPIC_NAME: email-topic
-  QUEUE_GROUP_ID: email-topic-group
-  EMAIL_ACCOUNT_VERIFICATION_TYPE: ACCOUNT_VERIFICATION
-  ALB_URL: http://localhost
-  AUTH_SERVICE_URL: http://localhost:8001
-  DB_HOST: localhost
-  DB_PORT: 5432
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
-  DB_NAME: users
-  JWT_SECRET_VERIFY_ACCOUNT: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC
-  JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
+#env:
+#  PYTHON_VERSION: '3.11.9'
+#  POETRY_VERSION: '1.7.1'
+#  AWS_REGION: eu-west-2
+#  SENTRY_TRACES_SAMPLE_RATE: 1.0
+#  SENTRY_PROFILES_SAMPLE_RATE: 0.5
+#  SENTRY_SAMPLE_RATE: 50
+#  USERNAME: foo@example.com
+#  SERVICE_NAME: user-service
+#  LOG_LEVEL: DEBUG
+#  ENVIRONMENT: test
+#  APP_HOST: localhost
+#  UVICORN_PORT: 8002
+#  JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+#  JWT_EXPIRY_SECONDS: 3600
+#  QUEUE_PROTOCOL: PLAINTEXT
+#  QUEUE_HOST: localhost
+#  QUEUE_PORTS: 9092,9093,9094
+#  QUEUE_ACKS: all
+#  QUEUE_POLL_WAIT_SECONDS: 1
+#  QUEUE_TOPIC_NAME: email-topic
+#  QUEUE_GROUP_ID: email-topic-group
+#  EMAIL_ACCOUNT_VERIFICATION_TYPE: ACCOUNT_VERIFICATION
+#  ALB_URL: http://localhost
+#  AUTH_SERVICE_URL: http://localhost:8001
+#  DB_HOST: localhost
+#  DB_PORT: 5432
+#  DB_USERNAME: postgres
+#  DB_PASSWORD: postgres
+#  DB_NAME: users
+#  JWT_SECRET_VERIFY_ACCOUNT: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC
+#  JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
-  check-version:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          virtualenvs-path: .venv
-          installer-parallel: true
+      - name: build
+        uses: ./.github/workflows/steps.yml
 
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install project
-        run: poetry install --no-interaction
+  check-version:
+    runs-on: ubuntu-latest
+    needs: [ build ]
 
+    steps:
       - name: Run version check script
         env:
           REPO: ${{ github.repository }}
@@ -97,153 +62,24 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    needs: [ check-version ]
+    needs: [ build, check-version ]
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          virtualenvs-path: .venv
-          installer-parallel: true
-
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install project
-        run: poetry install --no-interaction
-
       - name: Run lint
         run: make lint
 
   unit-tests:
     runs-on: ubuntu-latest
-    needs: [ lint ]
+    needs: [ build, lint ]
 
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          virtualenvs-path: .venv
-          installer-parallel: true
-
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install project
-        run: poetry install --no-interaction
-
       - name: Run unit tests
         run: make test-unit
 
   integration-tests:
     runs-on: ubuntu-latest
-    needs: [ lint ]
+    needs: [ build, lint ]
 
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          virtualenvs-path: .venv
-          installer-parallel: true
-
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install project
-        run: poetry install --no-interaction
-
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
