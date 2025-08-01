@@ -9,7 +9,7 @@ from utils.validator_util import ValidatorUtil
 
 class TestAppUtil:
     _id = "848a3cdd-cafd-4ec6-a921-afb0bcc841dd"
-    _app_version = "2.0.1"
+    _app_version = "2.0.2"
 
     def test_validate_uuid4(self):
         actual_result = ValidatorUtil.validate_uuid4(self._id)
