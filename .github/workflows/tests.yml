@@ -39,11 +39,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: build
-        uses: ./.github/workflows/action.yml
+    uses: ./.github/workflows/action.yml
 
   check-version:
     runs-on: ubuntu-latest
