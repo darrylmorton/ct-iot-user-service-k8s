@@ -2,10 +2,10 @@ name: Build, Lint, Tests
 
 on:
   workflow_call:
-#    inputs:
-#      config-path:
-#        required: true
-#        type: string
+    outputs:
+      cache-key:
+        description: "Cache key for Poetry dependencies"
+        value: ${{ jobs.build.outputs.output1 }}
 
 env:
   PYTHON_VERSION: '3.11.9'
@@ -41,23 +41,24 @@ env:
   JWT_EXPIRY_SECONDS_VERIFY_ACCOUNT: 3600
 
 jobs:
+
+
   build:
+    name: Generate output
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.cached_poetry_dependencies_step.outputs.poetry_cache_key }}
 
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
+
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -67,79 +68,64 @@ jobs:
           virtualenvs-path: .venv
           installer-parallel: true
 
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
+      - name: Generate Cache Key
+        id: cached_poetry_dependencies_step
+
+        run: |
+          poetry_cache_key="venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}"
+          echo "poetry_cache_key=$poetry_cache_key" >> "$GITHUB_OUTPUT"
+
       - name: Load cached venv
-        id: cached-poetry-dependencies
+        id: cached_poetry_dependencies
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
+          key: ${{ steps.cached_poetry_dependencies_step.outputs.poetry_cache_key }}
+
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        if: steps.cached_poetry_dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
+
       - name: Install project
         run: poetry install --no-interaction
 
-#  check-version:
+#  lint:
 #    runs-on: ubuntu-latest
 #    needs: [ build ]
 #
 #    steps:
-#      - name: Run version check script
-#        env:
-#          REPO: ${{ github.repository }}
-#        run: |
-#          latest_release_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
-#          echo "Latest release: $latest_release_version"
-#          make check-version RELEASE_VERSION=$latest_release_version
-#          app_version=$(poetry run python scripts/app_version.py)
-#          echo "App version: $app_version"
-#
-#  lint:
-#    runs-on: ubuntu-latest
-#    needs: [ build, check-version ]
-#
-#    steps:
-#      - name: Run lint
-#        run: make lint
-#
+      - name: Run lint
+        run: make lint
+
 #  unit-tests:
 #    runs-on: ubuntu-latest
 #    needs: [ build, lint ]
 #
 #    steps:
-#      - name: Run unit tests
-#        run: make test-unit
+      - name: Run unit tests
+        run: make test-unit
 #
 #  integration-tests:
 #    runs-on: ubuntu-latest
 #    needs: [ build, lint ]
 #
 #    steps:
-#      - name: Log in to registry
-#        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-#
-#      - name: Setup dependencies
-#        run: docker compose -f docker-compose.yml up -d
-#
-#      - name: Sleep for 10s
-#        uses: juliangruber/sleep-action@v2.0.0
-#        with:
-#          time: 5s
-#
-#      - name: Docker running containers
-#        run: docker ps -a
-#
-#      - name: Curl Authentication Service Health Check
-#        run: curl http://localhost:8001/healthz
-#
-#      - name: Run integration tests
-#        run: make migrations && make test-integration
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Setup dependencies
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Sleep for 10s
+        uses: juliangruber/sleep-action@v2.0.0
+        with:
+          time: 5s
+
+      - name: Docker running containers
+        run: docker ps -a
+
+      - name: Curl Authentication Service Health Check
+        run: curl http://localhost:8001/healthz
+
+      - name: Run integration tests
+        run: make migrations && make test-integration

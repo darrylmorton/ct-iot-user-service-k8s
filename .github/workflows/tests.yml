@@ -1,11 +1,12 @@
 name: Build, Lint, Tests
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore: ["main"]
 
-#env:
-#  PYTHON_VERSION: '3.11.9'
+env:
+  PYTHON_VERSION: '3.11.9'
 #  POETRY_VERSION: '1.7.1'
 #  AWS_REGION: eu-west-2
 #  SENTRY_TRACES_SAMPLE_RATE: 1.0
@@ -46,26 +47,34 @@ jobs:
     needs: [ build ]
 
     steps:
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ needs.build.outputs.cache-key }}
+
       - name: Run version check script
         env:
           REPO: ${{ github.repository }}
         run: |
           latest_release_version=$(curl -s https://api.github.com/repos/$REPO/releases/latest | jq -r .tag_name)
           echo "Latest release: $latest_release_version"
-          make check-version RELEASE_VERSION=$latest_release_version
+          poetry run python scripts/check_version.py --latest-release-version $latest_release_version
           app_version=$(poetry run python scripts/app_version.py)
           echo "App version: $app_version"
 
   lint:
     runs-on: ubuntu-latest
-    needs: [ build, check-version ]
+    needs: [ check-version ]
+
     steps:
       - name: Run lint
         run: make lint
 
   unit-tests:
     runs-on: ubuntu-latest
-    needs: [ build, lint ]
+    needs: [ lint ]
 
     steps:
       - name: Run unit tests
@@ -73,7 +82,7 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
-    needs: [ build, lint ]
+    needs: [ lint ]
 
     steps:
       - name: Log in to registry
