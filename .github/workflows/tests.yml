@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: build
-        uses: ./.github/workflows/steps.yml
+        uses: ./.github/workflows/actions.yml
 
   check-version:
     runs-on: ubuntu-latest
