@@ -1,0 +1,35 @@
+@startuml
+
+title GitHub Release Workflow Activity Diagram
+
+:ReleaseYml;
+note
+    needs: [ if_merged ]
+    uses: ./.github/workflows/action.yml
+    secrets:
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+end note
+
+skinparam ActivityDiamondBackgroundColor orchid
+if (github.event.pull_request.merged == true) then (true)
+    partition "ActionYml" {
+        #limegreen:Build;
+        #limegreen:Lint;
+    }
+
+    #limegreen:CreateTag;
+    note
+        :2.0.3
+    end note
+
+    #limegreen:BuildAndPushImage;
+    note
+        :latest
+        :2.0.3
+    end note
+    kill;
+else (false)
+    #tomato:SkipRelease;
+    kill;
+
+@enduml

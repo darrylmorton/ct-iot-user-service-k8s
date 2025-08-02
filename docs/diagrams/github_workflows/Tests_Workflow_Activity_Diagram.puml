@@ -1,0 +1,41 @@
+@startuml
+
+title GitHub Tests Workflow Activity Diagram
+
+:TestsYml;
+note
+jobs:
+  call-workflow:
+    uses: ./.github/workflows/action.yml
+    with:
+      test-unit: true
+      test-integration: true
+    secrets:
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+end note
+
+partition "ActionYml" {
+    :Build;
+
+    :Lint;
+    skinparam ActivityDiamondBackgroundColor orchid
+    split
+        if (inputs.test_unit == true) then (yes)
+            #limegreen:TestUnit;
+        else (no)
+            #tomato:SkipUnitTests;
+        endif
+
+        kill;
+    split again
+        if (inputs.test_integration == true) then (yes)
+            #limegreen:TestIntegration;
+        else (no)
+            #tomato:SkipIntegrationTests;
+        endif
+
+        kill;
+    end split
+}
+
+@enduml
