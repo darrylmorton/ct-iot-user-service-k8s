@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title Signup Activity Diagram
+
+:Request;
+note
+URI=/api/signup
+Method=POST
+Request={
+    "username": "foo",
+    "password": "bar",
+    "first_name": "Foo",
+    "last_name": "Bar",
+}
+end note
+
+:User Service;
+
+:Request;
+note
+URI=/api/jwt
+Method=GET
+Header={
+    "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG
+    9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0
+    .KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+end note
+
+:Authentication Service;
+
+skinparam ActivityDiamondBackgroundColor orchid
+if (JWT Errors?) then (true)
+    split
+        #tomato:401 - Expired JWT;
+        kill;
+    split again
+        #tomato:401 - Invalid JWT;
+        kill;
+    end split
+    kill;
+else (false)
+    #limegreen:200 - Success;
+    kill;
+endif
+
+@enduml

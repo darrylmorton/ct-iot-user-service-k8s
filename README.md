@@ -3,7 +3,7 @@
 ## Description
 The `user-service` is responsible for managing users of the `ct-iot` platform.
 
-[Diagrams](./docs/DIAGRAMS.md)
+[Diagrams](./docs/diagrams)
 
 ## Requirements
 Python 3.11.9  
