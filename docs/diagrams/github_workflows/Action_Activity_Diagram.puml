@@ -1,0 +1,53 @@
+@startuml
+
+title GitHub Action Workflow Activity Diagram
+
+partition "ActionYml" {
+    note
+    on:
+      workflow_call:
+        inputs:
+          test_unit:
+            description: "Unit test command to run"
+            required: false
+            type: boolean
+          test_integration:
+            description: "Integration test command to run"
+            required: false
+            type: boolean
+        outputs:
+          poetry_cache_key:
+            description: "Cache key for Poetry dependencies"
+            value: ${{ jobs.build.outputs.poetry_cache_key }}
+          app_version:
+              description: "Application version"
+              value: ${{ jobs.build.outputs.app_version }}
+        secrets:
+          repo_token:
+            required: true
+    end note
+
+    :Build;
+
+    :Lint;
+    skinparam ActivityDiamondBackgroundColor orchid
+    split
+        if (inputs.test_unit == true) then (yes)
+            #limegreen:TestUnit;
+        else (no)
+            #tomato:SkipUnitTests;
+        endif
+
+        kill;
+    split again
+        if (inputs.test_integration == true) then (yes)
+            #limegreen:TestIntegration;
+        else (no)
+            #tomato:SkipIntegrationTests;
+        endif
+
+        kill;
+    end split
+}
+
+@enduml
