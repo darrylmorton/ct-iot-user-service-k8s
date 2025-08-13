@@ -1,8 +1,11 @@
 from http import HTTPStatus
 
+from email_validator import EmailSyntaxError, validate_email
+from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator, ConfigDict, UUID4
 from pydantic_core.core_schema import ValidationInfo
 
+from decorators.metrics import REQUEST_COUNT
 from utils.validator_util import ValidatorUtil
 
 
@@ -79,12 +82,25 @@ class SignupRequest(SignupBase):
     first_name: str
     last_name: str
 
-    @field_validator("username")
+    @field_validator("username", mode="before")
     @classmethod
     def validate_username(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_username(
-            v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
-        )
+        try:
+            validate_email(v, check_deliverability=False)
+
+        except EmailSyntaxError:
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.BAD_REQUEST,
+                path="/signup",
+            ).inc()
+
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Invalid username {info.field_name} is not an email",
+            )
+
+        return v
 
     @field_validator("password")
     @classmethod
@@ -136,12 +152,25 @@ class LoginRequest(LoginBase):
     username: str
     password: str
 
-    @field_validator("username")
+    @field_validator("username", mode="before")
     @classmethod
     def validate_username(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_username(
-            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
-        )
+        try:
+            validate_email(v, check_deliverability=False)
+
+        except EmailSyntaxError:
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.UNAUTHORIZED,
+                path="/login",
+            ).inc()
+
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                detail=f"Invalid username {info.field_name} is not an email",
+            )
+
+        return v
 
     @field_validator("password")
     @classmethod

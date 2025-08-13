@@ -68,18 +68,6 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def validate_username(v: str, info: ValidationInfo, status_code, message: str):
-        if info.field_name == "username" and not ValidatorUtil.validate_email(v):
-            log.debug(f"Invalid username: {v}")
-
-            raise HTTPException(
-                status_code=status_code,
-                detail=message,
-            )
-
-        return v
-
-    @staticmethod
     def validate_password(v: str, info: ValidationInfo, status_code, message: str):
         if (
             info.field_name == "password"
