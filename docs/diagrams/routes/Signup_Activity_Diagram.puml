@@ -31,7 +31,10 @@ end note
 :Authentication Service;
 
 skinparam ActivityDiamondBackgroundColor orchid
-if (JWT Errors?) then (true)
+if (JWT_ERROR?) then (no)
+    #limegreen:200 - Success;
+    kill;
+else (yes)
     split
         #tomato:401 - Expired JWT;
         kill;
@@ -39,10 +42,6 @@ if (JWT Errors?) then (true)
         #tomato:401 - Invalid JWT;
         kill;
     end split
-    kill;
-else (false)
-    #limegreen:200 - Success;
-    kill;
 endif
 
 @enduml
