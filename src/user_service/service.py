@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 from http import HTTPStatus
 
@@ -40,11 +41,24 @@ async def run_migrations():
         raise Exception("Database migration error on startup")
 
 
+async def update_process_metrics(interval: float = 5.0):
+    process = psutil.Process()
+
+    while True:
+        CPU_USAGE.set(psutil.cpu_percent())
+        MEMORY_USAGE.set(process.memory_info().rss)
+
+        await asyncio.sleep(interval)
+
+
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
     log.info(f"Starting {config.SERVICE_NAME}...{app.host}")
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
+
+    log.info(f"Starting update_process_metrics() task...")
+    asyncio.create_task(update_process_metrics())
 
     if config.SENTRY_ENVIRONMENT != "local":
         sentry_sdk.init(
@@ -169,9 +183,6 @@ async def authenticate(request: Request, call_next):
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"message": "Server error"},
             )
-        finally:
-            CPU_USAGE.set(psutil.cpu_percent())
-            MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
     return await call_next(request)
 

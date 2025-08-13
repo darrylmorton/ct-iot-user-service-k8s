@@ -1,7 +1,6 @@
 import time
 from functools import wraps
 
-import psutil
 from prometheus_client import Gauge, Counter, Histogram
 
 REQUEST_COUNT = Counter(
@@ -15,6 +14,7 @@ REQUEST_LATENCY = Histogram(
 REQUEST_IN_PROGRESS = Gauge(
     "http_requests_in_progress", "HTTP Requests in progress", ["method", "path"]
 )
+# CPU and memory usage are updated in the background task
 CPU_USAGE = Gauge("process_cpu_usage", "Current CPU usage in percent")
 MEMORY_USAGE = Gauge("process_memory_usage_bytes", "Current memory usage in bytes")
 
@@ -35,9 +35,6 @@ def observability(method: str, path: str, status_code=200):
                 method=method, status=response.status_code, path=path
             ).observe(time.time() - start_time)
             REQUEST_IN_PROGRESS.labels(method=method, path=path).dec()
-
-            CPU_USAGE.set(psutil.cpu_percent())
-            MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
             return response
 
