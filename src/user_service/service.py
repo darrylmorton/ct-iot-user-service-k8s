@@ -90,8 +90,8 @@ async def authenticate(request: Request, call_next):
 
     request_path = request["path"]
 
-    try:
-        if not AppUtil.is_excluded_endpoint(request_path):
+    if not AppUtil.is_excluded_endpoint(request_path):
+        try:
             auth_token = request.headers["authorization"]
 
             if not auth_token:
@@ -104,7 +104,8 @@ async def authenticate(request: Request, call_next):
             auth_token = auth_token.replace("Bearer ", "")
 
             response = requests.get(
-                f"{config.AUTH_SERVICE_URL}/jwt", headers={"auth-token": auth_token}
+                f"{config.AUTH_SERVICE_URL}/jwt/authentication",
+                headers={"auth-token": auth_token},
             )
 
             if response.status_code != HTTPStatus.OK:
@@ -150,27 +151,27 @@ async def authenticate(request: Request, call_next):
                 _request_path=request_path,
             )
 
-    except KeyError as err:
-        log.error(f"authenticate - missing token {err}")
+        except KeyError as err:
+            log.error(f"authenticate - missing token {err}")
 
-        return JSONResponse(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            content={"message": "Unauthorised error"},
-        )
-    except HTTPException as error:
-        log.error(f"authenticate - http error {error}")
+            return JSONResponse(
+                status_code=HTTPStatus.UNAUTHORIZED,
+                content={"message": "Unauthorised error"},
+            )
+        except HTTPException as error:
+            log.error(f"authenticate - http error {error}")
 
-        return JSONResponse(status_code=error.status_code, content=error.detail)
-    except Exception as err:
-        log.error(f"authenticate - server error {err}")
+            return JSONResponse(status_code=error.status_code, content=error.detail)
+        except Exception as err:
+            log.error(f"authenticate - server error {err}")
 
-        return JSONResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            content={"message": "Server error"},
-        )
-    finally:
-        CPU_USAGE.set(psutil.cpu_percent())
-        MEMORY_USAGE.set(psutil.Process().memory_info().rss)
+            return JSONResponse(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                content={"message": "Server error"},
+            )
+        finally:
+            CPU_USAGE.set(psutil.cpu_percent())
+            MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
     return await call_next(request)
 

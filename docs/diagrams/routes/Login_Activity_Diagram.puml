@@ -17,7 +17,7 @@ end note
 
 :Request;
 note
-URI=/api/jwt
+URI=/api/jwt/authentication
 Method=GET
 Header={
     "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9

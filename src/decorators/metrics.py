@@ -1,6 +1,7 @@
 import time
 from functools import wraps
 
+import psutil
 from prometheus_client import Gauge, Counter, Histogram
 
 REQUEST_COUNT = Counter(
@@ -34,6 +35,9 @@ def observability(method: str, path: str, status_code=200):
                 method=method, status=response.status_code, path=path
             ).observe(time.time() - start_time)
             REQUEST_IN_PROGRESS.labels(method=method, path=path).dec()
+
+            CPU_USAGE.set(psutil.cpu_percent())
+            MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
             return response
 
