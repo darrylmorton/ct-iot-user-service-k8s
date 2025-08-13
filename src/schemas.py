@@ -1,11 +1,10 @@
 from http import HTTPStatus
+from typing import Annotated
+from uuid import UUID
 
-from email_validator import EmailSyntaxError, validate_email
-from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator, ConfigDict, UUID4
-from pydantic_core.core_schema import ValidationInfo
+from pydantic.types import UuidVersion
 
-from decorators.metrics import REQUEST_COUNT
 from utils.validator_util import ValidatorUtil
 
 
@@ -14,7 +13,7 @@ class UserBase(BaseModel):
 
 
 class User(UserBase):
-    id: UUID4
+    id: UUID = Annotated[UUID, UuidVersion(4)]
     username: str
 
 
@@ -30,30 +29,30 @@ class UserDetailsBase(BaseModel):
 
 
 class UserDetails(UserDetailsBase):
-    id: UUID4
-    user_id: UUID4
+    id: UUID = Annotated[UUID, UuidVersion(4)]
+    user_id: UUID = Annotated[UUID, UuidVersion(4)]
     first_name: str
     last_name: str
 
-    @field_validator("id")
+    @field_validator("id", mode="before")
     @classmethod
-    def validate_id(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_id(str(v), info)
+    def validate_id(cls, v: str):
+        return ValidatorUtil.validate_id(str(v))
 
-    @field_validator("user_id")
+    @field_validator("user_id", mode="before")
     @classmethod
-    def validate_user_id(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_user_id(str(v), info)
+    def validate_user_id(cls, v: str):
+        return ValidatorUtil.validate_user_id(str(v))
 
-    @field_validator("first_name")
+    @field_validator("first_name", mode="before")
     @classmethod
-    def validate_first_name(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_first_name(v, info)
+    def validate_first_name(cls, v: str):
+        return ValidatorUtil.validate_first_name(v)
 
-    @field_validator("last_name")
+    @field_validator("last_name", mode="before")
     @classmethod
-    def validate_last_name(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_last_name(v, info)
+    def validate_last_name(cls, v: str):
+        return ValidatorUtil.validate_last_name(v)
 
 
 class UserDetailsRequest(UserDetailsBase):
@@ -84,40 +83,27 @@ class SignupRequest(SignupBase):
 
     @field_validator("username", mode="before")
     @classmethod
-    def validate_username(cls, v: str, info: ValidationInfo):
-        try:
-            validate_email(v, check_deliverability=False)
-
-        except EmailSyntaxError:
-            REQUEST_COUNT.labels(
-                method="POST",
-                status=HTTPStatus.BAD_REQUEST,
-                path="/signup",
-            ).inc()
-
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"Invalid username {info.field_name} is not an email",
-            )
-
-        return v
-
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_password(
-            v, info, HTTPStatus.BAD_REQUEST, "Invalid username or password"
+    def validate_username(cls, v: str):
+        return ValidatorUtil.validate_username(
+            v, HTTPStatus.BAD_REQUEST, "/signup", "Invalid username"
         )
 
-    @field_validator("first_name")
+    @field_validator("password", mode="before")
     @classmethod
-    def validate_first_name(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_first_name(v, info)
+    def validate_password(cls, v: str):
+        return ValidatorUtil.validate_password(
+            v, HTTPStatus.BAD_REQUEST, "/signup", "Invalid password"
+        )
 
-    @field_validator("last_name")
+    @field_validator("first_name", mode="before")
     @classmethod
-    def validate_last_name(cls, v: str, info: ValidationInfo):
-        return ValidatorUtil.validate_last_name(v, info)
+    def validate_first_name(cls, v: str):
+        return ValidatorUtil.validate_first_name(v)
+
+    @field_validator("last_name", mode="before")
+    @classmethod
+    def validate_last_name(cls, v: str):
+        return ValidatorUtil.validate_last_name(v)
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -154,27 +140,14 @@ class LoginRequest(LoginBase):
 
     @field_validator("username", mode="before")
     @classmethod
-    def validate_username(cls, v: str, info: ValidationInfo):
-        try:
-            validate_email(v, check_deliverability=False)
+    def validate_username(cls, v: str):
+        return ValidatorUtil.validate_username(
+            v, HTTPStatus.UNAUTHORIZED, "/login", "Invalid login"
+        )
 
-        except EmailSyntaxError:
-            REQUEST_COUNT.labels(
-                method="POST",
-                status=HTTPStatus.UNAUTHORIZED,
-                path="/login",
-            ).inc()
-
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED,
-                detail=f"Invalid username {info.field_name} is not an email",
-            )
-
-        return v
-
-    @field_validator("password")
+    @field_validator("password", mode="before")
     @classmethod
-    def validate_password(cls, v: str, info: ValidationInfo):
+    def validate_password(cls, v: str):
         return ValidatorUtil.validate_password(
-            v, info, HTTPStatus.UNAUTHORIZED, "Invalid login"
+            v, HTTPStatus.UNAUTHORIZED, "/login", "Invalid login"
         )
