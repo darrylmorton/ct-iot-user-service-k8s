@@ -18,7 +18,7 @@ class User(UserBase):
 
 
 class UserAuthenticated(User):
-    id: str
+    id: UUID = Annotated[UUID, UuidVersion(4)]
     confirmed: bool
     enabled: bool
     is_admin: bool
@@ -56,7 +56,7 @@ class UserDetails(UserDetailsBase):
 
 
 class UserDetailsRequest(UserDetailsBase):
-    id: str = Field(None, exclude=True)
+    id: UUID = Annotated[UUID, UuidVersion(4)]
 
 
 class SignupBase(BaseModel):
