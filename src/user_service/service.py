@@ -42,6 +42,8 @@ async def run_migrations():
 
 
 async def update_process_metrics(interval: float = 5.0):
+    log.info("Starting update_process_metrics() task...")
+
     process = psutil.Process()
 
     while True:
@@ -57,7 +59,6 @@ async def lifespan_wrapper(app: FastAPI):
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
 
-    log.info(f"Starting update_process_metrics() task...")
     asyncio.create_task(update_process_metrics())
 
     if config.SENTRY_ENVIRONMENT != "local":
