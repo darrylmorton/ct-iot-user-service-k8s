@@ -42,13 +42,25 @@ async def run_migrations():
 
 
 async def update_process_metrics(interval: float = 5.0):
+    """
+    Periodically update Prometheus metrics for CPU and memory usage.
+    This asynchronous background task runs indefinitely, updating the
+    CPU_USAGE and MEMORY_USAGE Prometheus metrics at a fixed interval.
+    Args:
+        interval (float): The time in seconds to wait between metric updates.
+            Defaults to 5.0 seconds.
+    """
     log.info("Starting update_process_metrics() task...")
 
     process = psutil.Process()
 
     while True:
-        CPU_USAGE.set(psutil.cpu_percent())
-        MEMORY_USAGE.set(process.memory_info().rss)
+        try:
+            CPU_USAGE.set(psutil.cpu_percent())
+            MEMORY_USAGE.set(process.memory_info().rss)
+
+        except Exception as e:
+            log.error(f"Error updating process metrics: {e}")
 
         await asyncio.sleep(interval)
 
