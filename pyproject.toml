@@ -11,7 +11,7 @@ keywords = ["ct", "iot", "user", "service"]
 
 [tool.poetry.dependencies]
 python = "^3.11.9"
-fastapi = {version = "^0.115.2", extras = ["standard"]}
+fastapi = {version = "^0.116.1", extras = ["standard"]}
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
 python-dotenv = "^1.0.0"
 sqlalchemy = "^2.0.22"
@@ -33,6 +33,8 @@ boto3 = "^1.35.50"
 confluent-kafka = "^2.8.0"
 prometheus-client = "^0.21.1"
 psutil = "^7.0.0"
+asyncio = "^4.0.0"
+pydantic = "^2.11.7"
 
 [tool.poetry.group.dev.dependencies]
 trio = "^0.22.2"
