@@ -117,8 +117,8 @@ async def authenticate(request: Request, call_next):
 
     request_path = request["path"]
 
-    if not AppUtil.is_excluded_endpoint(request_path):
-        try:
+    try:
+        if not AppUtil.is_excluded_endpoint(request_path):
             auth_token = request.headers["authorization"]
 
             if not auth_token:
@@ -178,24 +178,24 @@ async def authenticate(request: Request, call_next):
                 _request_path=request_path,
             )
 
-        except KeyError as err:
-            log.error(f"authenticate - missing token {err}")
+    except KeyError as err:
+        log.error(f"authenticate - missing token {err}")
 
-            return JSONResponse(
-                status_code=HTTPStatus.UNAUTHORIZED,
-                content={"message": "Unauthorised error"},
-            )
-        except HTTPException as error:
-            log.error(f"authenticate - http error {error}")
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content={"message": "Unauthorised error"},
+        )
+    except HTTPException as error:
+        log.error(f"authenticate - http error {error}")
 
-            return JSONResponse(status_code=error.status_code, content=error.detail)
-        except Exception as err:
-            log.error(f"authenticate - server error {err}")
+        return JSONResponse(status_code=error.status_code, content=error.detail)
+    except Exception as err:
+        log.error(f"authenticate - server error {err}")
 
-            return JSONResponse(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                content={"message": "Server error"},
-            )
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Server error"},
+        )
 
     return await call_next(request)
 
