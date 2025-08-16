@@ -4,10 +4,12 @@ import json
 import time
 import uuid
 from datetime import datetime, timezone
+from http import HTTPStatus
 from threading import Thread
 
 import requests
 from confluent_kafka import Producer, KafkaException
+from starlette.exceptions import HTTPException
 
 import config
 from logger import log
@@ -56,6 +58,13 @@ class EmailProducer:
                 json={"username": username, "email_type": email_type},
             )
 
+            if response.status_code != HTTPStatus.OK:
+                log.error(f"Confirm Account Token - http error {response.status_code}")
+
+                raise HTTPException(
+                    status_code=response.status_code, detail=response.text
+                )
+
             if response.status_code == 200:
                 response_json = response.json()
 
@@ -87,6 +96,8 @@ class EmailProducer:
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")
+        except HTTPException as err:
+            log.error(f"Kafka produce http {err}")
         finally:
             self._close()
             log.debug("Kafka closed producer")
