@@ -44,7 +44,7 @@ async def login(
         )
 
         response = requests.post(
-            f"{config.AUTH_SERVICE_URL}/jwt",
+            f"{config.AUTH_SERVICE_URL}/jwt/authentication",
             json={
                 "id": str(_user.id),
                 "is_admin": _user.is_admin,

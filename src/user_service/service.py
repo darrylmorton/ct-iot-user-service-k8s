@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 from http import HTTPStatus
 
@@ -21,7 +22,7 @@ from database.user_crud import UserCrud
 from decorators.metrics import CPU_USAGE, MEMORY_USAGE
 
 from logger import log
-from routers import health, users, user_details, signup, login, admin, verify_account
+from routers import health, users, user_details, signup, login, admin, confirm_account
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
@@ -40,11 +41,37 @@ async def run_migrations():
         raise Exception("Database migration error on startup")
 
 
+async def update_process_metrics(interval: float = 5.0):
+    """
+    Periodically update Prometheus metrics for CPU and memory usage.
+    This asynchronous background task runs indefinitely, updating the
+    CPU_USAGE and MEMORY_USAGE Prometheus metrics at a fixed interval.
+    Args:
+        interval (float): The time in seconds to wait between metric updates.
+            Defaults to 5.0 seconds.
+    """
+    log.info("Starting update_process_metrics() task...")
+
+    process = psutil.Process()
+
+    while True:
+        try:
+            CPU_USAGE.set(psutil.cpu_percent())
+            MEMORY_USAGE.set(process.memory_info().rss)
+
+        except Exception as e:
+            log.error(f"Error updating process metrics: {e}")
+
+        await asyncio.sleep(interval)
+
+
 @contextlib.asynccontextmanager
 async def lifespan_wrapper(app: FastAPI):
     log.info(f"Starting {config.SERVICE_NAME}...{app.host}")
     log.info(f"Sentry {config.SENTRY_ENVIRONMENT} environment")
     log.info(f"Application {config.ENVIRONMENT} environment")
+
+    asyncio.create_task(update_process_metrics())
 
     if config.SENTRY_ENVIRONMENT != "local":
         sentry_sdk.init(
@@ -104,7 +131,8 @@ async def authenticate(request: Request, call_next):
             auth_token = auth_token.replace("Bearer ", "")
 
             response = requests.get(
-                f"{config.AUTH_SERVICE_URL}/jwt", headers={"auth-token": auth_token}
+                f"{config.AUTH_SERVICE_URL}/jwt/authentication",
+                headers={"auth-token": auth_token},
             )
 
             if response.status_code != HTTPStatus.OK:
@@ -168,9 +196,6 @@ async def authenticate(request: Request, call_next):
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             content={"message": "Server error"},
         )
-    finally:
-        CPU_USAGE.set(psutil.cpu_percent())
-        MEMORY_USAGE.set(psutil.Process().memory_info().rss)
 
     return await call_next(request)
 
@@ -183,7 +208,7 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
-app.include_router(verify_account.router, prefix="/api", tags=["verify-account"])
+app.include_router(confirm_account.router, prefix="/api", tags=["confirm-account"])
 
 app.include_router(
     users.router,

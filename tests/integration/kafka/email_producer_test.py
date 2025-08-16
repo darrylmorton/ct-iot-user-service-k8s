@@ -27,8 +27,5 @@ class TestEmailProducer:
 
         assert len(actual_result) > 0
 
-        assert (
-            actual_result[0]["email_type"]
-            == test_config.EMAIL_ACCOUNT_VERIFICATION_TYPE
-        )
+        assert actual_result[0]["email_type"] == test_config.EMAIL_VERIFICATION_TYPES[0]
         assert actual_result[0]["username"] == test_config.USERNAME

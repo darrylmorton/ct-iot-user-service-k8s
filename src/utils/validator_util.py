@@ -3,8 +3,8 @@ from http import HTTPStatus
 
 from email_validator import validate_email, EmailSyntaxError
 from fastapi import HTTPException
-from pydantic_core.core_schema import ValidationInfo
 
+from decorators.metrics import REQUEST_COUNT
 from logger import log
 
 
@@ -37,29 +37,30 @@ class ValidatorUtil:
         return str(val) == uuid_string
 
     @staticmethod
-    def validate_email(email: str) -> bool:
-        try:
-            validate_email(email, check_deliverability=False)
-
-            return True
-        except EmailSyntaxError:
-            log.debug(f"Invalid email: {email}")
-
-            return False
-
-    @staticmethod
-    def validate_id(v: str, info: ValidationInfo):
-        if info.field_name == "id" and not ValidatorUtil.validate_uuid4(v):
+    def validate_id(v: str):
+        if not ValidatorUtil.validate_uuid4(v):
             log.debug(f"Invalid id: {v}")
+
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.BAD_REQUEST,
+                path="/signup",
+            ).inc()
 
             raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Invalid id")
 
         return v
 
     @staticmethod
-    def validate_user_id(v: str, info: ValidationInfo):
-        if info.field_name == "user_id" and not ValidatorUtil.validate_uuid4(v):
+    def validate_user_id(v: str):
+        if not ValidatorUtil.validate_uuid4(v):
             log.debug(f"Invalid user id: {v}")
+
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.BAD_REQUEST,
+                path="/signup",
+            ).inc()
 
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST, detail="Invalid user id"
@@ -68,26 +69,18 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def validate_username(v: str, info: ValidationInfo, status_code, message: str):
-        if info.field_name == "username" and not ValidatorUtil.validate_email(v):
+    def validate_username(v: str, status_code: int, path: str, message: str):
+        try:
+            validate_email(v, check_deliverability=False)
+
+        except EmailSyntaxError:
             log.debug(f"Invalid username: {v}")
 
-            raise HTTPException(
-                status_code=status_code,
-                detail=message,
-            )
-
-        return v
-
-    @staticmethod
-    def validate_password(v: str, info: ValidationInfo, status_code, message: str):
-        if (
-            info.field_name == "password"
-            and not isinstance(v, str)
-            or len(v) < 8
-            or len(v) > 16
-        ):
-            log.debug(f"Invalid password: {v}")
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=status_code,
+                path=path,
+            ).inc()
 
             raise HTTPException(
                 status_code=status_code,
@@ -97,14 +90,33 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def validate_first_name(v: str, info: ValidationInfo):
-        if (
-            info.field_name == "first_name"
-            and not isinstance(v, str)
-            or len(v) < 2
-            or len(v) > 30
-        ):
+    def validate_password(v: str, status_code, path: str, message: str):
+        if not isinstance(v, str) or len(v) < 8 or len(v) > 16:
+            log.debug("Invalid password")
+
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=status_code,
+                path=path,
+            ).inc()
+
+            raise HTTPException(
+                status_code=status_code,
+                detail=message,
+            )
+
+        return v
+
+    @staticmethod
+    def validate_first_name(v: str):
+        if not isinstance(v, str) or len(v) < 2 or len(v) > 30:
             log.debug(f"Invalid first name: {v}")
+
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.BAD_REQUEST,
+                path="/signup",
+            ).inc()
 
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST, detail="Invalid first_name"
@@ -113,14 +125,15 @@ class ValidatorUtil:
         return v
 
     @staticmethod
-    def validate_last_name(v: str, info: ValidationInfo):
-        if (
-            info.field_name == "last_name"
-            and not isinstance(v, str)
-            or len(v) < 2
-            or len(v) > 30
-        ):
+    def validate_last_name(v: str):
+        if not isinstance(v, str) or len(v) < 2 or len(v) > 30:
             log.debug(f"Invalid last name: {v}")
+
+            REQUEST_COUNT.labels(
+                method="POST",
+                status=HTTPStatus.BAD_REQUEST,
+                path="/signup",
+            ).inc()
 
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST, detail="Invalid last_name"

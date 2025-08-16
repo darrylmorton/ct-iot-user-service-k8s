@@ -14,6 +14,7 @@ REQUEST_LATENCY = Histogram(
 REQUEST_IN_PROGRESS = Gauge(
     "http_requests_in_progress", "HTTP Requests in progress", ["method", "path"]
 )
+# CPU and memory usage are updated in the background task
 CPU_USAGE = Gauge("process_cpu_usage", "Current CPU usage in percent")
 MEMORY_USAGE = Gauge("process_memory_usage_bytes", "Current memory usage in bytes")
 

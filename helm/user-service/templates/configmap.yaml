@@ -19,6 +19,5 @@ data:
   queuePollWaitSeconds: {{ .Values.image.env.queuePollWaitSeconds | quote }}
   queueTopicName: {{ .Values.image.env.queueTopicName | quote }}
   queueGroupId: {{ .Values.image.env.queueGroupId | quote }}
-  emailAccountVerificationType: {{ .Values.image.env.emailAccountVerificationType | quote }}
   albUrl: {{ .Values.image.env.albUrl | quote }}
   authServiceUrl: {{ .Values.image.env.authServiceUrl | quote }}

@@ -1,14 +1,14 @@
 @startuml
 'https://plantuml.com/activity-diagram-beta
 
-title Signup Activity Diagram
+title Confirm Account Activity Diagram
 
 :Request;
 note
 URI=/api/signup
 Method=POST
 Request={
-    "username": "foo",
+    "username": "foo@example.com",
     "password": "bar",
     "first_name": "Foo",
     "last_name": "Bar",
@@ -16,33 +16,37 @@ Request={
 end note
 
 :User Service;
+split
 
-:Request;
-note
-URI=/api/jwt
-Method=GET
-Header={
-    "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG
-    9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0
-    .KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
-end note
-
-:Authentication Service;
-
+:Response;
 skinparam ActivityDiamondBackgroundColor orchid
-if (JWT Errors?) then (true)
+if (VALIDATION_ERRORS?) then (no)
+    #limegreen:201 - Success;
+    kill;
+else (yes)
     split
-        #tomato:401 - Expired JWT;
+        #tomato:400 - Invalid Request;
         kill;
     split again
-        #tomato:401 - Invalid JWT;
+        #tomato:409 - User Exists;
+        kill;
+    split again
+        #tomato:500 - Server Error;
         kill;
     end split
-    kill;
-else (false)
-    #limegreen:200 - Success;
-    kill;
 endif
+
+split again
+:Email Queue (Kafka);
+note
+{
+    "username": "foo@example.com",
+    "email_type": "CONFIRM_ACCOUNT_VERIFICATION",
+}
+end note
+
+:Email Service;
+kill;
+end split
 
 @enduml

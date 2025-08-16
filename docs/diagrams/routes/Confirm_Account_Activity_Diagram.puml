@@ -1,0 +1,77 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+title Confirm Account Activity Diagram
+
+:Request;
+note
+URI=/api/signup
+Method=POST
+Request={
+    "username": "foo@example.com",
+    "password": "bar",
+    "first_name": "Foo",
+    "last_name": "Bar",
+}
+end note
+
+:User Service;
+
+:Email Queue (Kafka);
+note
+{
+    "username": "foo@example.com",
+    "email_type": "CONFIRM_ACCOUNT_VERIFICATION",
+}
+end note
+
+:Email Service;
+
+:SMTP Email Sent;
+
+:User CLicks on Confirmation Link;
+
+:Request;
+note
+URL=https://.../api/jwt/authentication/?confirm-account-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG
+    9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0
+    .KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+Method=GET
+end note
+
+:User Service;
+
+:Request;
+note
+URI=/api/jwt/authentication
+Method=GET
+Header={
+    "confirm-account-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG
+    9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0
+    .KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+end note
+
+:Authentication Service;
+skinparam ActivityDiamondBackgroundColor orchid
+if (VALIDATION_ERRORS?) then (no)
+    #limegreen:200 - Success;
+    kill;
+else (yes)
+    split
+        #tomato:400 - Invalid Request;
+        kill;
+    split again
+        #tomato:401 - Unauthorised Request;
+        kill;
+    split again
+        #tomato:498 - Expired Token;
+        kill;
+    split again
+        #tomato:500 - Server Error;
+        kill;
+    end split
+endif
+
+@enduml

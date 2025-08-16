@@ -17,7 +17,7 @@ end note
 
 :Request;
 note
-URI=/api/jwt
+URI=/api/jwt/authentication
 Method=GET
 Header={
     "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
@@ -29,7 +29,10 @@ end note
 :Authentication Service;
 
 skinparam ActivityDiamondBackgroundColor orchid
-if (JWT Errors?) then (true)
+if (JWT_ERROR?) then (no)
+    #limegreen:200 - Success;
+    kill;
+else (yes)
     split
         #tomato:401 - User Does Not Exist;
         kill;
@@ -37,10 +40,6 @@ if (JWT Errors?) then (true)
         #tomato:403 - User Account Disabled;
         kill;
     end split
-    kill;
-else (false)
-    #limegreen:200 - Success;
-    kill;
 endif
 
 @enduml
