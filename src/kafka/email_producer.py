@@ -83,7 +83,7 @@ class EmailProducer:
             else:
                 log.error("Failed to create JWT token for email confirmation")
 
-            return None
+            return dict(message="Failed to create JWT token for email confirmation")
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")

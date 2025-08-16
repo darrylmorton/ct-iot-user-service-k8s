@@ -44,7 +44,6 @@ env:
   QUEUE_POLL_WAIT_SECONDS: 1
   QUEUE_TOPIC_NAME: email-topic
   QUEUE_GROUP_ID: email-topic-group
-  EMAIL_ACCOUNT_VERIFICATION_TYPE: ACCOUNT_VERIFICATION
   ALB_URL: http://localhost
   AUTH_SERVICE_URL: http://localhost:8001
   DB_HOST: localhost

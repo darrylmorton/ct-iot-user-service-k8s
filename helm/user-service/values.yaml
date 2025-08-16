@@ -30,7 +30,6 @@ image:
     queuePollWaitSeconds: 1
     queueTopicName: email-topic
     queueGroupId: email-topic-group
-    emailAccountVerificationType: ACCOUNT_VERIFICATION
     albUrl: http://localhost
     authServiceUrl: http://authentication-service.local:8001
 

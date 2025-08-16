@@ -44,7 +44,7 @@ async def signup(
         )
 
         EmailProducer().produce(
-            email_type=config.CONFIRM_ACCOUNT_VERIFICATION_TYPE,
+            email_type=config.EMAIL_VERIFICATION_TYPES[0],
             username=user.username,
         )
 
