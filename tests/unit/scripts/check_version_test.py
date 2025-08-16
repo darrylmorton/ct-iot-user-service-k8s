@@ -1,6 +1,7 @@
 import pytest
 from packaging.version import InvalidVersion
 
+from logger import log
 from scripts.check_version import main
 from tests.helper.check_version_helper import downgrade_version, bump_version
 from utils.app_util import AppUtil
@@ -8,7 +9,7 @@ from utils.app_util import AppUtil
 
 class TestCheckVersionScript:
     _app_version = AppUtil.get_app_version()
-    _release_version = downgrade_version()
+    _release_version = downgrade_version(part="major")
     _release_version_bump = bump_version()
 
     def test_get_app_version_matches_release(self):
