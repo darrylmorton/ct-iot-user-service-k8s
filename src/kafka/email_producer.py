@@ -4,10 +4,12 @@ import json
 import time
 import uuid
 from datetime import datetime, timezone
+from http import HTTPStatus
 from threading import Thread
 
 import requests
 from confluent_kafka import Producer, KafkaException
+from starlette.exceptions import HTTPException
 
 import config
 from logger import log
@@ -56,37 +58,41 @@ class EmailProducer:
                 json={"username": username, "email_type": email_type},
             )
 
-            if response.status_code == 200:
-                response_json = response.json()
+            if response.status_code != HTTPStatus.OK:
+                log.error(f"Confirm Account Token - http error {response.status_code}")
 
-                token = response_json["token"]
-
-                message = KafkaUtil.create_email_message(
-                    username=username,
-                    email_type=email_type,
-                    timestamp=datetime.now(tz=timezone.utc).isoformat(),
-                    token=token,
+                raise HTTPException(
+                    status_code=response.status_code, detail=response.text
                 )
 
-                self._producer.produce(
-                    topic=config.QUEUE_TOPIC_NAME,
-                    key=str(uuid.uuid4()),
-                    value=json.dumps(message),
-                    timestamp=calendar.timegm(time.gmtime()),
-                    on_delivery=_ack,
-                )
-                self._producer.flush()
+            response_json = response.json()
 
-                log.debug(f"Kafka produced {message=} and flushed")
+            token = response_json["token"]
 
-                return message
-            else:
-                log.error("Failed to create JWT token for email confirmation")
+            message = KafkaUtil.create_email_message(
+                username=username,
+                email_type=email_type,
+                timestamp=datetime.now(tz=timezone.utc).isoformat(),
+                token=token,
+            )
 
-            return dict(message="Failed to create JWT token for email confirmation")
+            self._producer.produce(
+                topic=config.QUEUE_TOPIC_NAME,
+                key=str(uuid.uuid4()),
+                value=json.dumps(message),
+                timestamp=calendar.timegm(time.gmtime()),
+                on_delivery=_ack,
+            )
+            self._producer.flush()
+
+            log.debug(f"Kafka produced {message=} and flushed")
+
+            return message
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")
+        except HTTPException as err:
+            log.error(f"Kafka produce http {err}")
         finally:
             self._close()
             log.debug("Kafka closed producer")

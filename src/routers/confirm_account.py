@@ -34,6 +34,12 @@ async def confirm_account(
             f"{config.AUTH_SERVICE_URL}/jwt/confirm-account",
             headers={"confirm-account-token": token},
         )
+
+        if response.status_code != HTTPStatus.OK:
+            log.error(f"Confirm Account Token - http error {response.status_code}")
+
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
         response_json = response.json()
 
         username = response_json["username"]
