@@ -92,7 +92,7 @@ class ValidatorUtil:
     @staticmethod
     def validate_password(v: str, status_code, path: str, message: str):
         if not isinstance(v, str) or len(v) < 8 or len(v) > 16:
-            log.debug(f"Invalid password")
+            log.debug("Invalid password")
 
             REQUEST_COUNT.labels(
                 method="POST",

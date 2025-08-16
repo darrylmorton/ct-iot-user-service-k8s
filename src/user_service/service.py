@@ -22,7 +22,7 @@ from database.user_crud import UserCrud
 from decorators.metrics import CPU_USAGE, MEMORY_USAGE
 
 from logger import log
-from routers import health, users, user_details, signup, login, admin, verify_account
+from routers import health, users, user_details, signup, login, admin, confirm_account
 from utils.app_util import AppUtil
 from utils.auth_util import AuthUtil
 from utils.validator_util import ValidatorUtil
@@ -208,7 +208,7 @@ app.include_router(health.router, include_in_schema=False)
 
 app.include_router(signup.router, prefix="/api", tags=["signup"])
 app.include_router(login.router, prefix="/api", tags=["login"])
-app.include_router(verify_account.router, prefix="/api", tags=["verify-account"])
+app.include_router(confirm_account.router, prefix="/api", tags=["confirm-account"])
 
 app.include_router(
     users.router,

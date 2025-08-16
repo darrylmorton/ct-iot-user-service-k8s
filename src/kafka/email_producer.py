@@ -5,12 +5,13 @@ import time
 import uuid
 from datetime import datetime, timezone
 from threading import Thread
+
+import requests
 from confluent_kafka import Producer, KafkaException
 
 import config
 from logger import log
 from utils.kafka_util import KafkaUtil
-from utils.token_util import TokenUtil
 
 
 class EmailProducer:
@@ -50,23 +51,39 @@ class EmailProducer:
                 else:
                     self._loop.call_soon_threadsafe(result.set_result, msg)
 
-            message = KafkaUtil.create_email_message(
-                username=username,
-                email_type=email_type,
-                timestamp=datetime.now(tz=timezone.utc).isoformat(),
-                token=TokenUtil.encode_token(username, email_type),
+            response = requests.post(
+                f"{config.AUTH_SERVICE_URL}/jwt/confirm-account",
+                json={"username": username, "email_type": email_type},
             )
 
-            self._producer.produce(
-                topic=config.QUEUE_TOPIC_NAME,
-                key=str(uuid.uuid4()),
-                value=json.dumps(message),
-                timestamp=calendar.timegm(time.gmtime()),
-                on_delivery=_ack,
-            )
-            self._producer.flush()
-            log.debug(f"Kafka produced {message=} and flushed")
-            return message
+            if response.status_code == 200:
+                response_json = response.json()
+
+                token = response_json["token"]
+
+                message = KafkaUtil.create_email_message(
+                    username=username,
+                    email_type=email_type,
+                    timestamp=datetime.now(tz=timezone.utc).isoformat(),
+                    token=token,
+                )
+
+                self._producer.produce(
+                    topic=config.QUEUE_TOPIC_NAME,
+                    key=str(uuid.uuid4()),
+                    value=json.dumps(message),
+                    timestamp=calendar.timegm(time.gmtime()),
+                    on_delivery=_ack,
+                )
+                self._producer.flush()
+
+                log.debug(f"Kafka produced {message=} and flushed")
+
+                return message
+            else:
+                log.error("Failed to create JWT token for email confirmation")
+
+            return None
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")

@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict, UUID4
+from pydantic import BaseModel, field_validator, ConfigDict
 from pydantic.types import UuidVersion
 
 from utils.validator_util import ValidatorUtil
