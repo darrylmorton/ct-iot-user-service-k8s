@@ -33,7 +33,7 @@ end note
 
 :Request;
 note
-URL=https://.../api/jwt/authentication/?confirm-account-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+URL=https://.../api/jwt/confirm-account/?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
     .eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG
     9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0
     .KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
@@ -44,7 +44,7 @@ end note
 
 :Request;
 note
-URI=/api/jwt/authentication
+URI=/api/jwt/confirm-account
 Method=GET
 Header={
     "confirm-account-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9

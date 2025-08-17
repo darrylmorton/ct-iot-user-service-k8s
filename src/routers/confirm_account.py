@@ -36,26 +36,28 @@ async def confirm_account(
         )
 
         if response.status_code != HTTPStatus.OK:
-            log.error(f"Confirm Account Token - http error {response.status_code}")
+            log.error(
+                f"Failed to confirm account - auth service returned HTTP error {response.status_code}: {response.text}")
 
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        response_json = response.json()
+        else:
+            response_json = response.json()
 
-        username = response_json["username"]
+            username = response_json["username"]
 
-        user_exists = await UserCrud().find_user_by_username_and_confirmed(username)
+            user_exists = await UserCrud().find_user_by_username_and_confirmed(username)
 
-        if user_exists:
-            log.debug("Confirm Account - user exists")
+            if user_exists:
+                log.debug("Confirm Account - user exists")
 
-            await UserCrud().update_confirmed(_username=username, _confirmed=True)
+                await UserCrud().update_confirmed(_username=username, _confirmed=True)
 
-            return JSONResponse(
-                status_code=HTTPStatus.OK, content={"message": "Account confirmed"}
-            )
+                return JSONResponse(
+                    status_code=HTTPStatus.OK, content={"message": "Account confirmed"}
+                )
 
-        return JSONResponse(status_code=HTTPStatus.OK, content="")
+            return JSONResponse(status_code=HTTPStatus.OK, content="")
     except HTTPException as error:
         log.error(f"Confirm Account - http error {error}")
 

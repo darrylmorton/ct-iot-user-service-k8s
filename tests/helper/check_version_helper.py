@@ -33,13 +33,19 @@ def downgrade_version(
     major, minor, patch = map(int, version.split("."))
 
     if part == "major":
+        if major == 0:
+            raise ValueError("major version cannot be less than 0")
         major -= 1
         minor = 0
         patch = 0
     elif part == "minor":
+        if minor == 0:
+            raise ValueError("minor version cannot be less than 0")
         minor -= 1
         patch = 0
     elif part == "patch":
+        if patch == 0:
+            raise ValueError("patch version cannot be less than 0")
         patch -= 1
     else:
         raise ValueError("part must be 'major', 'minor', or 'patch'")
