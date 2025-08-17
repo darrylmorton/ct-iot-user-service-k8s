@@ -116,16 +116,6 @@ spec:
                 configMapKeyRef:
                   name: {{ include "user-service.fullname" . }}-config
                   key: authServiceUrl
-            - name: JWT_SECRET_CONFIRM_ACCOUNT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "user-service.fullname" . }}-secret
-                  key: jwtSecretConfirmAccount
-            - name: JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "user-service.fullname" . }}-secret
-                  key: jwtExpirySecondsConfirmAccount
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
