@@ -60,8 +60,8 @@ class EmailProducer:
 
             if response.status_code != HTTPStatus.OK:
                 log.error(
-                    f"Failed to create JWT token - auth service returned \
-                    HTTP error {response.status_code}: {response.text}"
+                    f"Failed to create JWT token - auth service returned "
+                    f"HTTP error {response.status_code}: {response.text}"
                 )
 
                 raise HTTPException(

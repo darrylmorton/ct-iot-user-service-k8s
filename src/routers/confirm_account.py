@@ -37,8 +37,8 @@ async def confirm_account(
 
         if response.status_code != HTTPStatus.OK:
             log.error(
-                f"Failed to confirm account - auth service returned \
-                HTTP error {response.status_code}: {response.text}"
+                f"Failed to confirm account - auth service returned "
+                f"HTTP error {response.status_code}: {response.text}"
             )
 
             raise HTTPException(status_code=response.status_code, detail=response.text)
@@ -59,7 +59,7 @@ async def confirm_account(
             )
 
         return JSONResponse(status_code=HTTPStatus.OK, content="")
-    
+
     except HTTPException as error:
         log.error(f"Confirm Account - http error {error}")
 
