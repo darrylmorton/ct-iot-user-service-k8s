@@ -1,7 +1,6 @@
 import pytest
 from packaging.version import InvalidVersion
 
-from logger import log
 from scripts.check_version import main
 from tests.helper.check_version_helper import downgrade_version, bump_version
 from utils.app_util import AppUtil
