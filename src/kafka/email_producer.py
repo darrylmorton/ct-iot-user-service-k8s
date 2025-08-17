@@ -68,30 +68,29 @@ class EmailProducer:
                     status_code=response.status_code, detail=response.text
                 )
 
-            else:
-                response_json = response.json()
+            response_json = response.json()
 
-                token = response_json["token"]
+            token = response_json["token"]
 
-                message = KafkaUtil.create_email_message(
-                    username=username,
-                    email_type=email_type,
-                    timestamp=datetime.now(tz=timezone.utc).isoformat(),
-                    token=token,
-                )
+            message = KafkaUtil.create_email_message(
+                username=username,
+                email_type=email_type,
+                timestamp=datetime.now(tz=timezone.utc).isoformat(),
+                token=token,
+            )
 
-                self._producer.produce(
-                    topic=config.QUEUE_TOPIC_NAME,
-                    key=str(uuid.uuid4()),
-                    value=json.dumps(message),
-                    timestamp=calendar.timegm(time.gmtime()),
-                    on_delivery=_ack,
-                )
-                self._producer.flush()
+            self._producer.produce(
+                topic=config.QUEUE_TOPIC_NAME,
+                key=str(uuid.uuid4()),
+                value=json.dumps(message),
+                timestamp=calendar.timegm(time.gmtime()),
+                on_delivery=_ack,
+            )
+            self._producer.flush()
 
-                log.debug(f"Kafka produced {message=} and flushed")
+            log.debug(f"Kafka produced {message=} and flushed")
 
-                return message
+            return message
 
         except KafkaException as err:
             log.error(f"Kafka produce {err}")
