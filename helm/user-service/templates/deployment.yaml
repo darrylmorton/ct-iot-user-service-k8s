@@ -106,16 +106,16 @@ spec:
                 configMapKeyRef:
                   name: {{ include "user-service.fullname" . }}-config
                   key: queueGroupId
-            - name: ALB_URL
+            - name: AUTH_SERVICE_ENDPOINT
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "user-service.fullname" . }}-config
-                  key: albUrl
-            - name: AUTH_SERVICE_URL
+                  key: authServiceEndpoint
+            - name: USER_SERVICE_ENDPOINT
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "user-service.fullname" . }}-config
-                  key: authServiceUrl
+                  key: userServiceEndpoint
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
