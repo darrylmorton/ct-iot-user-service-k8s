@@ -1,5 +1,6 @@
 import asyncio
 from uuid import UUID
+
 from dotenv import load_dotenv
 
 import bcrypt
@@ -10,7 +11,6 @@ from database.models import UserModel, UserDetailsModel
 
 from kafka.email_producer import EmailProducer
 from tests.database import async_session
-
 
 load_dotenv(dotenv_path=".test.env")
 
