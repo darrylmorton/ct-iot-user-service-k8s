@@ -10,8 +10,6 @@ load_dotenv(dotenv_path=".test.env")
 AWS_REGION = os.environ.get("AWS_REGION")
 USERNAME = os.environ.get("USERNAME")
 FIRST_NAME = os.environ.get("FIRST_NAME")
-TOKEN_URL = os.environ.get("TOKEN_URL")  #
-TOKEN_URL_HASH = os.environ.get("TOKEN_URL_HASH")
 
 SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT") or "local"
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
