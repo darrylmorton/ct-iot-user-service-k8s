@@ -131,7 +131,7 @@ async def authenticate(request: Request, call_next):
             auth_token = auth_token.replace("Bearer ", "")
 
             response = requests.get(
-                f"{config.AUTH_SERVICE_URL}/jwt/authentication",
+                f"{config.ALB_URL}/jwt/authentication",
                 headers={"auth-token": auth_token},
             )
 

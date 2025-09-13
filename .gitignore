@@ -3,6 +3,7 @@
 __pycache__/
 .pytest_cache/
 bin/
+.venv/
 venv/
 .env
 .env.sentry

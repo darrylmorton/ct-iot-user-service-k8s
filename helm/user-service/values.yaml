@@ -30,9 +30,9 @@ image:
     queuePollWaitSeconds: 1
     queueTopicName: email-topic
     queueGroupId: email-topic-group
-    albUrl: http://localhost
-    authServiceUrl: http://authentication-service.local:8001
-
+    authServiceEndpoint: http://authentication-service.local:8001
+    userServiceEndpoint: http://user-service.local:8002
+    
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.

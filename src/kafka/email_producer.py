@@ -4,10 +4,8 @@ import json
 import time
 import uuid
 from datetime import datetime, timezone
-from http import HTTPStatus
 from threading import Thread
 
-import requests
 from confluent_kafka import Producer, KafkaException
 from starlette.exceptions import HTTPException
 
@@ -36,7 +34,14 @@ class EmailProducer:
         self._cancelled = True
         self._poll_thread.join()
 
-    def produce(self, email_type: str, username: str):
+    def produce(
+        self,
+        email_type: str,
+        username: str,
+        first_name: str,
+        token_url: str,
+        token_url_hash: str,
+    ):
         """
         An awaitable produce method.
         """
@@ -53,30 +58,13 @@ class EmailProducer:
                 else:
                     self._loop.call_soon_threadsafe(result.set_result, msg)
 
-            response = requests.post(
-                f"{config.AUTH_SERVICE_URL}/jwt/confirm-account",
-                json={"username": username, "email_type": email_type},
-            )
-
-            if response.status_code != HTTPStatus.OK:
-                log.error(
-                    f"Failed to create JWT token - auth service returned "
-                    f"HTTP error {response.status_code}: {response.text}"
-                )
-
-                raise HTTPException(
-                    status_code=response.status_code, detail=response.text
-                )
-
-            response_json = response.json()
-
-            token = response_json["token"]
-
             message = KafkaUtil.create_email_message(
-                username=username,
-                email_type=email_type,
                 timestamp=datetime.now(tz=timezone.utc).isoformat(),
-                token=token,
+                email_type=email_type,
+                username=username,
+                first_name=first_name,
+                token_url=token_url,
+                token_url_hash=token_url_hash,
             )
 
             self._producer.produce(

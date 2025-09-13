@@ -29,6 +29,7 @@ env:
   SENTRY_TRACES_SAMPLE_RATE: 1.0
   SENTRY_PROFILES_SAMPLE_RATE: 0.5
   SENTRY_SAMPLE_RATE: 50
+  FIRST_NAME: Foo
   USERNAME: foo@example.com
   SERVICE_NAME: user-service
   LOG_LEVEL: DEBUG
@@ -44,8 +45,8 @@ env:
   QUEUE_POLL_WAIT_SECONDS: 1
   QUEUE_TOPIC_NAME: email-topic
   QUEUE_GROUP_ID: email-topic-group
-  ALB_URL: http://localhost
-  AUTH_SERVICE_URL: http://localhost:8001
+  AUTH_SERVICE_ENDPOINT: http://localhost:8001
+  USER_SERVICE_ENDPOINT: http://localhost:8002
   DB_HOST: localhost
   DB_PORT: 5432
   DB_USERNAME: postgres
