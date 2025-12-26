@@ -1,14 +1,68 @@
-name: Build, Lint, Tests
+name: Build, Lint and Test
 
 on:
   push:
-    branches-ignore: ["main"]
+    branches-ignore: [ "main" ]
+
+env:
+  PYTHON_VERSION: '3.11.9'
+  POETRY_VERSION: '1.7.1'
+  AWS_REGION: eu-west-2
+  SENTRY_TRACES_SAMPLE_RATE: 1.0
+  SENTRY_PROFILES_SAMPLE_RATE: 0.5
+  SENTRY_SAMPLE_RATE: 50
+  FIRST_NAME: Foo
+  USERNAME: foo@example.com
+  SERVICE_NAME: user-service
+  LOG_LEVEL: DEBUG
+  ENVIRONMENT: test
+  APP_HOST: localhost
+  UVICORN_PORT: 8002
+  JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+  JWT_EXPIRY_SECONDS: 3600
+  QUEUE_PROTOCOL: PLAINTEXT
+  QUEUE_HOST: localhost
+  QUEUE_PORTS: 9092,9093,9094
+  QUEUE_ACKS: all
+  QUEUE_POLL_WAIT_SECONDS: 1
+  QUEUE_TOPIC_NAME: email-topic
+  QUEUE_GROUP_ID: email-topic-group
+  AUTH_SERVICE_ENDPOINT: http://localhost:8001
+  USER_SERVICE_ENDPOINT: http://localhost:8002
+  DB_HOST: localhost
+  DB_PORT: 5432
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_NAME: users
+  JWT_SECRET_CONFIRM_ACCOUNT: ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC
+  JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT: 3600
 
 jobs:
-  call-workflow:
-    uses: ./.github/workflows/action.yml
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: actions checkout
+        uses: actions/checkout@v4
+
+      - name: check-version
+        uses: darrylmorton/ct-continuous-workflows/.github/actions/check-version@v1
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          package-manager: 'poetry'
+
+  unit-tests:
+    needs: [ check-version ]
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      test-unit: true
-      test-integration: true
-    secrets:
-      repo-token: ${{ secrets.GITHUB_TOKEN }}
+      poetry-version: ${{ env.POETRY_VERSION }}
+      python-version: ${{ env.PYTHON_VERSION }}
+
+  integration-tests:
+    needs: [ check-version ]
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
+    with:
+      poetry-version: ${{ env.POETRY_VERSION }}
+      python-version: ${{ env.PYTHON_VERSION }}
+      db-migrate-flag: 'true'
