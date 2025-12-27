@@ -10,10 +10,10 @@ jobs:
     outputs:
       POETRY_VERSION: ${{ steps.get-env-vars.outputs.POETRY_VERSION }}
       PYTHON_VERSION: ${{ steps.get-env-vars.outputs.PYTHON_VERSION }}
-#      AWS_REGION: ${{ steps.get-env.outputs.AWS_REGION }}
-#      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_TRACES_SAMPLE_RATE }}
-#      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
-#      SENTRY_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_SAMPLE_RATE }}
+      AWS_REGION: ${{ steps.get-env-vars.outputs.AWS_REGION }}
+      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_TRACES_SAMPLE_RATE }}
+      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
+      SENTRY_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_SAMPLE_RATE }}
 #      FIRST_NAME: ${{ steps.get-env.outputs.FIRST_NAME }}
 #      USERNAME: ${{ steps.get-env.outputs.USERNAME }}
 #      SERVICE_NAME: ${{ steps.get-env.outputs.SERVICE_NAME }}
