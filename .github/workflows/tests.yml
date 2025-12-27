@@ -5,102 +5,64 @@ on:
     branches-ignore: [ "main" ]
 
 jobs:
-  env-setup:
-    runs-on: ubuntu-latest
-    outputs:
-      PYTHON_VERSION: ${{ steps.get-env.outputs.PYTHON_VERSION }}
-      POETRY_VERSION: ${{ steps.get-env.outputs.POETRY_VERSION }}
-#      AWS_REGION: ${{ steps.get-env.outputs.aws_region }}
-#      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env.outputs.sentry_traces_sample_rate }}
-#      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env.outputs.sentry_profiles_sample_rate }}
-#      SENTRY_SAMPLE_RATE: ${{ steps.get-env.outputs.sentry_sample_rate }}
-#      FIRST_NAME: ${{ steps.get-env.outputs.first_name }}
-#      USERNAME: ${{ steps.get-env.outputs.username }}
-#      SERVICE_NAME: ${{ steps.get-env.outputs.service_name }}
-#      LOG_LEVEL: ${{ steps.get-env.outputs.log_level }}
-#      ENVIRONMENT: ${{ steps.get-env.outputs.environment }}
-#      APP_HOST: ${{ steps.get-env.outputs.app_host }}
-#      UVICORN_PORT: ${{ steps.get-env.outputs.uvicorn_port }}
-#      JWT_SECRET: ${{ steps.get-env.outputs.jwt_secret }}
-#      JWT_EXPIRY_SECONDS: ${{ steps.get-env.outputs.jwt_expiry_seconds }}
-#      QUEUE_PROTOCOL: ${{ steps.get-env.outputs.queue_protocol }}
-#      QUEUE_HOST: ${{ steps.get-env.outputs.queue_host }}
-#      QUEUE_PORTS: ${{ steps.get-env.outputs.queue_ports }}
-#      QUEUE_ACKS: ${{ steps.get-env.outputs.queue_acks }}
-#      QUEUE_POLL_WAIT_SECONDS: ${{ steps.get-env.outputs.queue_poll_wait_seconds }}
-#      QUEUE_TOPIC_NAME: ${{ steps.get-env.outputs.queue_topic_name }}
-#      QUEUE_GROUP_ID: ${{ steps.get-env.outputs.queue_group_id }}
-#      AUTH_SERVICE_ENDPOINT: ${{ steps.get-env.outputs.auth_service_endpoint }}
-#      USER_SERVICE_ENDPOINT: ${{ steps.get-env.outputs.user_service_endpoint }}
-#      DB_HOST: ${{ steps.get-env.outputs.db_host }}
-#      DB_PORT: ${{ steps.get-env.outputs.db_port }}
-#      DB_USERNAME: ${{ steps.get-env.outputs.db_username }}
-#      DB_PASSWORD: ${{ steps.get-env.outputs.db_password }}
-#      DB_NAME: ${{ steps.get-env.outputs.db_name }}
-#      JWT_SECRET_CONFIRM_ACCOUNT: ${{ steps.get-env.outputs.jwt_secret_confirm_account }}
-#      JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT: ${{ steps.get-env.outputs.jwt_expiry_seconds_confirm_account }}
-
-    steps:
-      - name: get environment variables
-        id: get-env
-        run: |
-          echo "PYTHON_VERSION=1.7.1" >> $GITHUB_ENV
-          echo "POETRY_VERSION=3.11.9" >> $GITHUB_ENV
-          echo "AWS_REGION=eu-west-2" >> $GITHUB_ENV
-          echo "SENTRY_TRACES_SAMPLE_RATE=1.0" >> $GITHUB_ENV
-          echo "SENTRY_PROFILES_SAMPLE_RATE=0.5" >> $GITHUB_ENV
-          echo "SENTRY_SAMPLE_RATE=50" >> $GITHUB_ENV
-          echo "FIRST_NAME=Foo" >> $GITHUB_ENV
-          echo "USERNAME=foo@example.com" >> $GITHUB_ENV
-          echo "SERVICE_NAME=user-service" >> $GITHUB_ENV
-          echo "LOG_LEVEL=DEBUG" >> $GITHUB_ENV
-          echo "ENVIRONMENT=test" >> $GITHUB_ENV
-          echo "APP_HOST=localhost" >> $GITHUB_ENV
-          echo "UVICORN_PORT=8002" >> $GITHUB_ENV
-          echo "JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" >> $GITHUB_ENV
-          echo "JWT_EXPIRY_SECONDS=3600" >> $GITHUB_ENV
-          echo "QUEUE_PROTOCOL=PLAINTEXT" >> $GITHUB_ENV
-          echo "QUEUE_HOST=localhost" >> $GITHUB_ENV
-          echo "QUEUE_PORTS=9092,9093,9094" >> $GITHUB_ENV
-          echo "QUEUE_ACKS=all" >> $GITHUB_ENV
-          echo "QUEUE_POLL_WAIT_SECONDS=1" >> $GITHUB_ENV
-          echo "QUEUE_TOPIC_NAME=email-topic" >> $GITHUB_ENV
-          echo "QUEUE_GROUP_ID=email-topic-group" >> $GITHUB_ENV
-          echo "AUTH_SERVICE_ENDPOINT=http://localhost:8001" >> $GITHUB_ENV
-          echo "USER_SERVICE_ENDPOINT=http://localhost:8002" >> $GITHUB_ENV
-          echo "DB_HOST=localhost" >> $GITHUB_ENV
-          echo "DB_PORT=5432" >> $GITHUB_ENV
-          echo "DB_USERNAME=postgres" >> $GITHUB_ENV
-          echo "DB_PASSWORD=postgres" >> $GITHUB_ENV
-          echo "DB_NAME=users" >> $GITHUB_ENV
-          echo "JWT_SECRET_CONFIRM_ACCOUNT=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC" >> $GITHUB_ENV
-          echo "JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT=3600" >> $GITHUB_ENV
-
-  check-version:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
       - name: actions checkout
         uses: actions/checkout@v4
 
+      - name: get environment variables
+        id: get-env
+        run: |
+          echo "POETRY_VERSION=1.7.1" >> $GITHUB_OUTPUT
+          echo "PYTHON_VERSION=3.11.9" >> $GITHUB_OUTPUT
+          echo "AWS_REGION=eu-west-2" >> $GITHUB_OUTPUT
+          echo "SENTRY_TRACES_SAMPLE_RATE=1.0" >> $GITHUB_OUTPUT
+          echo "SENTRY_PROFILES_SAMPLE_RATE=0.5" >> $GITHUB_OUTPUT
+          echo "SENTRY_SAMPLE_RATE=50" >> $GITHUB_OUTPUT
+          echo "FIRST_NAME=Foo" >> $GITHUB_OUTPUT
+          echo "USERNAME=foo@example.com" >> $GITHUB_OUTPUT
+          echo "SERVICE_NAME=user-service" >> $GITHUB_OUTPUT
+          echo "LOG_LEVEL=DEBUG" >> $GITHUB_OUTPUT
+          echo "ENVIRONMENT=test" >> $GITHUB_OUTPUT
+          echo "APP_HOST=localhost" >> $GITHUB_OUTPUT
+          echo "UVICORN_PORT=8002" >> $GITHUB_OUTPUT
+          echo "JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" >> $GITHUB_OUTPUT
+          echo "JWT_EXPIRY_SECONDS=3600" >> $GITHUB_OUTPUT
+          echo "QUEUE_PROTOCOL=PLAINTEXT" >> $GITHUB_OUTPUT
+          echo "QUEUE_HOST=localhost" >> $GITHUB_OUTPUT
+          echo "QUEUE_PORTS=9092,9093,9094" >> $GITHUB_OUTPUT
+          echo "QUEUE_ACKS=all" >> $GITHUB_OUTPUT
+          echo "QUEUE_POLL_WAIT_SECONDS=1" >> $GITHUB_OUTPUT
+          echo "QUEUE_TOPIC_NAME=email-topic" >> $GITHUB_OUTPUT
+          echo "QUEUE_GROUP_ID=email-topic-group" >> $GITHUB_OUTPUT
+          echo "AUTH_SERVICE_ENDPOINT=http://localhost:8001" >> $GITHUB_OUTPUT
+          echo "USER_SERVICE_ENDPOINT=http://localhost:8002" >> $GITHUB_OUTPUT
+          echo "DB_HOST=localhost" >> $GITHUB_OUTPUT
+          echo "DB_PORT=5432" >> $GITHUB_OUTPUT
+          echo "DB_USERNAME=postgres" >> $GITHUB_OUTPUT
+          echo "DB_PASSWORD=postgres" >> $GITHUB_OUTPUT
+          echo "DB_NAME=users" >> $GITHUB_OUTPUT
+          echo "JWT_SECRET_CONFIRM_ACCOUNT=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC" >> $GITHUB_OUTPUT
+          echo "JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT=3600" >> $GITHUB_OUTPUT
+
       - name: check-version
         uses: darrylmorton/ct-continuous-workflows/.github/actions/check-version@v1
         with:
-          poetry-version: ${{ env-setup.outputs.POETRY_VERSION }}
-          python-version: ${{ env-setup.outputs.PYTHON_VERSION }}
+          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
+          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
           package-manager: 'poetry'
 
-  unit-tests:
-    needs: [ check-version, env-setup ]
-    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
-    with:
-      poetry-version: ${{ env-setup.outputs.POETRY_VERSION }}
-      python-version: ${{ env-setup.outputs.PYTHON_VERSION }}
+      - name: unit-tests
+        uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
+        with:
+          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
+          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
 
-  integration-tests:
-    needs: [ check-version, env-setup ]
-    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
-    with:
-      poetry-version: ${{ env-setup.outputs.POETRY_VERSION }}
-      python-version: ${{ env-setup.outputs.PYTHON_VERSION }}
-      db-migrate-flag: 'true'
+      - name: integration-tests
+        uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
+        with:
+          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
+          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
+          db-migrate-flag: 'true'
