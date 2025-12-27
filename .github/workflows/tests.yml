@@ -5,11 +5,11 @@ on:
     branches-ignore: [ "main" ]
 
 jobs:
-  set-env:
+  env-vars:
     runs-on: ubuntu-latest
     outputs:
-      POETRY_VERSION: ${{ steps.get-env.outputs.POETRY_VERSION }}
-      PYTHON_VERSION: ${{ steps.get-env.outputs.PYTHON_VERSION }}
+      POETRY_VERSION: ${{ steps.get-env-vars.outputs.POETRY_VERSION }}
+      PYTHON_VERSION: ${{ steps.get-env-vars.outputs.PYTHON_VERSION }}
 #      AWS_REGION: ${{ steps.get-env.outputs.AWS_REGION }}
 #      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_TRACES_SAMPLE_RATE }}
 #      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: get environment variables
-        id: get-env
+        id: get-env-vars
         run: |
           echo "POETRY_VERSION=1.7.1" >> $GITHUB_OUTPUT
           echo "PYTHON_VERSION=3.11.9" >> $GITHUB_OUTPUT
@@ -91,12 +91,12 @@ jobs:
   unit-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      poetry-version: ${{ set-env.outputs.POETRY_VERSION }}
-      python-version: ${{ set-env.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ env-vars.outputs.PYTHON_VERSION }}
 
   integration-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
     with:
-      poetry-version: ${{ set-env.outputs.POETRY_VERSION }}
-      python-version: ${{ set-env.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ env-vars.outputs.PYTHON_VERSION }}
       db-migrate-flag: 'true'
