@@ -91,12 +91,12 @@ jobs:
   unit-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      poetry-version: ${{ env-vars.outputs.POETRY_VERSION }}
-      python-version: ${{ env-vars.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ outputs.env-vars.POETRY_VERSION }}
+      python-version: ${{ outputs.env-vars.PYTHON_VERSION }}
 
   integration-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
     with:
-      poetry-version: ${{ env-vars.outputs.POETRY_VERSION }}
-      python-version: ${{ env-vars.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ outputs.env-vars.POETRY_VERSION }}
+      python-version: ${{ outputs.env-vars.PYTHON_VERSION }}
       db-migrate-flag: 'true'
