@@ -86,7 +86,7 @@ jobs:
       - name: check-version
         uses: darrylmorton/ct-continuous-workflows/.github/actions/check-version@v1
         with:
-          package-manager: 'poetry-version'
+          package-manager: 'poetry'
 
   unit-tests:
     needs: [ check-version, env-vars ]
