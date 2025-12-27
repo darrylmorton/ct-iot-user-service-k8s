@@ -102,3 +102,5 @@ jobs:
       poetry-version: ${{ needs.env-vars.outputs.POETRY_VERSION }}
       python-version: ${{ needs.env-vars.outputs.PYTHON_VERSION }}
       db-migrate-flag: 'true'
+    secrets:
+      gh-token: ${{ secrets.GITHUB_TOKEN }}
