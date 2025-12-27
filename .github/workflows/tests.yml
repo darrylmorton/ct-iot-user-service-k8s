@@ -5,8 +5,40 @@ on:
     branches-ignore: [ "main" ]
 
 jobs:
-  get-env:
+  set-env:
     runs-on: ubuntu-latest
+    outputs:
+      POETRY_VERSION: ${{ steps.get-env.outputs.POETRY_VERSION }}
+      PYTHON_VERSION: ${{ steps.get-env.outputs.PYTHON_VERSION }}
+#      AWS_REGION: ${{ steps.get-env.outputs.AWS_REGION }}
+#      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_TRACES_SAMPLE_RATE }}
+#      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
+#      SENTRY_SAMPLE_RATE: ${{ steps.get-env.outputs.SENTRY_SAMPLE_RATE }}
+#      FIRST_NAME: ${{ steps.get-env.outputs.FIRST_NAME }}
+#      USERNAME: ${{ steps.get-env.outputs.USERNAME }}
+#      SERVICE_NAME: ${{ steps.get-env.outputs.SERVICE_NAME }}
+#      LOG_LEVEL: ${{ steps.get-env.outputs.LOG_LEVEL }}
+#      ENVIRONMENT: ${{ steps.get-env.outputs.ENVIRONMENT }}
+#      APP_HOST: ${{ steps.get-env.outputs.APP_HOST }}
+#      UVICORN_PORT: ${{ steps.get-env.outputs.UVICORN_PORT }}
+#      JWT_SECRET: ${{ steps.get-env.outputs.JWT_SECRET }}
+#      JWT_EXPIRY_SECONDS: ${{ steps.get-env.outputs.JWT_EXPIRY_SECONDS }}
+#      QUEUE_PROTOCOL: ${{ steps.get-env.outputs.QUEUE_PROTOCOL }}
+#      QUEUE_HOST: ${{ steps.get-env.outputs.QUEUE_HOST }}
+#      QUEUE_PORTS: ${{ steps.get-env.outputs.QUEUE_PORTS }}
+#      QUEUE_ACKS: ${{ steps.get-env.outputs.QUEUE_ACKS }}
+#      QUEUE_POLL_WAIT_SECONDS: ${{ steps.get-env.outputs.QUEUE_POLL_WAIT_SECONDS }}
+#      QUEUE_TOPIC_NAME: ${{ steps.get-env.outputs.QUEUE_TOPIC_NAME }}
+#      QUEUE_GROUP_ID: ${{ steps.get-env.outputs.QUEUE_GROUP_ID }}
+#      AUTH_SERVICE_ENDPOINT: ${{ steps.get-env.outputs.AUTH_SERVICE_ENDPOINT }}
+#      USER_SERVICE_ENDPOINT: ${{ steps.get-env.outputs.USER_SERVICE_ENDPOINT }}
+#      DB_HOST: ${{ steps.get-env.outputs.DB_HOST }}
+#      DB_PORT: ${{ steps.get-env.outputs.DB_PORT }}
+#      DB_USERNAME: ${{ steps.get-env.outputs.DB_USERNAME }}
+#      DB_PASSWORD: ${{ steps.get-env.outputs.DB_PASSWORD }}
+#      DB_NAME: ${{ steps.get-env.outputs.DB_NAME }}
+#      JWT_SECRET_CONFIRM_ACCOUNT: ${{ steps.get-env.outputs.JWT_SECRET_CONFIRM_ACCOUNT }}
+#      JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT: ${{ steps.get-env.outputs.JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT }}
 
     steps:
       - name: get environment variables
@@ -46,7 +78,7 @@ jobs:
 
   check-version:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: actions checkout
         uses: actions/checkout@v4
@@ -59,12 +91,12 @@ jobs:
   unit-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      poetry-version: ${{ get-env.outputs.POETRY_VERSION }}
-      python-version: ${{ get-env.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ set-env.outputs.POETRY_VERSION }}
+      python-version: ${{ set-env.outputs.PYTHON_VERSION }}
 
   integration-tests:
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
     with:
-      poetry-version: ${{ get-env.outputs.POETRY_VERSION }}
-      python-version: ${{ get-env.outputs.PYTHON_VERSION }}
+      poetry-version: ${{ set-env.outputs.POETRY_VERSION }}
+      python-version: ${{ set-env.outputs.PYTHON_VERSION }}
       db-migrate-flag: 'true'
