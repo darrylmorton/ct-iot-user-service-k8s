@@ -89,14 +89,16 @@ jobs:
           package-manager: 'poetry-version'
 
   unit-tests:
+    needs: [ check-version, env-vars ]
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      poetry-version: ${{ outputs.env-vars.POETRY_VERSION }}
-      python-version: ${{ outputs.env-vars.PYTHON_VERSION }}
+      poetry-version: ${{ needs.env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ needs.env-vars.outputs.PYTHON_VERSION }}
 
   integration-tests:
+    needs: [ check-version, env-vars ]
     uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
     with:
-      poetry-version: ${{ outputs.env-vars.POETRY_VERSION }}
-      python-version: ${{ outputs.env-vars.PYTHON_VERSION }}
+      poetry-version: ${{ needs.env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ needs.env-vars.outputs.PYTHON_VERSION }}
       db-migrate-flag: 'true'
