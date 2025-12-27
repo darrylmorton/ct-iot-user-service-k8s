@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
+
 if os.environ.get("ENVIRONMENT") == "test":
     load_dotenv(dotenv_path="test.env")
 else:
