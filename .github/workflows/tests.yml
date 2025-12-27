@@ -10,10 +10,10 @@ jobs:
     outputs:
       POETRY_VERSION: ${{ steps.get-env-vars.outputs.POETRY_VERSION }}
       PYTHON_VERSION: ${{ steps.get-env-vars.outputs.PYTHON_VERSION }}
-      AWS_REGION: ${{ steps.get-env-vars.outputs.AWS_REGION }}
-      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_TRACES_SAMPLE_RATE }}
-      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
-      SENTRY_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_SAMPLE_RATE }}
+#      AWS_REGION: ${{ steps.get-env-vars.outputs.AWS_REGION }}
+#      SENTRY_TRACES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_TRACES_SAMPLE_RATE }}
+#      SENTRY_PROFILES_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_PROFILES_SAMPLE_RATE }}
+#      SENTRY_SAMPLE_RATE: ${{ steps.get-env-vars.outputs.SENTRY_SAMPLE_RATE }}
 #      FIRST_NAME: ${{ steps.get-env.outputs.FIRST_NAME }}
 #      USERNAME: ${{ steps.get-env.outputs.USERNAME }}
 #      SERVICE_NAME: ${{ steps.get-env.outputs.SERVICE_NAME }}
@@ -46,35 +46,35 @@ jobs:
         run: |
           echo "POETRY_VERSION=1.7.1" >> $GITHUB_OUTPUT
           echo "PYTHON_VERSION=3.11.9" >> $GITHUB_OUTPUT
-          echo "AWS_REGION=eu-west-2" >> $GITHUB_OUTPUT
-          echo "SENTRY_TRACES_SAMPLE_RATE=1.0" >> $GITHUB_OUTPUT
-          echo "SENTRY_PROFILES_SAMPLE_RATE=0.5" >> $GITHUB_OUTPUT
-          echo "SENTRY_SAMPLE_RATE=50" >> $GITHUB_OUTPUT
-          echo "FIRST_NAME=Foo" >> $GITHUB_OUTPUT
-          echo "USERNAME=foo@example.com" >> $GITHUB_OUTPUT
-          echo "SERVICE_NAME=user-service" >> $GITHUB_OUTPUT
-          echo "LOG_LEVEL=DEBUG" >> $GITHUB_OUTPUT
-          echo "ENVIRONMENT=test" >> $GITHUB_OUTPUT
-          echo "APP_HOST=localhost" >> $GITHUB_OUTPUT
-          echo "UVICORN_PORT=8002" >> $GITHUB_OUTPUT
-          echo "JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" >> $GITHUB_OUTPUT
-          echo "JWT_EXPIRY_SECONDS=3600" >> $GITHUB_OUTPUT
-          echo "QUEUE_PROTOCOL=PLAINTEXT" >> $GITHUB_OUTPUT
-          echo "QUEUE_HOST=localhost" >> $GITHUB_OUTPUT
-          echo "QUEUE_PORTS=9092,9093,9094" >> $GITHUB_OUTPUT
-          echo "QUEUE_ACKS=all" >> $GITHUB_OUTPUT
-          echo "QUEUE_POLL_WAIT_SECONDS=1" >> $GITHUB_OUTPUT
-          echo "QUEUE_TOPIC_NAME=email-topic" >> $GITHUB_OUTPUT
-          echo "QUEUE_GROUP_ID=email-topic-group" >> $GITHUB_OUTPUT
-          echo "AUTH_SERVICE_ENDPOINT=http://localhost:8001" >> $GITHUB_OUTPUT
-          echo "USER_SERVICE_ENDPOINT=http://localhost:8002" >> $GITHUB_OUTPUT
-          echo "DB_HOST=localhost" >> $GITHUB_OUTPUT
-          echo "DB_PORT=5432" >> $GITHUB_OUTPUT
-          echo "DB_USERNAME=postgres" >> $GITHUB_OUTPUT
-          echo "DB_PASSWORD=postgres" >> $GITHUB_OUTPUT
-          echo "DB_NAME=users" >> $GITHUB_OUTPUT
-          echo "JWT_SECRET_CONFIRM_ACCOUNT=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC" >> $GITHUB_OUTPUT
-          echo "JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT=3600" >> $GITHUB_OUTPUT
+#          echo "AWS_REGION=eu-west-2" >> $GITHUB_OUTPUT
+#          echo "SENTRY_TRACES_SAMPLE_RATE=1.0" >> $GITHUB_OUTPUT
+#          echo "SENTRY_PROFILES_SAMPLE_RATE=0.5" >> $GITHUB_OUTPUT
+#          echo "SENTRY_SAMPLE_RATE=50" >> $GITHUB_OUTPUT
+#          echo "FIRST_NAME=Foo" >> $GITHUB_OUTPUT
+#          echo "USERNAME=foo@example.com" >> $GITHUB_OUTPUT
+#          echo "SERVICE_NAME=user-service" >> $GITHUB_OUTPUT
+#          echo "LOG_LEVEL=DEBUG" >> $GITHUB_OUTPUT
+#          echo "ENVIRONMENT=test" >> $GITHUB_OUTPUT
+#          echo "APP_HOST=localhost" >> $GITHUB_OUTPUT
+#          echo "UVICORN_PORT=8002" >> $GITHUB_OUTPUT
+#          echo "JWT_SECRET=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" >> $GITHUB_OUTPUT
+#          echo "JWT_EXPIRY_SECONDS=3600" >> $GITHUB_OUTPUT
+#          echo "QUEUE_PROTOCOL=PLAINTEXT" >> $GITHUB_OUTPUT
+#          echo "QUEUE_HOST=localhost" >> $GITHUB_OUTPUT
+#          echo "QUEUE_PORTS=9092,9093,9094" >> $GITHUB_OUTPUT
+#          echo "QUEUE_ACKS=all" >> $GITHUB_OUTPUT
+#          echo "QUEUE_POLL_WAIT_SECONDS=1" >> $GITHUB_OUTPUT
+#          echo "QUEUE_TOPIC_NAME=email-topic" >> $GITHUB_OUTPUT
+#          echo "QUEUE_GROUP_ID=email-topic-group" >> $GITHUB_OUTPUT
+#          echo "AUTH_SERVICE_ENDPOINT=http://localhost:8001" >> $GITHUB_OUTPUT
+#          echo "USER_SERVICE_ENDPOINT=http://localhost:8002" >> $GITHUB_OUTPUT
+#          echo "DB_HOST=localhost" >> $GITHUB_OUTPUT
+#          echo "DB_PORT=5432" >> $GITHUB_OUTPUT
+#          echo "DB_USERNAME=postgres" >> $GITHUB_OUTPUT
+#          echo "DB_PASSWORD=postgres" >> $GITHUB_OUTPUT
+#          echo "DB_NAME=users" >> $GITHUB_OUTPUT
+#          echo "JWT_SECRET_CONFIRM_ACCOUNT=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC" >> $GITHUB_OUTPUT
+#          echo "JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT=3600" >> $GITHUB_OUTPUT
 
   check-version:
     runs-on: ubuntu-latest
