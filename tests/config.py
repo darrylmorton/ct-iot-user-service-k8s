@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from utils.app_util import AppUtil
 
 
-load_dotenv(dotenv_path=".env")
+load_dotenv(dotenv_path="test.env")
 
 AWS_REGION = os.environ.get("AWS_REGION")
 USERNAME = os.environ.get("USERNAME")
