@@ -5,13 +5,10 @@ on:
     branches-ignore: [ "main" ]
 
 jobs:
-  tests:
+  get-env:
     runs-on: ubuntu-latest
 
     steps:
-      - name: actions checkout
-        uses: actions/checkout@v4
-
       - name: get environment variables
         id: get-env
         run: |
@@ -47,22 +44,27 @@ jobs:
           echo "JWT_SECRET_CONFIRM_ACCOUNT=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABC" >> $GITHUB_OUTPUT
           echo "JWT_EXPIRY_SECONDS_CONFIRM_ACCOUNT=3600" >> $GITHUB_OUTPUT
 
+  check-version:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: actions checkout
+        uses: actions/checkout@v4
+
       - name: check-version
         uses: darrylmorton/ct-continuous-workflows/.github/actions/check-version@v1
         with:
-          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
-          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
-          package-manager: 'poetry'
+          package-manager: 'poetry-version'
 
-      - name: unit-tests
-        uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
-        with:
-          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
-          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
+  unit-tests:
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
+    with:
+      poetry-version: ${{ get-env.outputs.POETRY_VERSION }}
+      python-version: ${{ get-env.outputs.PYTHON_VERSION }}
 
-      - name: integration-tests
-        uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
-        with:
-          poetry-version: ${{ steps.get-env.outputs.POETRY_VERSION }}
-          python-version: ${{ steps.get-env.outputs.PYTHON_VERSION }}
-          db-migrate-flag: 'true'
+  integration-tests:
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
+    with:
+      poetry-version: ${{ get-env.outputs.POETRY_VERSION }}
+      python-version: ${{ get-env.outputs.PYTHON_VERSION }}
+      db-migrate-flag: 'true'
