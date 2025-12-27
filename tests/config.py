@@ -5,13 +5,18 @@ from dotenv import load_dotenv
 from utils.app_util import AppUtil
 
 
-load_dotenv(dotenv_path=".test.env")
+load_dotenv(dotenv_path="test.env")
 
 AWS_REGION = os.environ.get("AWS_REGION")
 USERNAME = os.environ.get("USERNAME")
 FIRST_NAME = os.environ.get("FIRST_NAME")
 
-SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT") or "local"
+SENTRY_ENVIRONMENT = os.environ.get("SENTRY_ENVIRONMENT") or "local"
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+SENTRY_TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE"))
+SENTRY_PROFILES_SAMPLE_RATE = float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE"))
+SENTRY_SAMPLE_RATE = int(os.environ.get("SENTRY_SAMPLE_RATE"))
+
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
 LOG_LEVEL = os.environ.get("LOG_LEVEL")
 SERVICE_NAME = os.environ.get("SERVICE_NAME")

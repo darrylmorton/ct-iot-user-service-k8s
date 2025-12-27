@@ -1,14 +1,48 @@
-name: Build, Lint, Tests
+name: Build, Lint and Test
 
 on:
   push:
-    branches-ignore: ["main"]
+    branches-ignore: [ "main" ]
 
 jobs:
-  call-workflow:
-    uses: ./.github/workflows/action.yml
+  env-vars:
+    runs-on: ubuntu-latest
+    outputs:
+      POETRY_VERSION: ${{ steps.get-env-vars.outputs.POETRY_VERSION }}
+      PYTHON_VERSION: ${{ steps.get-env-vars.outputs.PYTHON_VERSION }}
+
+    steps:
+      - name: get environment variables
+        id: get-env-vars
+        run: |
+          echo "POETRY_VERSION=1.7.1" >> $GITHUB_OUTPUT
+          echo "PYTHON_VERSION=3.11.9" >> $GITHUB_OUTPUT
+
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: actions checkout
+        uses: actions/checkout@v4
+
+      - name: check-version
+        uses: darrylmorton/ct-continuous-workflows/.github/actions/check-version@v1
+        with:
+          package-manager: 'poetry'
+
+  unit-tests:
+    needs: [ check-version, env-vars ]
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-unit.yml@v1
     with:
-      test-unit: true
-      test-integration: true
+      poetry-version: ${{ needs.env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ needs.env-vars.outputs.PYTHON_VERSION }}
+
+  integration-tests:
+    needs: [ check-version, env-vars ]
+    uses: darrylmorton/ct-continuous-workflows/.github/workflows/python-test-integration.yml@v1
+    with:
+      poetry-version: ${{ needs.env-vars.outputs.POETRY_VERSION }}
+      python-version: ${{ needs.env-vars.outputs.PYTHON_VERSION }}
+      db-migrate-flag: 'true'
     secrets:
-      repo-token: ${{ secrets.GITHUB_TOKEN }}
+      gh-token: ${{ secrets.GITHUB_TOKEN }}
