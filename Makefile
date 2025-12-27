@@ -43,13 +43,13 @@ migrations-downgrade-base: fmt
 .PHONY: migrations-downgrade-base
 
 test-unit: fmt
-	poetry run pytest tests/unit/
+	ENVIRONMENT=test poetry run pytest tests/unit/
 .PHONY: test-unit
 
 test-integration: fmt
-	poetry run pytest tests/integration/
+	ENVIRONMENT=test poetry run pytest tests/integration/
 .PHONY: test-integration
 
 test: fmt
-	poetry run pytest tests/
+	ENVIRONMENT=test poetry run pytest tests/
 .PHONY: test

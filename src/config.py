@@ -2,7 +2,10 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.environ.get("ENVIRONMENT") == "test":
+    load_dotenv(dotenv_path="test.env")
+else:
+    load_dotenv(dotenv_path=".env")
 
 AWS_REGION = os.environ.get("AWS_REGION")
 # SES_SOURCE = os.environ.get("SES_SOURCE")
